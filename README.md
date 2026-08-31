@@ -45,10 +45,21 @@ cursados) más la consulta en prosa:
 
 ### Qué cuenta como respuesta correcta
 
-Se reportan **dos métricas separadas**. La decisión tiene tres valores, así que se acierta
-un tercio por azar; la regla no se adivina entre unos quince identificadores posibles. La
-brecha entre ambas mide cuánto del acierto es entendimiento y cuánto es suerte. La métrica
-principal es el **acierto conjunto**: ambos campos correctos.
+Se reportan **dos métricas separadas**, cada una contra su propio piso trivial — el que
+consigue quien responde siempre lo mismo sin leer nada:
+
+| Métrica | Constante trivial | Piso |
+|---|---|---|
+| decisión | siempre `no` | 21/60 = **35,0 %** |
+| regla | siempre `R-SIN-IMPEDIMENTO` | 18/60 = **30,0 %** |
+| ambas | siempre `sí` + `R-SIN-IMPEDIMENTO` | 18/60 = **30,0 %** |
+
+El piso de la regla es alto porque el espacio de identificadores está torcido: los tres más
+frecuentes cubren el 65 % de las respuestas, y todo caso cuya decisión es `sí` comparte
+forzosamente la misma regla. Es una consecuencia de balancear la decisión, y se declara en
+vez de disimularse.
+
+La métrica principal es el **acierto conjunto**: ambos campos correctos.
 
 ---
 
@@ -67,7 +78,11 @@ principal es el **acierto conjunto**: ambos campos correctos.
 | Phi-3.5-mini | 3,8 B | zero-shot, prosa | 43,3 % | 6,7 % | 5,0 % |
 | | | zero-shot, reducida | 35,0 % | 5,0 % | 5,0 % |
 | | | few-shot | 35,0 % | 23,3 % | 16,7 % |
-| **Constante trivial** | — | (sin leer nada) | **35,0 %** | — | — |
+| **Constante trivial** | — | (sin leer nada) | **35,0 %** | **30,0 %** | **30,0 %** |
+
+**Seis de las nueve condiciones quedan por debajo de la constante trivial** en la métrica
+conjunta. Solo la superan Granite en dos de sus tres condiciones y Qwen con few-shot, y el
+mejor margen es de 8,3 puntos.
 
 ### Cada modelo colapsa en una categoría distinta
 
@@ -89,7 +104,7 @@ expediente: cada una responde la categoría que trae de fábrica.
 
 | | Mecanismo | Evidencia |
 |---|---|---|
-| **E1** | No representa *"cursándola ahora"* como estado propio | sobre 18 casos con prerrequisito en curso, el mejor modelo acierta 12; la categoría `condicional` se subproduce (Qwen 0–5 de 21) o se sobreproduce (Phi hasta 31) |
+| **E1** | No representa *"cursándola ahora"* como estado propio | de las 21 `condicional` esperadas, Qwen produce 3 en todo el set y Phi produce 31: ninguno la trata como categoría con contenido. Los 18 casos con prerrequisito en curso se parten 12 `condicional` / 6 `no` solo según el período; el mejor modelo acierta 12 de esos 18, que es exactamente lo que da responder `condicional` a los 18 sin mirar el período |
 | **E2** | Depende de que la pregunta le apunte al dato | al reducir la consulta a código y período, con el historial completo aún en el prompt, el acierto cae en los tres: −1,7 / −8,3 / −13,3 puntos |
 | **E3** | No copia un identificador que tiene delante | Phi degrada `R-CREDITOS-MINIMOS` en `R-CREDITOS-MINIMISMU`, `-MINIMISIMO`, `-MINIMISMUDA`. 35 instancias en Phi, 0 en Qwen, 4 en Granite |
 | **E4** | Se contradice dentro de su propia respuesta | responde `sí` citando una regla que bloquea: hasta 28 de 60 en Qwen con la pregunta reducida, usando 4 identificadores distintos para los 60 casos |
@@ -172,6 +187,23 @@ cadena y reglas simultáneas.
 - **Un solo dominio.** Una malla, una carrera. No se afirma nada sobre generalización.
 - **60 casos.** Suficiente para separar los efectos observados del baseline trivial, no para
   intervalos estrechos.
+- **El espacio de reglas está torcido.** `R-SIN-IMPEDIMENTO` cubre 18 de los 60 casos y los
+  tres identificadores más frecuentes cubren el 65 %; `R-CREDITOS-MINIMOS`, `R-TOPE-MAX` y
+  `R-ESPECIAL` tienen 3 casos cada uno. Cualquier acierto por regla sobre esas colas tiene un
+  intervalo muy ancho. Balancear sobre la regla, y no sobre la decisión, es trabajo del D2.
+- **Los ejemplos del few-shot no son del todo ajenos al test set.** El tercer ejemplo usa
+  525223 con `R-DEPENDE-APROBACION`, y 2 de los 60 casos comparten ese ramo y esa regla. Son
+  3,3 % del set: no explica las mejoras de regla de Phi (+16,6) ni de Qwen (+23,4), pero
+  **cabe entera la de Granite (+1,6 puntos, un solo caso)**, que por eso no debe leerse como
+  evidencia.
+- **El few-shot no ejemplifica 5 de las 8 reglas.** No hay ejemplo de `R-EXCEPCION-PRERREQ`,
+  `R-CREDITOS-MINIMOS`, `R-TOPE-MAX` ni `R-ESPECIAL-*`, que juntas son 18 de los 60 casos.
+  Que los ejemplos no arreglen el razonamiento admite una explicación alternativa que estos
+  datos no descartan.
+- **El prompt ofrece un identificador que nunca es correcto.** La línea de prioridad menciona
+  `R-TOPE-MIN`, que no está entre los valores válidos enumerados y que el verificador nunca
+  emite: en esa rama devuelve `R-EXCEPCION-PRERREQ`. Se documenta en vez de parcharse, porque
+  el código tiene que seguir siendo exactamente el que produjo los números reportados.
 
 ---
 

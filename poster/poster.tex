@@ -10,10 +10,13 @@
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage[spanish,es-noquoting]{babel}
+% babel-spanish vuelve activa la comilla doble: "c se convierte en ç y rompe
+% el JSON de ejemplo. Esto la desactiva.
+\shorthandoff{"}
 \usepackage{libertine}
 \usepackage[scaled=0.80]{beramono}
 \usepackage{microtype}
-\usepackage[margin=8mm]{geometry}
+\usepackage[margin=7mm]{geometry}
 \usepackage{multicol}
 \usepackage{xcolor}
 \usepackage{booktabs}
@@ -31,13 +34,14 @@
 
 \color{tinta}
 \pagestyle{empty}
-\setlength{\columnsep}{6mm}
+\setlength{\columnsep}{5mm}
 \setlength{\parindent}{0pt}
-\setlength{\parskip}{1.3mm}
-\renewcommand{\arraystretch}{1.05}
+\setlength{\parskip}{0.85mm}
+\renewcommand{\arraystretch}{0.98}
 
-\newcommand{\seccion}[1]{\vspace{1.8mm}{\bfseries\footnotesize\color{acento}\MakeUppercase{#1}}\par\vspace{0.4mm}}
-\newcommand{\sub}[1]{{\bfseries #1}\par\vspace{-1.3mm}}
+\newcommand{\seccion}[1]{\vspace{1.0mm}{\bfseries\footnotesize\color{acento}\MakeUppercase{#1}}\par\vspace{0.4mm}\nopagebreak}
+\newcommand{\sub}[1]{{\bfseries #1}\par\vspace{-1.3mm}\nopagebreak}
+\newcommand{\q}{\textquotedbl}   % comilla recta, inmune a los shorthands de babel
 \newcommand{\cod}[1]{{\ttfamily\small #1}}
 \newcommand{\destaque}[1]{%
   \begingroup\setlength{\fboxsep}{2.2mm}%
@@ -71,19 +75,30 @@ la regla que sostiene la decisión}.
 ``oye, me falta Cálculo 2 pero la estoy tomando ahora, ¿podría inscribir
 ecuaciones el que viene?''\par\vspace{1.2mm}
 \normalfont\ttfamily\scriptsize
-\{"decision":"condicional", "regla":"R-DEPENDE-APROBACION"\}}
+\{\q decision\q:\q condicional\q, \q regla\q:\q R-DEPENDE-APROBACION\q\}}
 
 \vspace{0.5mm}
-Ecuaciones Diferenciales exige Álgebra II, aprobada, y Cálculo II, \emph{en
-curso}. Un ramo inscrito no está aprobado hoy pero lo estará el próximo
-semestre. Si preguntara por este semestre la respuesta sería \cod{no}: mismo
-expediente, respuesta distinta según el período.
+Ecuaciones Diferenciales exige Cálculo II, \emph{en curso}: hoy no está
+aprobada, el próximo semestre sí. Por este semestre sería \cod{no} --- mismo
+expediente, distinto período.
 
 \vspace{0.5mm}
 \sub{Qué cuenta como correcto}
-Coincidencia exacta de los dos campos contra un verificador determinista. Se
-reportan por separado: la decisión se acierta un tercio por azar, la regla no
-se adivina entre quince posibles.
+Coincidencia exacta de los dos campos contra un verificador determinista, y se
+reportan por separado.
+
+\vspace{0.5mm}
+\sub{La decisión}
+\cod{sí} puede inscribir · \cod{no} algo lo impide y no se resuelve solo ·
+\cod{condicional} puede, sujeto a aprobar lo que cursa ahora \emph{o} a que
+proceda la excepción por carga bajo el mínimo.
+
+\vspace{0.5mm}
+\sub{La regla}
+El código de la asignatura que falta (\cod{527150}) o el artículo que decide:
+\cod{R-DEPENDE-APROBACION}, \cod{R-EXCEPCION-PRERREQ},
+\cod{R-CREDITOS-MINIMOS}, \cod{R-TOPE-MAX}, \cod{R-ESPECIAL-*},
+\cod{R-SIN-IMPEDIMENTO}. Quince en los 60 casos: 8 códigos, 7 artículos.
 
 \seccion{Dominio y datos}
 
@@ -93,9 +108,8 @@ prerrequisitos de hasta \textbf{6} niveles, \textbf{14} ramos con umbral de
 créditos aprobados y 4 reglas globales.
 
 \vspace{0.5mm}
-Auditada antes de usarse: sin ciclos, sin prerrequisitos hacia semestres
-posteriores, créditos consistentes. La auditoría detectó un umbral inalcanzable
-que se corrigió contra el portal.
+Auditada antes de usarse: sin ciclos, créditos consistentes, un umbral
+inalcanzable detectado y corregido contra el portal.
 
 \seccion{Cómo se mide}
 
@@ -106,8 +120,7 @@ constante trivial rinde 35{,}0\,\%}.
 \vspace{0.5mm}
 \sub{Generación hacia atrás}
 Se elige primero qué regla debe decidir y se construye el historial que la
-produce. Cada caso se descarta si el verificador no coincide con lo que su
-constructor declaró.
+produce. El caso se descarta si el verificador no confirma lo declarado.
 
 \vspace{0.5mm}
 \sub{Control de sesgo}
@@ -129,7 +142,7 @@ Predicciones en zero-shot con prosa, sobre 60 casos:
 \vspace{1mm}
 \begin{tikzpicture}[x=1mm,y=1mm]
   \def\H{5.2}
-  \def\G{7.4}
+  \def\G{10.5}  % 5.2 barra + 2.2 + 2.5 etiqueta = 9.9 minimo
   % escala: 60 casos = 62 mm
   \def\U{1.0333}
 
@@ -189,13 +202,19 @@ Phi 3{,}8B & zero, prosa & 43{,}3 & 6{,}7 & 5{,}0 \\
            & few-shot & 35{,}0 & 23{,}3 & 16{,}7 \\
 \midrule
 \rowcolor{fondo}
-\multicolumn{2}{@{}l}{\itshape Constante trivial} & \itshape 35{,}0 & --- & --- \\
+\multicolumn{2}{@{}l}{\itshape Constante trivial} & \itshape 35{,}0 & \itshape 30{,}0 & \itshape 30{,}0 \\
 \bottomrule
 \end{tabular}}
 
 \vspace{0.8mm}
-{\scriptsize\color{gris}Porcentajes sobre 60 casos. Generación determinista;
-la corrida se reprodujo idéntica al repetirla.}
+{\scriptsize\color{gris}Porcentajes sobre 60 casos; generación determinista,
+reproducida idéntica al repetirla. La constante trivial responde siempre lo
+mismo sin leer nada: \cod{no} para la decisión, \cod{sí} con
+\cod{R-SIN-IMPEDIMENTO} para el par.}
+
+\vspace{0.8mm}
+\textbf{Seis de las nueve condiciones quedan por debajo de esa constante} en la
+métrica conjunta. La mejor le gana por 8{,}3 puntos.
 
 \seccion{Factibilidad de ejecución}
 
@@ -218,16 +237,18 @@ El formato casi nunca falló: lo que falló, falló razonando.
 \seccion{Diagnóstico de la falla}
 
 \sub{E1 · No representa ``cursándola ahora''}
-Sobre los 18 casos con un prerrequisito en curso, el mejor modelo acierta
-12. La categoría \cod{condicional} se subproduce hasta desaparecer (Qwen: 0--5
-de 21 esperadas) o se sobreproduce (Phi: hasta 31).
+De las 21 \cod{condicional} esperadas, Qwen produce 3 en todo el set y Phi
+produce 31: ninguno la trata como una categoría con contenido. Los 18 casos con
+un prerrequisito en curso se parten 12 \cod{condicional} / 6 \cod{no} solo
+según el período preguntado; el mejor modelo acierta 12 de esos 18 ---
+exactamente lo que da responder \cod{condicional} a los 18 sin mirar el
+período.
 
 \vspace{0.6mm}
 \sub{E2 · Depende de que la pregunta le apunte}
 Al reducir la consulta a código y período --- el historial completo sigue en el
 prompt --- el acierto \textbf{cae en los tres modelos}: $-1{,}7$, $-8{,}3$ y
-$-13{,}3$ puntos. No pueden localizar el dato pertinente entre 40 líneas de
-historial si nadie se lo señala.
+$-13{,}3$ puntos. No localizan el dato si nadie se lo señala.
 
 \vspace{0.6mm}
 \sub{E3 · No copia un identificador que tiene delante}
@@ -235,9 +256,7 @@ Phi-3.5-mini degrada la cadena \cod{R-CREDITOS-MINIMOS}, escrita literalmente
 en su prompt, en formas inexistentes:
 
 \vspace{-1mm}
-{\ttfamily\scriptsize
-R-CREDITOS-MINIMISMU\\
-R-CREDITOS-MINIMISIMO\\
+{\ttfamily\scriptsize R-CREDITOS-MINIMISMU, R-CREDITOS-MINIMISIMO,
 R-CREDITOS-MINIMISMUDA}
 
 \vspace{0.6mm}
@@ -248,8 +267,7 @@ Granite.}
 \vspace{0.6mm}
 \sub{E4 · Se contradice dentro de su propia respuesta}
 Responde \cod{sí} citando una regla que bloquea: hasta \textbf{28 de 60} en
-Qwen con la pregunta reducida, donde usó 4 identificadores distintos para los
-60 casos.
+Qwen con la pregunta reducida, usando 4 identificadores para los 60 casos.
 
 \vspace{0.8mm}
 \destaque{\footnotesize
@@ -257,7 +275,7 @@ Qwen con la pregunta reducida, donde usó 4 identificadores distintos para los
 El few-shot elimina las contradicciones (Qwen y Granite a 0), casi elimina las
 alucinaciones (Phi de 35 a 4) y sube el acierto de regla en los tres
 ($+16{,}6$, $+23{,}4$, $+1{,}6$ puntos). \textbf{La decisión no mejora en
-ninguno.} Eso delimita con evidencia qué le toca al D2 y qué queda para el D3.}
+ninguno.}}
 
 \seccion{Modelos candidatos}
 
@@ -276,15 +294,13 @@ Phi-3.5-mini-instruct \textcolor{gris}{Microsoft} & \textbf{3{,}8\,B} & prueba d
 \textbf{Sobre el candidato bajo el techo.} Propusimos Phi-3.5-mini, con menos
 de la mitad de los parámetros permitidos, bajo la hipótesis de que una salida
 de veinte tokens no necesita capacidad sobrante. \textbf{La medición la
-refuta:} es el peor de los tres y el único que corrompe identificadores. A
-cambio es \textbf{3$\times$ más rápido} que Granite. Lo reportamos como
-resultado, no como elección.
+refuta:} es el peor y el único que corrompe identificadores, aunque
+\textbf{3$\times$ más rápido}. Lo reportamos como resultado, no como elección.
 
 \seccion{Cómo crece la tarea}
 
-La dificultad es un eje medible --- profundidad de la cadena, ambigüedad de la
-referencia, distractores y reglas simultáneas --- así que se endurece sin
-cambiar de tema.
+La dificultad es un eje medible (profundidad, ambigüedad, distractores, reglas
+simultáneas), así que se endurece sin cambiar de tema.
 
 \vspace{0.4mm}
 {\scriptsize

@@ -18,3 +18,7 @@ poster/*.aux
 poster/*.log
 poster/*.out
 poster/*.synctex.gz
+
+# Respaldos locales de edicion
+*.bak
+*.bak2
