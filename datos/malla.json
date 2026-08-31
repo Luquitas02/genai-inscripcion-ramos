@@ -1,0 +1,750 @@
+{
+  "meta": {
+    "carrera": "Ingeniería Civil Industrial",
+    "institucion": "Universidad de Concepción",
+    "fuente": "Vista de avance curricular del portal UdeC + prerrequisitos dictados por el equipo",
+    "fecha_congelado": "2026-08-30",
+    "nota": "Malla anterior a la reforma reciente. Se congela esta versión para los cuatro entregables.",
+    "total_asignaturas": 61,
+    "creditos_totales": 227,
+    "correcciones": [
+      "2026-08-30: umbral de Planificación y Control de Producción corregido de 150 a 140 créditos, confirmado por el equipo contra el portal."
+    ]
+  },
+  "reglas_globales": {
+    "R-TOPE-MAX": {
+      "descripcion": "Máximo de créditos inscribibles en un semestre",
+      "valor": 24
+    },
+    "R-TOPE-MIN": {
+      "descripcion": "Mínimo de créditos inscribibles en un semestre",
+      "valor": 8
+    },
+    "R-PRACTICAS-NO-SUMAN": {
+      "descripcion": "Los créditos de las prácticas no cuentan en la suma de créditos inscritos del semestre",
+      "codigos": [
+        "580490",
+        "580590"
+      ],
+      "aclaracion": "Los creditos de practica NO cuentan para el tope de 24 creditos inscritos en el semestre, pero SI cuentan como creditos aprobados acumulados para los umbrales de tipo creditos_minimos. Decision declarada por el equipo el 2026-08-30."
+    },
+    "R-EXCEPCION-PRERREQ": {
+      "descripcion": "Un estudiante con menos de 8 créditos inscritos puede solicitar excepción de prerrequisitos por reglamento. La respuesta en ese caso es condicional, no afirmativa.",
+      "umbral_creditos_inscritos": 8
+    }
+  },
+  "creditos_acumulados_por_semestre": {
+    "1": 22,
+    "2": 42,
+    "3": 65,
+    "4": 87,
+    "5": 107,
+    "6": 126,
+    "7": 147,
+    "8": 167,
+    "9": 189,
+    "10": 207,
+    "11": 227
+  },
+  "asignaturas": [
+    {
+      "codigo": "510140",
+      "nombre": "Física I",
+      "creditos": 4,
+      "semestre": 1,
+      "prerrequisitos": [],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "525140",
+      "nombre": "Álgebra I",
+      "creditos": 5,
+      "semestre": 1,
+      "prerrequisitos": [],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "527140",
+      "nombre": "Cálculo I",
+      "creditos": 5,
+      "semestre": 1,
+      "prerrequisitos": [],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "531140",
+      "nombre": "Química General I",
+      "creditos": 5,
+      "semestre": 1,
+      "prerrequisitos": [],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "580120",
+      "nombre": "Desarrollo de Habilidades de Gestión",
+      "creditos": 3,
+      "semestre": 1,
+      "prerrequisitos": [],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "510150",
+      "nombre": "Física II",
+      "creditos": 4,
+      "semestre": 2,
+      "prerrequisitos": [
+        "510140"
+      ],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "525150",
+      "nombre": "Álgebra II",
+      "creditos": 5,
+      "semestre": 2,
+      "prerrequisitos": [
+        "525140"
+      ],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "527150",
+      "nombre": "Cálculo II",
+      "creditos": 5,
+      "semestre": 2,
+      "prerrequisitos": [
+        "527140"
+      ],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "531150",
+      "nombre": "Química General II",
+      "creditos": 4,
+      "semestre": 2,
+      "prerrequisitos": [
+        "531140"
+      ],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "500151",
+      "nombre": "Introducción a la Innovación en Ingeniería",
+      "creditos": 2,
+      "semestre": 2,
+      "prerrequisitos": [
+        "580120"
+      ],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "521227",
+      "nombre": "Cálculo III",
+      "creditos": 5,
+      "semestre": 3,
+      "prerrequisitos": [
+        "527150",
+        "525150"
+      ],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "525223",
+      "nombre": "Ecuaciones Diferenciales",
+      "creditos": 4,
+      "semestre": 3,
+      "prerrequisitos": [
+        "525150",
+        "527150"
+      ],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "503203",
+      "nombre": "Programación",
+      "creditos": 3,
+      "semestre": 3,
+      "prerrequisitos": [
+        "525140"
+      ],
+      "creditos_minimos": 37,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "523219",
+      "nombre": "Estadística",
+      "creditos": 4,
+      "semestre": 3,
+      "prerrequisitos": [
+        "527150",
+        "525140"
+      ],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "890050",
+      "nombre": "Inglés Comunicativo Nivel Básico I",
+      "creditos": 5,
+      "semestre": 3,
+      "prerrequisitos": [],
+      "creditos_minimos": null,
+      "requisitos_especiales": [
+        "primer_anio_aprobado"
+      ]
+    },
+    {
+      "codigo": "580201",
+      "nombre": "Liderazgo y Trabajo en Equipo",
+      "creditos": 2,
+      "semestre": 3,
+      "prerrequisitos": [
+        "580120"
+      ],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "523325",
+      "nombre": "Inferencia Estadística y Muestreo",
+      "creditos": 4,
+      "semestre": 4,
+      "prerrequisitos": [
+        "523219"
+      ],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "521230",
+      "nombre": "Cálculo Numérico",
+      "creditos": 4,
+      "semestre": 4,
+      "prerrequisitos": [
+        "521227",
+        "503203"
+      ],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "541271",
+      "nombre": "Mecánica",
+      "creditos": 3,
+      "semestre": 4,
+      "prerrequisitos": [
+        "521227",
+        "510150"
+      ],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "541203",
+      "nombre": "Termodinámica",
+      "creditos": 4,
+      "semestre": 4,
+      "prerrequisitos": [
+        "510150"
+      ],
+      "creditos_minimos": 37,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "580211",
+      "nombre": "Modelación de Sistemas",
+      "creditos": 2,
+      "semestre": 4,
+      "prerrequisitos": [],
+      "creditos_minimos": 37,
+      "requisitos_especiales": [
+        "primer_semestre_aprobado"
+      ]
+    },
+    {
+      "codigo": "890051",
+      "nombre": "Inglés Comunicativo Nivel Básico II",
+      "creditos": 5,
+      "semestre": 4,
+      "prerrequisitos": [
+        "890050"
+      ],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "541340",
+      "nombre": "Mecánica de Fluidos",
+      "creditos": 4,
+      "semestre": 5,
+      "prerrequisitos": [
+        "541271",
+        "541203"
+      ],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "543355",
+      "nombre": "Máquinas Eléctricas",
+      "creditos": 4,
+      "semestre": 5,
+      "prerrequisitos": [
+        "525223",
+        "510150"
+      ],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "580310",
+      "nombre": "Microeconomía",
+      "creditos": 4,
+      "semestre": 5,
+      "prerrequisitos": [
+        "523219"
+      ],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "580311",
+      "nombre": "Análisis Estadístico Multivariado",
+      "creditos": 3,
+      "semestre": 5,
+      "prerrequisitos": [
+        "523325"
+      ],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "580315",
+      "nombre": "Optimización I",
+      "creditos": 3,
+      "semestre": 5,
+      "prerrequisitos": [
+        "503203",
+        "521227"
+      ],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "580490",
+      "nombre": "Práctica Laboral",
+      "creditos": 2,
+      "semestre": 5,
+      "prerrequisitos": [],
+      "creditos_minimos": null,
+      "requisitos_especiales": [
+        "segundo_anio_aprobado"
+      ],
+      "no_suma_creditos": true
+    },
+    {
+      "codigo": "542355",
+      "nombre": "Transferencia de Calor",
+      "creditos": 4,
+      "semestre": 6,
+      "prerrequisitos": [
+        "541340",
+        "521230"
+      ],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "580321",
+      "nombre": "Administración",
+      "creditos": 3,
+      "semestre": 6,
+      "prerrequisitos": [
+        "580211"
+      ],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "580323",
+      "nombre": "Macroeconomía",
+      "creditos": 3,
+      "semestre": 6,
+      "prerrequisitos": [
+        "580310"
+      ],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "580327",
+      "nombre": "Simulación",
+      "creditos": 3,
+      "semestre": 6,
+      "prerrequisitos": [
+        "580315",
+        "580311"
+      ],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "580325",
+      "nombre": "Optimización II",
+      "creditos": 3,
+      "semestre": 6,
+      "prerrequisitos": [
+        "580315"
+      ],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "541380",
+      "nombre": "Dibujo Industrial",
+      "creditos": 3,
+      "semestre": 6,
+      "prerrequisitos": [],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "540451",
+      "nombre": "Procesos Industriales",
+      "creditos": 3,
+      "semestre": 7,
+      "prerrequisitos": [
+        "542355"
+      ],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "580301",
+      "nombre": "Innovación",
+      "creditos": 3,
+      "semestre": 7,
+      "prerrequisitos": [],
+      "creditos_minimos": 100,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "580413",
+      "nombre": "Marketing",
+      "creditos": 3,
+      "semestre": 7,
+      "prerrequisitos": [
+        "580321"
+      ],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "580414",
+      "nombre": "Contabilidad General y de Costos",
+      "creditos": 3,
+      "semestre": 7,
+      "prerrequisitos": [
+        "580321"
+      ],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "580415",
+      "nombre": "Gestión Estratégica y Control de Gestión",
+      "creditos": 4,
+      "semestre": 7,
+      "prerrequisitos": [
+        "580321"
+      ],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "554150",
+      "nombre": "Introducción a la Sustentabilidad en Ingeniería",
+      "creditos": 3,
+      "semestre": 7,
+      "prerrequisitos": [],
+      "creditos_minimos": 110,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "201",
+      "nombre": "Complementaria 1",
+      "creditos": 2,
+      "semestre": 7,
+      "prerrequisitos": [],
+      "creditos_minimos": null,
+      "requisitos_especiales": [
+        "segundo_anio_aprobado"
+      ]
+    },
+    {
+      "codigo": "580421",
+      "nombre": "Planificación y Control de Producción",
+      "creditos": 4,
+      "semestre": 8,
+      "prerrequisitos": [
+        "580327"
+      ],
+      "creditos_minimos": 140,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "580425",
+      "nombre": "Ingeniería Económica",
+      "creditos": 3,
+      "semestre": 8,
+      "prerrequisitos": [
+        "580414"
+      ],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "580429",
+      "nombre": "Finanzas",
+      "creditos": 4,
+      "semestre": 8,
+      "prerrequisitos": [
+        "580414"
+      ],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "580423",
+      "nombre": "Gestión y Control de la Calidad",
+      "creditos": 3,
+      "semestre": 8,
+      "prerrequisitos": [
+        "580311"
+      ],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "503700",
+      "nombre": "Tecnologías de la Información",
+      "creditos": 4,
+      "semestre": 8,
+      "prerrequisitos": [
+        "580211"
+      ],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "202",
+      "nombre": "Complementaria 2",
+      "creditos": 2,
+      "semestre": 8,
+      "prerrequisitos": [],
+      "creditos_minimos": null,
+      "requisitos_especiales": [
+        "segundo_anio_aprobado"
+      ]
+    },
+    {
+      "codigo": "580512",
+      "nombre": "Diseño de Sistemas de Producción",
+      "creditos": 3,
+      "semestre": 9,
+      "prerrequisitos": [
+        "580315"
+      ],
+      "creditos_minimos": 150,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "580513",
+      "nombre": "Evaluación de Proyectos",
+      "creditos": 3,
+      "semestre": 9,
+      "prerrequisitos": [
+        "580425"
+      ],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "580514",
+      "nombre": "Gestión de Personas y Comportamiento Organizacional",
+      "creditos": 3,
+      "semestre": 9,
+      "prerrequisitos": [
+        "580321"
+      ],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "580590",
+      "nombre": "Práctica Profesional",
+      "creditos": 4,
+      "semestre": 9,
+      "prerrequisitos": [],
+      "creditos_minimos": null,
+      "requisitos_especiales": [
+        "cuarto_anio_aprobado"
+      ],
+      "no_suma_creditos": true
+    },
+    {
+      "codigo": "101",
+      "nombre": "Electiva 1",
+      "creditos": 3,
+      "semestre": 9,
+      "prerrequisitos": [],
+      "creditos_minimos": 140,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "102",
+      "nombre": "Electiva 2",
+      "creditos": 3,
+      "semestre": 9,
+      "prerrequisitos": [],
+      "creditos_minimos": 140,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "103",
+      "nombre": "Electiva 3",
+      "creditos": 3,
+      "semestre": 9,
+      "prerrequisitos": [],
+      "creditos_minimos": 140,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "580525",
+      "nombre": "Dirección y Control de Proyectos",
+      "creditos": 3,
+      "semestre": 10,
+      "prerrequisitos": [
+        "580513"
+      ],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "580523",
+      "nombre": "Taller de Emprendimiento",
+      "creditos": 3,
+      "semestre": 10,
+      "prerrequisitos": [
+        "580513"
+      ],
+      "creditos_minimos": null,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "580521",
+      "nombre": "Logística",
+      "creditos": 3,
+      "semestre": 10,
+      "prerrequisitos": [
+        "580327"
+      ],
+      "creditos_minimos": 150,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "104",
+      "nombre": "Electiva 4",
+      "creditos": 3,
+      "semestre": 10,
+      "prerrequisitos": [],
+      "creditos_minimos": 140,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "105",
+      "nombre": "Electiva 5",
+      "creditos": 3,
+      "semestre": 10,
+      "prerrequisitos": [],
+      "creditos_minimos": 140,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "106",
+      "nombre": "Electiva 6",
+      "creditos": 3,
+      "semestre": 10,
+      "prerrequisitos": [],
+      "creditos_minimos": 140,
+      "requisitos_especiales": []
+    },
+    {
+      "codigo": "580695",
+      "nombre": "Memoria de Título",
+      "creditos": 20,
+      "semestre": 11,
+      "prerrequisitos": [],
+      "creditos_minimos": null,
+      "requisitos_especiales": [
+        "todo_lo_anterior_aprobado"
+      ]
+    }
+  ],
+  "requisitos_especiales_def": {
+    "primer_semestre_aprobado": {
+      "descripcion": "Todas las asignaturas del semestre 1 aprobadas",
+      "semestres": [
+        1
+      ]
+    },
+    "primer_anio_aprobado": {
+      "descripcion": "Todas las asignaturas de los semestres 1 y 2 aprobadas",
+      "semestres": [
+        1,
+        2
+      ]
+    },
+    "segundo_anio_aprobado": {
+      "descripcion": "Todas las asignaturas de los semestres 3 y 4 aprobadas",
+      "semestres": [
+        3,
+        4
+      ]
+    },
+    "cuarto_anio_aprobado": {
+      "descripcion": "Todas las asignaturas de los semestres 7 y 8 aprobadas",
+      "semestres": [
+        7,
+        8
+      ]
+    },
+    "todo_lo_anterior_aprobado": {
+      "descripcion": "Todas las asignaturas de los semestres 1 a 10 aprobadas",
+      "semestres": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ]
+    }
+  }
+}

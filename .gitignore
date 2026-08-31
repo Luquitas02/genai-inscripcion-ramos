@@ -1,0 +1,20 @@
+# === DATOS PERSONALES — NUNCA SE VERSIONAN ===
+# Capturas del avance curricular del portal UdeC: traen nombre completo,
+# numero de matricula y promedio por semestre. Al repositorio va solo el grafo.
+malla/
+Captura.PNG
+
+# Artefactos de empaquetado
+paquete_colab.zip
+resultados/*.zip
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# LaTeX
+poster/*.aux
+poster/*.log
+poster/*.out
+poster/*.synctex.gz
