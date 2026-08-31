@@ -17,37 +17,38 @@
 | Repositorio | 10 | ✅ | github.com/Luquitas02/genai-inscripcion-ramos |
 | Formato y escritura | 10 | ✅ | `poster/Deliverable_1.pdf`, una página |
 
-**Lo único pendiente: subir `poster/Deliverable_1.pdf` a Canvas.**
+El entregable es `poster/Deliverable_1.pdf`: una página, compilada desde
+`poster/poster.tex` con pdfLaTeX.
 
 ---
 
-## Checklist de revisión antes de entregar
+## Verificación de entrega
 
 ### El PDF
 
-- [ ] Es exactamente **una página** (verificado: sí, A4 apaisado 297×210 mm)
-- [ ] El JSON del ejemplo se lee `{"decision":"condicional", "regla":"R-DEPENDE-APROBACION"}` sin ninguna `ç`
-- [ ] Las cuatro barras de la figura están separadas, cada una con su etiqueta encima sin tocarse
-- [ ] Los tres nombres del equipo están bien escritos
-- [ ] El link del repositorio no tiene erratas
-- [ ] Ninguna columna tiene texto cortado al final
+- [x] Una página, A4 apaisado 297×210 mm
+- [x] El JSON del ejemplo se lee `{"decision":"condicional", "regla":"R-DEPENDE-APROBACION"}`, sin la `ç` que introducía babel
+- [x] Las cuatro barras de la figura separadas, cada una con su etiqueta sin tocar la de arriba
+- [x] Los tres nombres del equipo bien escritos
+- [x] El link del repositorio sin erratas
+- [x] Ninguna columna con texto cortado, ningún título separado de su primera línea
 
 ### El repositorio
 
-- [ ] Abre en ventana de incógnito sin pedir sesión
-- [ ] El README se ve bien formateado en GitHub
-- [ ] **No hay ninguna imagen del portal** (verificado: `malla/` está en `.gitignore`)
+- [x] Responde público, sin pedir sesión
+- [x] El README se ve bien formateado en GitHub
+- [x] Ninguna imagen del portal versionada: `malla/` y `Captura.PNG` están en `.gitignore`, verificado contra el remoto
 
 ### Coherencia entre ambos
 
-- [ ] Los números del póster coinciden con los del README
-- [ ] El link impreso en el póster es el del repositorio que existe
+- [x] Las cifras del póster coinciden una a una con las del README
+- [x] El link impreso en el póster es el del repositorio que existe
 
 ---
 
 ## Los números, para contrastar
 
-Constante trivial — responder siempre lo mismo, sin leer nada:
+Constante trivial. Responder siempre lo mismo, sin leer nada, rinde:
 
 | Métrica | Constante | Piso |
 |---|---|---|
@@ -79,15 +80,18 @@ Colapso por modelo, zero-shot prosa (correcto: 18 / 21 / 21):
 
 ---
 
-## Si sobra tiempo, en este orden
+## Trabajo de septiembre, en este orden
 
 1. **Recuperar los resultados crudos.** Las nueve corridas se perdieron con la sesión de
-   Colab. Relanzarlas toma ~50 min con `corrida_final_colab.ipynb` y **esta vez hay que
-   descargar después de cada modelo**. Suma detalle al repositorio, no cambia ningún número
-   porque la generación es determinista.
-2. **Que los compañeros revisen el póster.** Sobre todo la redacción de la columna 3, que es
-   la más densa.
-3. **Nada más.** Todo lo demás está cerrado.
+   Colab. Relanzarlas toma ~50 min con `corrida_final_colab.ipynb`, descargando después de
+   cada modelo. No cambia ningún número porque la generación es determinista, pero habilita
+   el acierto por nivel de dificultad, que el ROADMAP declara y que todavía no se reporta.
+2. **Rebalancear el conjunto de prueba sobre la regla.** Hoy `R-SIN-IMPEDIMENTO` cubre 18 de
+   los 60 casos y tres identificadores cubren el 65 %, lo que deja el piso trivial de la
+   regla en 30 %. Balancear por regla y subir a unos 120 casos baja ese piso y estrecha los
+   intervalos.
+3. **Ampliar los ejemplos del few-shot.** Los tres actuales no cubren `R-EXCEPCION-PRERREQ`,
+   `R-CREDITOS-MINIMOS`, `R-TOPE-MAX` ni `R-ESPECIAL-*`, que juntas son 18 de los 60 casos.
 
 ---
 
@@ -100,6 +104,8 @@ Colapso por modelo, zero-shot prosa (correcto: 18 / 21 / 21):
 | Test set con atajos superficiales | cruce rasgo × respuesta; se detectaron y cerraron dos |
 | Datos personales en el repositorio | `malla/` y `Captura.PNG` excluidos, verificado contra el remoto |
 | Póster que no cabe en una página | verificado: 1 página |
+| Métricas sin piso de comparación | se reporta la constante trivial de las tres: 35,0 / 30,0 / 30,0 |
+| Evidencia que empata con una estrategia trivial | el 12 de 18 del E1 se reporta junto con esa coincidencia; el peso recae en el colapso distribucional |
 
 ---
 
@@ -114,5 +120,5 @@ Colapso por modelo, zero-shot prosa (correcto: 18 / 21 / 21):
 **Idea del equipo para endurecer la tarea** (Joaquín, 30 de agosto): agregar secciones con
 horarios distintos, lo que introduce el choque de horario como regla nueva y activa dos
 reglas a la vez. Requiere conseguir la oferta semestral con bloques horarios. La parte de
-preferencias en prosa —*"sin clases antes de las 10, viernes libres"*— queda como material
+preferencias en prosa (*"sin clases antes de las 10, viernes libres"*) queda como material
 del D3: el modelo traduce preferencias a restricciones y el solver arma el horario.
