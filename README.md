@@ -45,8 +45,8 @@ cursados) más la consulta en prosa:
 
 ### Qué cuenta como respuesta correcta
 
-Se reportan **dos métricas separadas**, cada una contra su propio piso trivial — el que
-consigue quien responde siempre lo mismo sin leer nada:
+Se reportan **dos métricas separadas**, cada una contra su propio piso trivial. El piso es
+lo que consigue quien responde siempre lo mismo sin leer nada:
 
 | Métrica | Constante trivial | Piso |
 |---|---|---|
@@ -56,8 +56,8 @@ consigue quien responde siempre lo mismo sin leer nada:
 
 El piso de la regla es alto porque el espacio de identificadores está torcido: los tres más
 frecuentes cubren el 65 % de las respuestas, y todo caso cuya decisión es `sí` comparte
-forzosamente la misma regla. Es una consecuencia de balancear la decisión, y se declara en
-vez de disimularse.
+forzosamente la misma regla. Es una consecuencia de balancear la decisión, y por eso se
+declara acá.
 
 La métrica principal es el **acierto conjunto**: ambos campos correctos.
 
@@ -95,8 +95,8 @@ Predicciones en zero-shot con prosa, sobre 60 casos:
 | Granite-3.1-8B | **33** | 4 | 23 |
 | *lo correcto* | *18* | *21* | *21* |
 
-Tres arquitecturas, tres manías incompatibles entre sí. Ninguna extrae la respuesta del
-expediente: cada una responde la categoría que trae de fábrica.
+Los tres tienen sesgos distintos e incompatibles. Ninguno deduce la respuesta del
+expediente. Cada uno se vuelca sobre una sola categoría.
 
 ---
 
@@ -109,7 +109,7 @@ expediente: cada una responde la categoría que trae de fábrica.
 | **E3** | No copia un identificador que tiene delante | Phi degrada `R-CREDITOS-MINIMOS` en `R-CREDITOS-MINIMISMU`, `-MINIMISIMO`, `-MINIMISMUDA`. 35 instancias en Phi, 0 en Qwen, 4 en Granite |
 | **E4** | Se contradice dentro de su propia respuesta | responde `sí` citando una regla que bloquea: hasta 28 de 60 en Qwen con la pregunta reducida, usando 4 identificadores distintos para los 60 casos |
 
-### El few-shot arregla la forma, no el razonamiento
+### El few-shot ordena la salida pero no mejora la decisión
 
 | | Contradicciones | Alucinaciones | Acierto de regla | Acierto de decisión |
 |---|---|---|---|---|
@@ -133,7 +133,7 @@ el trabajo de prompt del Deliverable 2 y qué queda para el harness del Delivera
 | Corrida completa | 9 condiciones, ≈ 81 min de inferencia |
 | Salidas con JSON válido | **539 / 540** |
 
-El formato casi nunca falló: lo que falló, falló razonando.
+El formato casi nunca falló. Los errores fueron de razonamiento.
 
 ---
 
@@ -161,9 +161,9 @@ El verificador determinista pasa **9 casos de control** resueltos a mano por el 
 
 ## Diseño del conjunto de prueba
 
-**Generación hacia atrás.** No se sortean historiales a ver qué sale: se elige primero qué
-regla debe decidir y se construye el historial que la produce. Así la distribución de
-respuestas se controla en vez de sufrirse.
+**Generación hacia atrás.** Se elige primero qué regla debe decidir y después se construye
+el historial que la produce. Así la distribución de respuestas queda bajo control desde el
+diseño.
 
 **Autoverificación.** Cada constructor declara qué regla espera; el caso se descarta si el
 verificador no coincide. Un desacuerdo es un error del generador y aparece al instante.
@@ -202,7 +202,7 @@ cadena y reglas simultáneas.
   datos no descartan.
 - **El prompt ofrece un identificador que nunca es correcto.** La línea de prioridad menciona
   `R-TOPE-MIN`, que no está entre los valores válidos enumerados y que el verificador nunca
-  emite: en esa rama devuelve `R-EXCEPCION-PRERREQ`. Se documenta en vez de parcharse, porque
+  emite: en esa rama devuelve `R-EXCEPCION-PRERREQ`. Queda documentado y sin parchar, porque
   el código tiene que seguir siendo exactamente el que produjo los números reportados.
 
 ---

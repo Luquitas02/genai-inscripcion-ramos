@@ -78,9 +78,9 @@ ecuaciones el que viene?''\par\vspace{1.2mm}
 \{\q decision\q:\q condicional\q, \q regla\q:\q R-DEPENDE-APROBACION\q\}}
 
 \vspace{0.5mm}
-Ecuaciones Diferenciales exige Cálculo II, que está \emph{en curso}. Hoy no
-está aprobada y el próximo semestre sí. Por este semestre la respuesta sería
-\cod{no}, con el mismo expediente.
+Ecuaciones Diferenciales exige Cálculo II, \emph{en curso}: hoy no está
+aprobada, el próximo semestre sí. Por este semestre sería \cod{no} --- mismo
+expediente, distinto período.
 
 \vspace{0.5mm}
 \sub{Qué cuenta como correcto}
@@ -113,9 +113,9 @@ inalcanzable detectado y corregido contra el portal.
 
 \seccion{Cómo se mide}
 
-\textbf{60 casos} sintéticos. La respuesta de cada uno la fija el verificador.
-Decisiones balanceadas 21/21/18, así que \textbf{la mejor constante trivial
-rinde 35{,}0\,\%}.
+\textbf{60 casos} sintéticos, con la respuesta puesta por el verificador y no
+por el generador. Decisiones balanceadas 21/21/18, así que \textbf{la mejor
+constante trivial rinde 35{,}0\,\%}.
 
 \vspace{0.5mm}
 \sub{Generación hacia atrás}
@@ -179,8 +179,8 @@ Predicciones en zero-shot con prosa, sobre 60 casos:
 \textcolor{ambar}{$\blacksquare$}~\cod{condicional}}
 
 \vspace{1mm}
-Los tres tienen sesgos distintos e incompatibles. \textbf{Ninguno deduce la
-respuesta del expediente.} Cada uno se vuelca sobre una sola categoría.
+Tres arquitecturas, tres manías incompatibles. \textbf{Ninguna lee el
+expediente:} cada una responde su categoría de fábrica.
 
 \seccion{Resultados}
 
@@ -229,7 +229,7 @@ Salidas con JSON válido & \textbf{539 / 540} \\
 \end{tabular}}
 
 \vspace{0.6mm}
-El formato casi nunca falló. Los errores fueron de razonamiento.
+El formato casi nunca falló: lo que falló, falló razonando.
 
 % =====================================================================
 %  COLUMNA 3
@@ -238,15 +238,16 @@ El formato casi nunca falló. Los errores fueron de razonamiento.
 
 \sub{E1 · No representa ``cursándola ahora''}
 De las 21 \cod{condicional} esperadas, Qwen produce 3 en todo el set y Phi
-produce 31. Ninguno se acerca a las 21. Los 18 casos con un prerrequisito en
-curso se parten 12 \cod{condicional} / 6 \cod{no} según el período preguntado.
-El mejor modelo acierta 12 de esos 18, lo mismo que da responder
-\cod{condicional} a todos sin mirar el período.
+produce 31: ninguno la trata como una categoría con contenido. Los 18 casos con
+un prerrequisito en curso se parten 12 \cod{condicional} / 6 \cod{no} solo
+según el período preguntado; el mejor modelo acierta 12 de esos 18 ---
+exactamente lo que da responder \cod{condicional} a los 18 sin mirar el
+período.
 
 \vspace{0.6mm}
 \sub{E2 · Depende de que la pregunta le apunte}
-Al reducir la consulta a código y período (el historial completo sigue en el
-prompt), el acierto \textbf{cae en los tres modelos}: $-1{,}7$, $-8{,}3$ y
+Al reducir la consulta a código y período --- el historial completo sigue en el
+prompt --- el acierto \textbf{cae en los tres modelos}: $-1{,}7$, $-8{,}3$ y
 $-13{,}3$ puntos. No localizan el dato si nadie se lo señala.
 
 \vspace{0.6mm}
@@ -270,7 +271,7 @@ Qwen con la pregunta reducida, usando 4 identificadores para los 60 casos.
 
 \vspace{0.8mm}
 \destaque{\footnotesize
-\textbf{Los ejemplos ordenan la salida pero no mejoran la decisión.}\par\vspace{0.6mm}
+\textbf{Los ejemplos arreglan la forma, no el razonamiento.}\par\vspace{0.6mm}
 El few-shot elimina las contradicciones (Qwen y Granite a 0), casi elimina las
 alucinaciones (Phi de 35 a 4) y sube el acierto de regla en los tres
 ($+16{,}6$, $+23{,}4$, $+1{,}6$ puntos). \textbf{La decisión no mejora en
@@ -293,8 +294,8 @@ Phi-3.5-mini-instruct \textcolor{gris}{Microsoft} & \textbf{3{,}8\,B} & prueba d
 \textbf{Sobre el candidato bajo el techo.} Propusimos Phi-3.5-mini, con menos
 de la mitad de los parámetros permitidos, bajo la hipótesis de que una salida
 de veinte tokens no necesita capacidad sobrante. \textbf{La medición la
-refuta.} Es el peor de los tres y el único que corrompe identificadores, aunque
-también el más rápido (\textbf{3$\times$} sobre Granite).
+refuta:} es el peor y el único que corrompe identificadores, aunque
+\textbf{3$\times$ más rápido}. Lo reportamos como resultado, no como elección.
 
 \seccion{Cómo crece la tarea}
 
