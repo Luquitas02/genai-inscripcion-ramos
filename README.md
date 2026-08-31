@@ -187,7 +187,7 @@ deliverable-1/
 │   ├── generador.py         generación hacia atrás y control de balance
 │   ├── prompt.py            construcción del prompt y parseo de la salida
 │   └── runner.py            corrida, métricas y reanudación
-├── resultados/              9 corridas crudas, caso a caso
+├── resultados/              (ver nota)
 ├── poster/poster.tex        el entregable, una página en LaTeX
 └── corrida_final_colab.ipynb
 ```
@@ -202,6 +202,11 @@ python scripts/runner.py --modelo ibm-granite/granite-3.1-8b-instruct --condicio
 
 La generación es determinista (`do_sample=False`); la corrida se reprodujo idéntica al
 repetirla tras perder la sesión de Colab.
+
+> **Sobre `resultados/`.** Las nueve corridas se ejecutaron en una sesión de Google Colab que
+> expiró antes de que descargáramos los archivos caso a caso. Todas las métricas reportadas en
+> este README provienen de esas corridas y están completas. Los comandos de arriba las
+> reproducen: la generación es determinista, así que los números salen idénticos.
 
 ---
 
