@@ -30,6 +30,7 @@ El entregable es `poster/Deliverable_1.pdf`: una página, compilada desde
 - [x] El JSON del ejemplo se lee `{"decision":"condicional", "regla":"R-DEPENDE-APROBACION"}`, sin la `ç` que introducía babel
 - [x] Las cuatro barras de la figura separadas, cada una con su etiqueta sin tocar la de arriba
 - [x] Los tres nombres del equipo bien escritos
+- [x] Los parámetros de los tres modelos verificados contra su ficha oficial, no contra su nombre
 - [x] El link del repositorio sin erratas
 - [x] Ninguna columna con texto cortado, ningún título separado de su primera línea
 
@@ -56,13 +57,13 @@ Constante trivial. Responder siempre lo mismo, sin leer nada, rinde:
 | regla | siempre `R-SIN-IMPEDIMENTO` | **30,0 %** (18/60) |
 | ambas | `sí` + `R-SIN-IMPEDIMENTO` | **30,0 %** (18/60) |
 
-Seis de las nueve condiciones quedan bajo el piso conjunto de 30,0 %.
+Cinco de las nueve condiciones quedan bajo el piso conjunto de 30,0 %.
 
 | Modelo | Condición | Decisión | Regla | Ambas |
 |---|---|---|---|---|
-| Granite-3.1-8B | zero, prosa | 50,0 % | 36,7 % | 35,0 % |
-| | zero, reducida | 36,7 % | 21,7 % | 21,7 % |
-| | few-shot | 45,0 % | 38,3 % | 38,3 % |
+| Mistral-7B-v0.3 | zero, prosa | 40,0 % | 35,0 % | 33,3 % |
+| | zero, reducida | 36,7 % | 31,7 % | 31,7 % |
+| | few-shot | 41,7 % | 45,0 % | 38,3 % |
 | Qwen2.5-7B | zero, prosa | 40,0 % | 8,3 % | 8,3 % |
 | | zero, reducida | 38,3 % | 6,7 % | 6,7 % |
 | | few-shot | 43,3 % | 31,7 % | 31,7 % |
@@ -76,7 +77,7 @@ Colapso por modelo, zero-shot prosa (correcto: 18 / 21 / 21):
 |---|---|---|---|
 | Qwen | 9 | 48 | 3 |
 | Phi | 20 | 8 | 31 |
-| Granite | 33 | 4 | 23 |
+| Mistral | 50 | 6 | 4 |
 
 ---
 
@@ -104,6 +105,7 @@ Colapso por modelo, zero-shot prosa (correcto: 18 / 21 / 21):
 | Test set con atajos superficiales | cruce rasgo × respuesta; se detectaron y cerraron dos |
 | Datos personales en el repositorio | `malla/` y `Captura.PNG` excluidos, verificado contra el remoto |
 | Póster que no cabe en una página | verificado: 1 página |
+| Candidato sobre el techo de 8 mil millones | Granite-3.1-8B declaraba 8,1 B; se reemplazó por Mistral-7B (7 248 023 552 verificados en la ficha) |
 | Métricas sin piso de comparación | se reporta la constante trivial de las tres: 35,0 / 30,0 / 30,0 |
 | Evidencia que empata con una estrategia trivial | el 12 de 18 del E1 se reporta junto con esa coincidencia; el peso recae en el colapso distribucional |
 
