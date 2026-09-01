@@ -21,3 +21,6 @@ poster/*.synctex.gz
 
 # Respaldos locales de edicion
 *.bak*
+
+# Scripts temporales de parcheo
+_*.py

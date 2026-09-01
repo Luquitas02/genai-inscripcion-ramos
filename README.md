@@ -69,9 +69,9 @@ La métrica principal es el **acierto conjunto**: ambos campos correctos.
 
 | Modelo | Params | Condición | Decisión | Regla | Ambas |
 |---|---|---|---|---|---|
-| Granite-3.1-8B | 8,0 B | zero-shot, prosa | **50,0 %** | 36,7 % | 35,0 % |
-| | | zero-shot, reducida | 36,7 % | 21,7 % | 21,7 % |
-| | | few-shot | 45,0 % | **38,3 %** | **38,3 %** |
+| Mistral-7B-v0.3 | 7,2 B | zero-shot, prosa | 40,0 % | 35,0 % | 33,3 % |
+| | | zero-shot, reducida | 36,7 % | 31,7 % | 31,7 % |
+| | | few-shot | 41,7 % | **45,0 %** | **38,3 %** |
 | Qwen2.5-7B | 7,6 B | zero-shot, prosa | 40,0 % | 8,3 % | 8,3 % |
 | | | zero-shot, reducida | 38,3 % | 6,7 % | 6,7 % |
 | | | few-shot | 43,3 % | 31,7 % | 31,7 % |
@@ -80,9 +80,9 @@ La métrica principal es el **acierto conjunto**: ambos campos correctos.
 | | | few-shot | 35,0 % | 23,3 % | 16,7 % |
 | **Constante trivial** | — | (sin leer nada) | **35,0 %** | **30,0 %** | **30,0 %** |
 
-**Seis de las nueve condiciones quedan por debajo de la constante trivial** en la métrica
-conjunta. Solo la superan Granite en dos de sus tres condiciones y Qwen con few-shot, y el
-mejor margen es de 8,3 puntos.
+**Cinco de las nueve condiciones quedan por debajo de la constante trivial** en la métrica
+conjunta. Solo la superan Mistral en sus tres condiciones y Qwen con few-shot, y el mejor
+margen es de 8,3 puntos.
 
 ### Cada modelo colapsa en una categoría distinta
 
@@ -92,8 +92,10 @@ Predicciones en zero-shot con prosa, sobre 60 casos:
 |---|---|---|---|
 | Qwen2.5-7B | 9 | **48** | 3 |
 | Phi-3.5-mini | 20 | 8 | **31** |
-| Granite-3.1-8B | **33** | 4 | 23 |
+| Mistral-7B-v0.3 | **50** | 6 | 4 |
 | *lo correcto* | *18* | *21* | *21* |
+
+La fila de Phi suma 59: una de sus sesenta salidas no devolvió un JSON legible.
 
 Los tres tienen sesgos distintos e incompatibles. Ninguno deduce la respuesta del
 expediente. Cada uno se vuelca sobre una sola categoría.
@@ -104,10 +106,10 @@ expediente. Cada uno se vuelca sobre una sola categoría.
 
 | | Mecanismo | Evidencia |
 |---|---|---|
-| **E1** | No representa *"cursándola ahora"* como estado propio | de las 21 `condicional` esperadas, Qwen produce 3 en todo el set y Phi produce 31: ninguno la trata como categoría con contenido. Los 18 casos con prerrequisito en curso se parten 12 `condicional` / 6 `no` solo según el período; el mejor modelo acierta 12 de esos 18, que es exactamente lo que da responder `condicional` a los 18 sin mirar el período |
-| **E2** | Depende de que la pregunta le apunte al dato | al reducir la consulta a código y período, con el historial completo aún en el prompt, el acierto cae en los tres: −1,7 / −8,3 / −13,3 puntos |
-| **E3** | No copia un identificador que tiene delante | Phi degrada `R-CREDITOS-MINIMOS` en `R-CREDITOS-MINIMISMU`, `-MINIMISIMO`, `-MINIMISMUDA`. 35 instancias en Phi, 0 en Qwen, 4 en Granite |
-| **E4** | Se contradice dentro de su propia respuesta | responde `sí` citando una regla que bloquea: hasta 28 de 60 en Qwen con la pregunta reducida, usando 4 identificadores distintos para los 60 casos |
+| **E1** | No representa *"cursándola ahora"* como estado propio | de las 21 `condicional` esperadas, Qwen produce 3 y Mistral 4; Phi produce 31. Los 18 casos con prerrequisito en curso se parten 12 `condicional` / 6 `no` solo según el período preguntado. Mistral acierta **3 de esos 18**, y con la pregunta reducida acierta **0**: responde `sí` a los dieciocho |
+| **E2** | Depende de que la pregunta le apunte al dato | al reducir la consulta a código y período, con el historial completo aún en el prompt, el acierto cae en los tres: −1,7 / −3,3 / −8,3 puntos |
+| **E3** | No copia un identificador que tiene delante | Phi degrada `R-CREDITOS-MINIMOS` en `R-CREDITOS-MINIMISMU`, `-MINIMISIMO`, `-MINIMISMUDA`. 35 instancias en Phi, 0 en Qwen, 0 en Mistral |
+| **E4** | Se contradice dentro de su propia respuesta | responde `sí` citando una regla que bloquea: hasta 28 de 60 en Qwen con la pregunta reducida, usando 4 identificadores distintos para los 60 casos. Mistral lo hace 10 veces, siempre citando `R-YA-CURSADA`, que no es la respuesta correcta en ninguno de los 60 |
 
 ### El few-shot ordena la salida pero no mejora la decisión
 
@@ -115,7 +117,7 @@ expediente. Cada uno se vuelca sobre una sola categoría.
 |---|---|---|---|---|
 | Phi | 18 → 11 | 35 → 4 | 6,7 % → 23,3 % | 43,3 % → 35,0 % |
 | Qwen | 3 → 0 | 0 → 0 | 8,3 % → 31,7 % | 40,0 % → 43,3 % |
-| Granite | 3 → 0 | 4 → 0 | 36,7 % → 38,3 % | 50,0 % → 45,0 % |
+| Mistral | 10 → 3 | 0 → 0 | 35,0 % → 45,0 % | 40,0 % → 41,7 % |
 
 Tres modelos de tres familias, el mismo patrón. Eso delimita con evidencia qué puede lograr
 el trabajo de prompt del Deliverable 2 y qué queda para el harness del Deliverable 3.
@@ -128,9 +130,9 @@ el trabajo de prompt del Deliverable 2 y qué queda para el harness del Delivera
 |---|---|
 | Hardware | GPU T4 gratuita de Google Colab, cuantización a 4 bits |
 | VRAM ocupada | ≈ 5 GB de 15 disponibles |
-| Tiempo por caso | 4,2 s (Phi) a 15,0 s (Granite) |
-| Tokens de entrada | 3.253 a 3.963 |
-| Corrida completa | 9 condiciones, ≈ 81 min de inferencia |
+| Tiempo por caso | 4,2 s (Phi) a 11,0 s (Mistral) |
+| Tokens de entrada | 3.515 a 3.914 (medidos en Mistral) |
+| Corrida completa | 9 condiciones, ≈ 66 min de inferencia |
 | Salidas con JSON válido | **539 / 540** |
 
 El formato casi nunca falló. Los errores fueron de razonamiento.
@@ -193,9 +195,9 @@ cadena y reglas simultáneas.
   intervalo muy ancho. Balancear sobre la regla, y no sobre la decisión, es trabajo del D2.
 - **Los ejemplos del few-shot no son del todo ajenos al test set.** El tercer ejemplo usa
   525223 con `R-DEPENDE-APROBACION`, y 2 de los 60 casos comparten ese ramo y esa regla. Son
-  3,3 % del set: no explica las mejoras de regla de Phi (+16,6) ni de Qwen (+23,4), pero
-  **cabe entera la de Granite (+1,6 puntos, un solo caso)**, que por eso no debe leerse como
-  evidencia.
+  3,3 % del set, equivalentes a 3,3 puntos como máximo. Ninguna de las tres mejoras de regla
+  del few-shot (+23,4 en Qwen, +16,6 en Phi, +10,0 en Mistral) se explica por esa
+  coincidencia, pero se declara igual.
 - **El few-shot no ejemplifica 5 de las 8 reglas.** No hay ejemplo de `R-EXCEPCION-PRERREQ`,
   `R-CREDITOS-MINIMOS`, `R-TOPE-MAX` ni `R-ESPECIAL-*`, que juntas son 18 de los 60 casos.
   Que los ejemplos no arreglen el razonamiento admite una explicación alternativa que estos
@@ -218,8 +220,9 @@ deliverable-1/
 │   ├── verificador.py       ground truth determinista + 9 casos de control
 │   ├── generador.py         generación hacia atrás y control de balance
 │   ├── prompt.py            construcción del prompt y parseo de la salida
-│   └── runner.py            corrida, métricas y reanudación
-├── resultados/              (ver nota)
+│   ├── runner.py            corrida, métricas y reanudación
+│   └── analisis.py          identificadores inventados y contradicciones
+├── resultados/              salidas crudas de Mistral (ver nota)
 ├── poster/poster.tex        el entregable, una página en LaTeX
 └── corrida_final_colab.ipynb
 ```
@@ -229,16 +232,18 @@ deliverable-1/
 ```bash
 python scripts/verificador.py            # 9/9 casos de control
 python scripts/generador.py              # regenera los 60 casos
-python scripts/runner.py --modelo ibm-granite/granite-3.1-8b-instruct --condicion zero_shot
+python scripts/runner.py --modelo mistralai/Mistral-7B-Instruct-v0.3 --condicion zero_shot
+python scripts/analisis.py resultados/*.raw.jsonl
 ```
 
 La generación es determinista (`do_sample=False`); la corrida se reprodujo idéntica al
 repetirla tras perder la sesión de Colab.
 
-> **Sobre `resultados/`.** Las nueve corridas se ejecutaron en una sesión de Google Colab que
-> expiró antes de que descargáramos los archivos caso a caso. Todas las métricas reportadas en
-> este README provienen de esas corridas y están completas. Los comandos de arriba las
-> reproducen: la generación es determinista, así que los números salen idénticos.
+> **Sobre `resultados/`.** Están las tres corridas de Mistral caso a caso, así que sus cifras
+> se recalculan con `analisis.py`. Las de Qwen y Phi se midieron en una sesión de Google Colab
+> anterior que expiró antes de que descargáramos los archivos; sus métricas están completas en
+> este README, pero el crudo se perdió. Los comandos de arriba las reproducen, porque la
+> generación es determinista. Relanzarlas es la primera tarea de septiembre.
 
 ---
 

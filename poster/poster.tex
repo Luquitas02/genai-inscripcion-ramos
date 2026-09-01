@@ -39,8 +39,8 @@
 \setlength{\parskip}{0.85mm}
 \renewcommand{\arraystretch}{0.98}
 
-\newcommand{\seccion}[1]{\vspace{1.0mm}{\bfseries\footnotesize\color{acento}\MakeUppercase{#1}}\par\vspace{0.4mm}\nopagebreak}
-\newcommand{\sub}[1]{{\bfseries #1}\par\vspace{-1.3mm}\nopagebreak}
+\newcommand{\seccion}[1]{\vspace{1.0mm}{\bfseries\footnotesize\color{acento}\MakeUppercase{#1}}\par\nobreak\vspace{0.4mm}\nobreak}
+\newcommand{\sub}[1]{{\bfseries #1}\par\nobreak\vspace{-1.3mm}\nobreak}
 \newcommand{\q}{\textquotedbl}   % comilla recta, inmune a los shorthands de babel
 \newcommand{\cod}[1]{{\ttfamily\small #1}}
 \newcommand{\destaque}[1]{%
@@ -78,9 +78,9 @@ ecuaciones el que viene?''\par\vspace{1.2mm}
 \{\q decision\q:\q condicional\q, \q regla\q:\q R-DEPENDE-APROBACION\q\}}
 
 \vspace{0.5mm}
-Ecuaciones Diferenciales exige Cálculo II, que está \emph{en curso}. Hoy no
-está aprobada y el próximo semestre sí. Por este semestre la respuesta sería
-\cod{no}, con el mismo expediente.
+Ecuaciones Diferenciales exige Álgebra II, ya aprobada, y Cálculo II, que está
+\emph{en curso}. Hoy no está aprobada y el próximo semestre sí. Por este
+semestre la respuesta sería \cod{no}, con el mismo expediente.
 
 \vspace{0.5mm}
 \sub{Qué cuenta como correcto}
@@ -137,50 +137,57 @@ few-shot con tres ejemplos resueltos.
 % =====================================================================
 \seccion{Cada modelo colapsa en una categoría distinta}
 
-Predicciones en zero-shot con prosa, sobre 60 casos:
+Reparto de las 60 respuestas de cada modelo, en zero-shot con prosa:
 
 \vspace{1mm}
 \begin{tikzpicture}[x=1mm,y=1mm]
   \def\H{5.2}
-  \def\G{10.5}  % 5.2 barra + 2.2 + 2.5 etiqueta = 9.9 minimo
-  % escala: 60 casos = 62 mm
+  \def\G{10.5}
   \def\U{1.0333}
 
+  % --- referencia ARRIBA: hace de clave de colores y de patron a comparar ---
+  \fill[verde!35]  (0,{3*\G})       rectangle ++({18*\U},\H);
+  \fill[acento!35] ({18*\U},{3*\G}) rectangle ++({21*\U},\H);
+  \fill[ambar!35]  ({39*\U},{3*\G}) rectangle ++({21*\U},\H);
+  \draw[gris,line width=0.4pt] (0,{3*\G}) rectangle ({60*\U},{3*\G+\H});
+  \node[font=\tiny\bfseries,tinta] at ({9*\U},{3*\G+\H/2})    {18 sí};
+  \node[font=\tiny\bfseries,tinta] at ({28.5*\U},{3*\G+\H/2}) {21 no};
+  \node[font=\tiny\bfseries,tinta] at ({49.5*\U},{3*\G+\H/2}) {21 condicional};
+  \node[font=\scriptsize\bfseries,anchor=west] at (0,{3*\G+\H+2.2}) {lo correcto};
+
   % --- Qwen: 9 / 48 / 3
-  \fill[verde]  (0,{3*\G})   rectangle ++({9*\U},\H);
-  \fill[acento] ({9*\U},{3*\G}) rectangle ++({48*\U},\H);
-  \fill[ambar]  ({57*\U},{3*\G}) rectangle ++({3*\U},\H);
-  \node[font=\scriptsize\bfseries,anchor=west] at (0,{3*\G+\H+2.2}) {Qwen2.5-7B \textcolor{gris}{\normalfont 7{,}6\,B}};
+  \fill[verde]  (0,{2*\G})       rectangle ++({9*\U},\H);
+  \fill[acento] ({9*\U},{2*\G})  rectangle ++({48*\U},\H);
+  \fill[ambar]  ({57*\U},{2*\G}) rectangle ++({3*\U},\H);
+  \node[font=\tiny\bfseries,white] at ({4.5*\U},{2*\G+\H/2})  {9};
+  \node[font=\tiny\bfseries,white] at ({33*\U},{2*\G+\H/2})   {48};
+  \node[font=\tiny\bfseries,white] at ({58.5*\U},{2*\G+\H/2}) {3};
+  \node[font=\scriptsize\bfseries,anchor=west] at (0,{2*\G+\H+2.2}) {Qwen2.5-7B \textcolor{gris}{\normalfont 7{,}6\,B}};
 
-  % --- Phi: 20 / 8 / 31
-  \fill[verde]  (0,{2*\G})    rectangle ++({20*\U},\H);
-  \fill[acento] ({20*\U},{2*\G}) rectangle ++({8*\U},\H);
-  \fill[ambar]  ({28*\U},{2*\G}) rectangle ++({31*\U},\H);
-  \node[font=\scriptsize\bfseries,anchor=west] at (0,{2*\G+\H+2.2}) {Phi-3.5-mini \textcolor{gris}{\normalfont 3{,}8\,B}};
+  % --- Phi: 20 / 8 / 31, mas 1 salida ilegible
+  \fill[verde]   (0,{1*\G})       rectangle ++({20*\U},\H);
+  \fill[acento]  ({20*\U},{1*\G}) rectangle ++({8*\U},\H);
+  \fill[ambar]   ({28*\U},{1*\G}) rectangle ++({31*\U},\H);
+  \fill[gris!30] ({59*\U},{1*\G}) rectangle ++({1*\U},\H);
+  \node[font=\tiny,gris,anchor=west] at ({60*\U+1.4},{1*\G+\H/2}) {1 sin leer};
+  \node[font=\tiny\bfseries,white] at ({10*\U},{1*\G+\H/2})   {20};
+  \node[font=\tiny\bfseries,white] at ({24*\U},{1*\G+\H/2})   {8};
+  \node[font=\tiny\bfseries,white] at ({43.5*\U},{1*\G+\H/2}) {31};
+  \node[font=\scriptsize\bfseries,anchor=west] at (0,{1*\G+\H+2.2}) {Phi-3.5-mini \textcolor{gris}{\normalfont 3{,}8\,B}};
 
-  % --- Granite: 33 / 4 / 23
-  \fill[verde]  (0,{1*\G})    rectangle ++({33*\U},\H);
-  \fill[acento] ({33*\U},{1*\G}) rectangle ++({4*\U},\H);
-  \fill[ambar]  ({37*\U},{1*\G}) rectangle ++({23*\U},\H);
-  \node[font=\scriptsize\bfseries,anchor=west] at (0,{1*\G+\H+2.2}) {Granite-3.1-8B \textcolor{gris}{\normalfont 8{,}0\,B}};
-
-  % --- correcto: 18 / 21 / 21
-  \fill[verde!35]  (0,0)        rectangle ++({18*\U},\H);
-  \fill[acento!35] ({18*\U},0)  rectangle ++({21*\U},\H);
-  \fill[ambar!35]  ({39*\U},0)  rectangle ++({21*\U},\H);
-  \draw[gris,line width=0.4pt] (0,0) rectangle ({60*\U},\H);
-  \node[font=\scriptsize\itshape,anchor=west,gris] at (0,{\H+2.2}) {lo correcto};
+  % --- Mistral: 50 / 6 / 4
+  \fill[verde]  (0,0)       rectangle ++({50*\U},\H);
+  \fill[acento] ({50*\U},0) rectangle ++({6*\U},\H);
+  \fill[ambar]  ({56*\U},0) rectangle ++({4*\U},\H);
+  \node[font=\tiny\bfseries,white] at ({25*\U},{\H/2}) {50};
+  \node[font=\tiny\bfseries,white] at ({53*\U},{\H/2}) {6};
+  \node[font=\tiny\bfseries,white] at ({58*\U},{\H/2}) {4};
+  \node[font=\scriptsize\bfseries,anchor=west] at (0,{\H+2.2}) {Mistral-7B \textcolor{gris}{\normalfont 7{,}2\,B}};
 \end{tikzpicture}
 
-\vspace{0.8mm}
-{\scriptsize
-\textcolor{verde}{$\blacksquare$}~\cod{sí}\quad
-\textcolor{acento}{$\blacksquare$}~\cod{no}\quad
-\textcolor{ambar}{$\blacksquare$}~\cod{condicional}}
-
 \vspace{1mm}
-Los tres tienen sesgos distintos e incompatibles. \textbf{Ninguno deduce la
-respuesta del expediente.} Cada uno se vuelca sobre una sola categoría.
+\textbf{Ninguno deduce la respuesta del expediente.} Cada uno se vuelca sobre
+una categoría distinta.
 
 \seccion{Resultados}
 
@@ -189,9 +196,9 @@ respuesta del expediente.} Cada uno se vuelca sobre una sola categoría.
 \toprule
 \textbf{Modelo} & \textbf{Condición} & \textbf{Dec.} & \textbf{Regla} & \textbf{Ambas} \\
 \midrule
-Granite 8B & zero, prosa & \textbf{50{,}0} & 36{,}7 & 35{,}0 \\
-           & zero, reducida & 36{,}7 & 21{,}7 & 21{,}7 \\
-           & few-shot & 45{,}0 & \textbf{38{,}3} & \textbf{38{,}3} \\
+Mistral 7{,}2B & zero, prosa & 40{,}0 & 35{,}0 & 33{,}3 \\
+           & zero, reducida & 36{,}7 & 31{,}7 & 31{,}7 \\
+           & few-shot & 41{,}7 & \textbf{45{,}0} & \textbf{38{,}3} \\
 \addlinespace[0.4mm]
 Qwen 7{,}6B & zero, prosa & 40{,}0 & 8{,}3 & 8{,}3 \\
            & zero, reducida & 38{,}3 & 6{,}7 & 6{,}7 \\
@@ -207,14 +214,13 @@ Phi 3{,}8B & zero, prosa & 43{,}3 & 6{,}7 & 5{,}0 \\
 \end{tabular}}
 
 \vspace{0.8mm}
-{\scriptsize\color{gris}Porcentajes sobre 60 casos; generación determinista,
-reproducida idéntica al repetirla. La constante trivial responde siempre lo
-mismo sin leer nada: \cod{no} para la decisión, \cod{sí} con
-\cod{R-SIN-IMPEDIMENTO} para el par.}
+{\scriptsize\color{gris}Porcentajes sobre 60 casos, generación determinista. La
+constante trivial responde siempre lo mismo sin leer nada: \cod{no} para la
+decisión, \cod{sí} con \cod{R-SIN-IMPEDIMENTO} para el par.}
 
 \vspace{0.8mm}
-\textbf{Seis de las nueve condiciones quedan por debajo de esa constante} en la
-métrica conjunta. La mejor le gana por 8{,}3 puntos.
+\textbf{Cinco de las nueve condiciones quedan por debajo de esa constante} en
+la métrica conjunta. La mejor le gana por 8{,}3 puntos.
 
 \seccion{Factibilidad de ejecución}
 
@@ -222,9 +228,9 @@ métrica conjunta. La mejor le gana por 8{,}3 puntos.
 \begin{tabular}{@{}lr@{}}
 Hardware & GPU T4 gratuita (Colab), cuantización 4 bits \\
 VRAM usada & $\approx$5\,GB de 15 disponibles \\
-Tiempo por caso & 4{,}2\,s (Phi) -- 15{,}0\,s (Granite) \\
-Tokens de entrada & 3\,253 -- 3\,963 \\
-Corrida completa & 9 condiciones, $\approx$81\,min de inferencia \\
+Tiempo por caso & 4{,}2\,s (Phi) -- 11{,}0\,s (Mistral) \\
+Tokens de entrada & 3\,515 -- 3\,914 (Mistral) \\
+Corrida completa & 9 condiciones, $\approx$66\,min de inferencia \\
 Salidas con JSON válido & \textbf{539 / 540} \\
 \end{tabular}}
 
@@ -237,17 +243,16 @@ El formato casi nunca falló. Los errores fueron de razonamiento.
 \seccion{Diagnóstico de la falla}
 
 \sub{E1 · No representa ``cursándola ahora''}
-De las 21 \cod{condicional} esperadas, Qwen produce 3 en todo el set y Phi
-produce 31. Ninguno se acerca a las 21. Los 18 casos con un prerrequisito en
-curso se parten 12 \cod{condicional} / 6 \cod{no} según el período preguntado.
-El mejor modelo acierta 12 de esos 18, lo mismo que da responder
-\cod{condicional} a todos sin mirar el período.
+De las 21 \cod{condicional} esperadas, Qwen produce 3 y Mistral 4; Phi produce
+31. Los 18 casos con un prerrequisito en curso se parten 12 \cod{condicional} /
+6 \cod{no} según el período preguntado. Mistral acierta \textbf{3 de esos 18}, y
+con la pregunta reducida acierta \textbf{0}: responde \cod{sí} a los 18.
 
 \vspace{0.6mm}
 \sub{E2 · Depende de que la pregunta le apunte}
 Al reducir la consulta a código y período (el historial completo sigue en el
-prompt), el acierto \textbf{cae en los tres modelos}: $-1{,}7$, $-8{,}3$ y
-$-13{,}3$ puntos. No localizan el dato si nadie se lo señala.
+prompt), el acierto \textbf{cae en los tres modelos}: $-1{,}7$, $-3{,}3$ y
+$-8{,}3$ puntos.
 
 \vspace{0.6mm}
 \sub{E3 · No copia un identificador que tiene delante}
@@ -259,22 +264,22 @@ en su prompt, en formas inexistentes:
 R-CREDITOS-MINIMISMUDA}
 
 \vspace{0.6mm}
-Más invenciones puras (\cod{R-8-CURSADO}, \cod{R-0321}) y combinaciones
-ilegales de prefijo y código. \textbf{35 instancias en Phi; 0 en Qwen; 4 en
-Granite.}
+Más invenciones puras (\cod{R-8-CURSADO}, \cod{R-0321}).
+\textbf{35 instancias en Phi; 0 en Qwen; 0 en Mistral.}
 
 \vspace{0.6mm}
 \sub{E4 · Se contradice dentro de su propia respuesta}
 Responde \cod{sí} citando una regla que bloquea: hasta \textbf{28 de 60} en
-Qwen con la pregunta reducida, usando 4 identificadores para los 60 casos.
+Qwen con la pregunta reducida. Mistral lo hace 10 veces, siempre con
+\cod{R-YA-CURSADA}, que no es correcta en ninguno de los 60 casos.
 
 \vspace{0.8mm}
 \destaque{\footnotesize
 \textbf{Los ejemplos ordenan la salida pero no mejoran la decisión.}\par\vspace{0.6mm}
-El few-shot elimina las contradicciones (Qwen y Granite a 0), casi elimina las
-alucinaciones (Phi de 35 a 4) y sube el acierto de regla en los tres
-($+16{,}6$, $+23{,}4$, $+1{,}6$ puntos). \textbf{La decisión no mejora en
-ninguno.}}
+El few-shot baja las contradicciones (Qwen a 0, Mistral de 10 a 3, Phi de 18 a
+11), casi elimina las alucinaciones (Phi de 35 a 4) y sube el acierto de regla
+en los tres ($+23{,}4$, $+16{,}6$ y $+10{,}0$ puntos). \textbf{La decisión
+apenas se mueve:} $+3{,}3$, $-8{,}3$ y $+1{,}7$.}
 
 \seccion{Modelos candidatos}
 
@@ -283,23 +288,27 @@ ninguno.}}
 \toprule
 \textbf{Modelo} & \textbf{Par.} & \textbf{Rol} \\
 \midrule
-Granite-3.1-8B-Instruct \textcolor{gris}{IBM} & 8{,}0\,B & mejor de los tres; base para el harness \\
-Qwen2.5-7B-Instruct \textcolor{gris}{Alibaba} & 7{,}6\,B & multilingüe; 0 alucinaciones \\
+Mistral-7B-Instruct-v0.3 \textcolor{gris}{Mistral AI} & 7{,}2\,B & mejor acierto conjunto; base del harness \\
+Qwen2.5-7B-Instruct \textcolor{gris}{Alibaba} & 7{,}6\,B & multilingüe; el que más gana con ejemplos \\
 Phi-3.5-mini-instruct \textcolor{gris}{Microsoft} & \textbf{3{,}8\,B} & prueba de si la capacidad es necesaria \\
 \bottomrule
 \end{tabular}}
 
 \vspace{0.8mm}
+\textbf{Criterio de selección.} Tres familias distintas: tres tamaños del mismo
+modelo no dirían nada sobre arquitectura ni sobre entrenamiento en español. Los
+tres son open-weight, sin licencia restringida y corren en la T4 gratuita.
+
+\vspace{0.8mm}
 \textbf{Sobre el candidato bajo el techo.} Propusimos Phi-3.5-mini, con menos
 de la mitad de los parámetros permitidos, bajo la hipótesis de que una salida
 de veinte tokens no necesita capacidad sobrante. \textbf{La medición la
-refuta.} Es el peor de los tres y el único que corrompe identificadores, aunque
-también el más rápido (\textbf{3$\times$} sobre Granite).
+refuta.} Es el peor y el único que corrompe identificadores, aunque el más
+rápido (\textbf{2{,}4$\times$} sobre Mistral).
 
 \seccion{Cómo crece la tarea}
 
-La dificultad es un eje medible (profundidad, ambigüedad, distractores, reglas
-simultáneas), así que se endurece sin cambiar de tema.
+La dificultad es un eje medible, así que se endurece sin cambiar de tema.
 
 \vspace{0.4mm}
 {\scriptsize
