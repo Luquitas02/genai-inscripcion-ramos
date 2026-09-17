@@ -27,3 +27,6 @@ _*.py
 
 # Descarga de resultados desde Colab
 resultados.zip
+
+# Artefactos de prueba local del runner del D2
+resultados/pipeline__falso__*
