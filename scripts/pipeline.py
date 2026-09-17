@@ -55,16 +55,24 @@ def _extraer_json(texto):
         return None, "json_invalido"
 
 
+# El modelo escribe los estados en masculino ("reprobado") tan seguido como en femenino
+# ("reprobada"). Es concordancia de género con un sustantivo que no está en la frase, no una
+# palabra distinta. Contarlo como error mediría gramática en vez de lectura del expediente.
+_GENERO = {"aprobado": APROBADA, "inscrito": INSCRITA,
+           "reprobado": REPROBADA, "no_cursado": NO_CURSADA}
+
+
 def _norm_estado(s):
     """Normaliza la forma de superficie, no el significado.
 
-    "No Cursada" y "no cursada" son la misma palabra escrita distinto, así que se aceptan.
-    Cualquier otra cosa se devuelve tal cual y cuenta como error del modelo. Normalizar
-    más que esto inflaría el acierto del paso 2.
+    "No Cursada", "no cursada" y "no cursado" son la misma palabra escrita distinto, así que
+    se aceptan. Cualquier otra cosa se devuelve tal cual y cuenta como error del modelo.
+    Normalizar más que esto inflaría el acierto del paso 2.
     """
     if s is None:
         return None
     t = str(s).strip().lower().replace(" ", "_").replace("-", "_")
+    t = _GENERO.get(t, t)
     return t if t in _ESTADOS else str(s).strip()
 
 
@@ -321,6 +329,12 @@ def _prueba_parseo():
              '"creditos_aprobados": 1, "umbral_creditos": null, "requisitos_especiales": []}',
              v, "503203", "actual", 12) or {}).get("estado_actual"),
          NO_CURSADA),
+        ("p2 estado en masculino, como lo escribe el modelo",
+         lambda: (parsear_paso2(
+             '{"estado_actual": "no_cursado", "prerrequisitos": '
+             '[{"codigo": "525140", "estado": "reprobado"}], '
+             '"creditos_aprobados": 37, "umbral_creditos": 37, "requisitos_especiales": []}',
+             v, "503203", "actual", 12) or {}), ficha_ref),
         ("p2 sin json", lambda: parsear_paso2('no sé', v, "503203", "actual", 12), None),
     ]
 
