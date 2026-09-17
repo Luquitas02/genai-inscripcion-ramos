@@ -24,3 +24,6 @@ poster/*.synctex.gz
 
 # Scripts temporales de parcheo
 _*.py
+
+# Descarga de resultados desde Colab
+resultados.zip
