@@ -314,7 +314,11 @@ def main():
         modelo.nombre = "falso"
     else:
         from runner import ModeloHF
-        modelo = ModeloHF(args.modelo)
+        # El baseline usa 64 tokens de salida, que le bastan para sus dos campos. La ficha
+        # del paso 2 es más larga: con dos prerrequisitos y un requisito especial pasa de
+        # los 64 y se cortaría a media respuesta, dejando un JSON ilegible. Eso marcaría
+        # como error de razonamiento lo que sería una falta de presupuesto de salida.
+        modelo = ModeloHF(args.modelo, max_new_tokens=256)
 
     etq = args.modelo.split("/")[-1] if not args.modelo_falso else "falso"
     RESULTADOS.mkdir(exist_ok=True)
