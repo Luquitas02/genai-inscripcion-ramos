@@ -9,7 +9,7 @@ aprobada de inscrita, sumar créditos y aplicar un orden de prioridad entre ocho
 Todo en una pasada. No lo logra.
 
 La ficha es el contexto enfocado que reemplaza esos 3.900 tokens en el paso 3 del
-pipeline. Son siete campos sobre un solo ramo. El historial trae 26 asignaturas en
+pipeline. Son ocho campos sobre un solo ramo. El historial trae 26 asignaturas en
 promedio y el ramo objetivo tiene 1,2 prerrequisitos directos, así que la ficha descarta
 unas 25 asignaturas irrelevantes por caso, incluidos los distractores que el generador
 puso a propósito.
@@ -35,17 +35,17 @@ from verificador import (Verificador, RUTA_MALLA,
 RUTA_CASOS = Path(__file__).resolve().parent.parent / "datos" / "casos.jsonl"
 
 # Los cinco campos de la ficha que son juicio del modelo en la variante `puro`.
-# Los otros dos (`ramo`, `creditos_ramo`) son datos de entrada, no juicios, y por eso
-# se puntúan aparte.
+# Los otros tres (`ramo`, `creditos_ramo`, `creditos_semestre`) son datos de entrada o
+# aritmética sobre ellos, no juicios, y por eso se puntúan aparte.
 CAMPOS_JUICIO = ("estado_actual", "prerrequisitos", "creditos_aprobados",
                  "umbral_creditos", "requisitos_especiales")
-CAMPOS_ENTRADA = ("ramo", "creditos_ramo")
+CAMPOS_ENTRADA = ("ramo", "creditos_ramo", "creditos_semestre")
 
 
 # --------------------------------------------------------------- construcción
 
 def construir_ficha(v, historial, ramo, periodo, creditos_ya_inscritos):
-    """Los siete campos que el paso 3 necesita para resolver las seis ramas del verificador.
+    """Los ocho campos que el paso 3 necesita para resolver las seis ramas del verificador.
 
     `creditos_aprobados` se cuenta distinto según el período. Para el semestre actual cuenta
     lo aprobado. Para el próximo cuenta lo aprobado más lo que está cursando ahora. Esa
@@ -61,12 +61,18 @@ def construir_ficha(v, historial, ramo, periodo, creditos_ya_inscritos):
     for req in a["requisitos_especiales"]:
         r, falta = v._conjunto_semestres_ok(historial, v.especiales[req]["semestres"], periodo)
         especiales.append({"nombre": req, "resultado": r, "falta": falta})
+    es_practica = ramo in v.practicas
     return {
         "ramo": ramo,
         "nombre": a["nombre"],
         "estado_actual": v.estado(historial, ramo),
         "creditos_ramo": a["creditos"],
-        "es_practica": ramo in v.practicas,
+        "es_practica": es_practica,
+        # El total del semestre si inscribiera este ramo. Dos ramas del verificador comparan
+        # contra él: el tope máximo y el régimen de excepción por carga baja. Se calcula acá,
+        # a partir de dos datos de entrada, porque no es un juicio sobre el expediente y
+        # dejárselo al modelo lo obliga a una aritmética que no acierta.
+        "creditos_semestre": (0 if es_practica else a["creditos"]) + creditos_ya_inscritos,
         "prerrequisitos": prerreq,
         "creditos_aprobados": cred,
         "umbral_creditos": a["creditos_minimos"] or None,
@@ -99,6 +105,9 @@ def render_ficha(f):
     else:
         lineas.append("requisitos especiales: ninguno")
     lineas.append(f"créditos ya inscritos: {f['creditos_ya_inscritos']}")
+    lineas.append(f"créditos del semestre: {f['creditos_semestre']}  "
+                  f"({f['creditos_ya_inscritos']} ya inscritos + "
+                  f"{0 if f['es_practica'] else f['creditos_ramo']} de este ramo)")
     return "\n".join(lineas)
 
 
@@ -115,8 +124,7 @@ def decidir_desde_ficha(v, f):
         return {"decision": "no", "regla": "R-YA-CURSADA"}
 
     # 2. tope máximo de créditos del semestre
-    pedidos = 0 if f["es_practica"] else f["creditos_ramo"]
-    total = pedidos + f["creditos_ya_inscritos"]
+    total = f["creditos_semestre"]
     if total > v.tope_max:
         return {"decision": "no", "regla": "R-TOPE-MAX"}
     bajo_minimo = total < v.tope_min
@@ -175,6 +183,7 @@ def comparar_fichas(esperada, obtenida):
     return {
         "ramo": esperada["ramo"] == obtenida.get("ramo"),
         "creditos_ramo": esperada["creditos_ramo"] == obtenida.get("creditos_ramo"),
+        "creditos_semestre": esperada["creditos_semestre"] == obtenida.get("creditos_semestre"),
         "estado_actual": esperada["estado_actual"] == obtenida.get("estado_actual"),
         "prerrequisitos": norm_pre(esperada["prerrequisitos"]) == norm_pre(obtenida.get("prerrequisitos")),
         "creditos_aprobados": esperada["creditos_aprobados"] == obtenida.get("creditos_aprobados"),

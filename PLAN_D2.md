@@ -209,6 +209,55 @@ archivo versionado.
 
 ---
 
+## La primera corrida y la revisión del prompt
+
+La primera corrida de la grilla, el 17 de septiembre, no mejoró al baseline. Las cuatro
+condiciones dieron 15,0 % a 16,7 % de acierto conjunto contra 16,7 % del baseline, y las cuatro
+dieron exactamente 35,0 % de acierto de decisión. Ese número idéntico era el síntoma: el paso 3
+respondió `condicional` en los 60 casos de las cuatro corridas, y 21 de los 60 casos son
+`condicional`.
+
+La causa fue un error del prompt del paso 3. Ese prompt explicaba dos veces cuándo la respuesta
+es `condicional` y no decía en ninguna parte cuándo es `sí` o `no`. El único desenlace que
+nombraba era `condicional`. El prompt del baseline sí enumera las ocho reglas con su condición de
+disparo, y esa enumeración se había omitido al escribir el paso 3, suponiendo que la ficha la
+hacía evidente.
+
+Se hicieron tres cambios. El criterio para cada uno fue la **paridad con el baseline**: la
+intervención debe cambiar cómo se reparte el trabajo, no quitarle al pipeline información que el
+baseline sí tenía.
+
+1. **El paso 3 recupera la enumeración completa**, escrita como un procedimiento ordenado de ocho
+   condiciones. El baseline entrega la misma información como ocho definiciones más una línea de
+   prioridad. El contenido es el mismo y el formato cambia, y ese cambio de formato es parte de
+   la intervención declarada, que la rúbrica admite como estructura de prompt.
+2. **Los pasos 1 y 3 reciben ejemplos resueltos.** El baseline de comparación es la condición
+   few-shot, con tres ejemplos. Los pasos del pipeline eran zero-shot, así que la comparación
+   enfrentaba un baseline mejor asistido y parte de la diferencia venía de los ejemplos y no de
+   la descomposición. Los ejemplos usan ramos que no son objetivo de ningún caso del conjunto de
+   prueba, verificado por código.
+3. **La ficha gana el campo `creditos_semestre`.** Dos ramas del verificador comparan contra el
+   total de créditos del semestre, y la ficha solo entregaba los sumandos. El modelo tenía que
+   sumar y después comparar contra 24 y contra 8. El total se calcula a partir de dos datos de
+   entrada, igual que ya se hacía con los créditos del ramo, y no es un juicio sobre el
+   expediente.
+
+**El paso 2 no se tocó y sigue zero-shot.** Su problema no es de formato: produjo JSON legible en
+el 100 % de los casos. Su problema es que no puede hacer las búsquedas ni la aritmética, y los
+ejemplos no arreglan eso. La asimetría queda declarada.
+
+Los cambios subieron el costo de contexto, que es el precio de la paridad:
+
+| | antes de la revisión | después |
+|---|---|---|
+| pipeline `puro` | 1,46× el baseline | 1,79× |
+| pipeline `retrieval` | 0,60× | 0,92× |
+
+La primera corrida queda en el repositorio y sus cifras se reportan. Hubo una sola revisión del
+prompt, y está descrita acá.
+
+---
+
 ## Limitaciones declaradas
 
 **Filtración en los casos de excepción.** Los 9 casos cuya respuesta es `R-EXCEPCION-PRERREQ`

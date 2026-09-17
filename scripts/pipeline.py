@@ -109,13 +109,28 @@ Responde ÚNICAMENTE con este JSON, sin texto adicional:
 {"ramo": "<código>", "periodo": "actual" | "proximo"}"""
 
 
+# Un ejemplo por cada forma de nombrar el ramo que aparece en el conjunto de prueba: nombre
+# completo, abreviación y forma coloquial. Los tres usan ramos que NO son objetivo de ningún
+# caso medido.
+EJEMPLOS_P1 = [
+    ("¿puedo inscribir Química General II este semestre?",
+     '{"ramo": "531150", "periodo": "actual"}'),
+    ("oye, me falta cálculo 2, ¿alcanzo a tomarlo el próximo?",
+     '{"ramo": "527150", "periodo": "proximo"}'),
+    ("quiero meter dibujo industrial ahora, ¿se puede?",
+     '{"ramo": "541380", "periodo": "actual"}'),
+]
+
+
 def prompt_paso1(caso, malla):
     catalogo = "\n".join(f"{a['codigo']}  {a['nombre']}" for a in malla["asignaturas"])
-    usuario = (f"=== CATÁLOGO DE ASIGNATURAS ===\n{catalogo}\n\n"
-               f"=== CONSULTA DEL ESTUDIANTE ===\n{caso['pregunta_prosa']}\n\n"
-               "Responde solo con el JSON.")
+    partes = [f"=== CATÁLOGO DE ASIGNATURAS ===\n{catalogo}\n", "=== EJEMPLOS RESUELTOS ==="]
+    for i, (consulta, respuesta) in enumerate(EJEMPLOS_P1, 1):
+        partes.append(f'Ejemplo {i}. "{consulta}"  ->  {respuesta}')
+    partes += ["", "=== CONSULTA DEL ESTUDIANTE ===", caso["pregunta_prosa"], "",
+               "Responde solo con el JSON."]
     return [{"role": "system", "content": INSTRUCCION_P1},
-            {"role": "user", "content": usuario}]
+            {"role": "user", "content": "\n".join(partes)}]
 
 
 def parsear_paso1(texto, codigos):
@@ -177,7 +192,7 @@ def parsear_paso2(texto, v, ramo, periodo, creditos_ya_inscritos):
     """Devuelve una ficha, o None si no se pudo leer el JSON.
 
     Los campos que son dato de entrada (`ramo`, `nombre`, `creditos_ramo`, `es_practica`,
-    `periodo`, `creditos_ya_inscritos`) se rellenan de la malla y del caso. No son juicios
+    `creditos_semestre`, `periodo`, `creditos_ya_inscritos`) se rellenan de la malla y del caso. No son juicios
     del modelo y no tiene sentido puntuárselos.
     """
     d, _ = _extraer_json(texto)
@@ -205,6 +220,7 @@ def parsear_paso2(texto, v, ramo, periodo, creditos_ya_inscritos):
         "estado_actual": _norm_estado(d.get("estado_actual")),
         "creditos_ramo": a["creditos"],
         "es_practica": ramo in v.practicas,
+        "creditos_semestre": (0 if ramo in v.practicas else a["creditos"]) + creditos_ya_inscritos,
         "prerrequisitos": prerreq,
         "creditos_aprobados": _norm_entero(d.get("creditos_aprobados")),
         "umbral_creditos": _norm_entero(d.get("umbral_creditos")) or None,
@@ -219,23 +235,49 @@ def parsear_paso2(texto, v, ramo, periodo, creditos_ya_inscritos):
 INSTRUCCION_P3 = """Eres un asistente de inscripción académica de Ingeniería Civil Industrial \
 de la Universidad de Concepción.
 
-Se te entrega la ficha ya levantada de un caso y las reglas de inscripción. Tu única tarea es \
-decidir si el estudiante puede inscribir la asignatura, y citar la regla que sostiene la \
-decisión. No tienes que buscar nada: todo lo que necesitas está en la ficha.
+Se te entrega la ficha ya levantada de un caso. Tu única tarea es decidir si el estudiante \
+puede inscribir la asignatura, y citar la regla que sostiene la decisión. No tienes que buscar \
+nada: todo lo que necesitas está en la ficha.
 
-Una asignatura INSCRITA no está aprobada. Si un prerrequisito está inscrito y la consulta es \
-por el PRÓXIMO período, la respuesta es condicional: puede inscribirla si aprueba lo que cursa \
-ahora. Si la consulta es por el período ACTUAL, ese prerrequisito no está cumplido.
+Una asignatura INSCRITA no está aprobada. El estudiante la está cursando ahora y todavía puede \
+reprobarla.
 
-Si más de una regla impide la inscripción, cita la primera según este orden:
-R-YA-CURSADA, R-TOPE-MAX, el código del prerrequisito faltante, R-CREDITOS-MINIMOS, R-ESPECIAL.
+Revisa estas condiciones EN ORDEN y responde con la PRIMERA que se cumpla:
+
+1. "estado actual" es aprobada o inscrita
+   → {"decision": "no", "regla": "R-YA-CURSADA"}
+
+2. "créditos del semestre" es mayor que 24
+   → {"decision": "no", "regla": "R-TOPE-MAX"}
+
+3. algún prerrequisito no está aprobado. Mira su estado:
+   a) está inscrita y el período consultado es "proximo": NO bloquea. Anota que queda una
+      condición pendiente y sigue al punto 4.
+   b) "créditos del semestre" es menor que 8: procede excepción por reglamento
+      → {"decision": "condicional", "regla": "R-EXCEPCION-PRERREQ"}
+   c) en cualquier otro caso
+      → {"decision": "no", "regla": "<el CÓDIGO de ese prerrequisito>"}
+
+4. hay "umbral del ramo" y "créditos aprobados" es menor que ese umbral
+   → {"decision": "no", "regla": "R-CREDITOS-MINIMOS"}
+
+5. algún requisito especial dice "no_cumple"
+   → {"decision": "no", "regla": "R-ESPECIAL-<nombre del requisito>"}
+   Si dice "cumple_condicional" no bloquea: anota condición pendiente y sigue.
+
+6. "créditos del semestre" es menor que 8
+   → {"decision": "condicional", "regla": "R-EXCEPCION-PRERREQ"}
+
+7. quedó alguna condición pendiente de los puntos 3a o 5
+   → {"decision": "condicional", "regla": "R-DEPENDE-APROBACION"}
+
+8. ninguna de las anteriores
+   → {"decision": "sí", "regla": "R-SIN-IMPEDIMENTO"}
 
 El campo "regla" debe ser EXACTAMENTE uno de los valores de la lista de identificadores \
 válidos que se te entrega. No inventes identificadores ni los escribas de otra forma.
 
-Responde ÚNICAMENTE con este JSON, sin texto adicional:
-
-{"decision": "sí" | "no" | "condicional", "regla": "<identificador>"}"""
+Responde ÚNICAMENTE con el JSON, sin texto adicional."""
 
 
 def identificadores_validos(f):
@@ -256,15 +298,60 @@ def identificadores_validos(f):
     return validos
 
 
+# Tres fichas resueltas a mano, una por desenlace. El baseline con el que se compara es la
+# condición few-shot, que lleva tres ejemplos; sin ellos el pipeline competiría contra un
+# baseline mejor asistido y la diferencia no mediría la descomposición.
+#
+# Los tres usan ramos que NO son objetivo de ningún caso del conjunto de prueba, para que
+# ningún ejemplo resuelva por adelantado un caso medido.
+EJEMPLOS_P3 = [
+    ("""ramo objetivo:         510150  Física II
+estado actual:         no_cursada
+créditos del ramo:     4
+prerrequisitos:        510140  Física I  aprobada
+créditos aprobados:    22  (contados para el período actual)
+umbral del ramo:       ninguno
+requisitos especiales: ninguno
+créditos ya inscritos: 14
+créditos del semestre: 18  (14 ya inscritos + 4 de este ramo)""",
+     '{"decision": "sí", "regla": "R-SIN-IMPEDIMENTO"}'),
+
+    ("""ramo objetivo:         525150  Álgebra II
+estado actual:         no_cursada
+créditos del ramo:     5
+prerrequisitos:        525140  Álgebra I  reprobada
+créditos aprobados:    18  (contados para el período actual)
+umbral del ramo:       ninguno
+requisitos especiales: ninguno
+créditos ya inscritos: 12
+créditos del semestre: 17  (12 ya inscritos + 5 de este ramo)""",
+     '{"decision": "no", "regla": "525140"}'),
+
+    ("""ramo objetivo:         580321  Administración
+estado actual:         no_cursada
+créditos del ramo:     3
+prerrequisitos:        580211  Modelación de Sistemas  inscrita
+créditos aprobados:    96  (contados para el período proximo)
+umbral del ramo:       ninguno
+requisitos especiales: ninguno
+créditos ya inscritos: 15
+créditos del semestre: 18  (15 ya inscritos + 3 de este ramo)""",
+     '{"decision": "condicional", "regla": "R-DEPENDE-APROBACION"}'),
+]
+
+
 def prompt_paso3(f, malla):
     validos = identificadores_validos(f)
-    usuario = (f"=== FICHA DEL CASO ===\n{render_ficha(f)}\n\n"
-               f"=== REGLAS DE INSCRIPCIÓN ===\n{render_reglas(malla)}\n\n"
-               "=== IDENTIFICADORES VÁLIDOS ===\n"
-               + "\n".join(f"- {x}" for x in validos)
-               + "\n\nResponde solo con el JSON.")
+    partes = ["=== EJEMPLOS RESUELTOS ==="]
+    for i, (ficha_ej, respuesta) in enumerate(EJEMPLOS_P3, 1):
+        partes += [f"Ejemplo {i}.", ficha_ej, "Respuesta: " + respuesta, ""]
+    partes += ["=== FICHA DEL CASO ===", render_ficha(f), "",
+               "=== REGLAS DE INSCRIPCIÓN ===", render_reglas(malla), "",
+               "=== IDENTIFICADORES VÁLIDOS ==="]
+    partes += [f"- {x}" for x in validos]
+    partes += ["", "Responde solo con el JSON."]
     return [{"role": "system", "content": INSTRUCCION_P3},
-            {"role": "user", "content": usuario}]
+            {"role": "user", "content": "\n".join(partes)}]
 
 
 def parsear_paso3(texto, validos):
@@ -289,7 +376,7 @@ def _prueba_parseo():
     # ramo 503203 (Programación): 3 créditos, prerrequisito 525140, umbral 37
     ficha_ref = {
         "ramo": "503203", "nombre": "Programación", "estado_actual": NO_CURSADA,
-        "creditos_ramo": 3, "es_practica": False,
+        "creditos_ramo": 3, "es_practica": False, "creditos_semestre": 15,
         "prerrequisitos": [{"codigo": "525140", "nombre": "Álgebra I", "estado": REPROBADA}],
         "creditos_aprobados": 37, "umbral_creditos": 37,
         "requisitos_especiales": [], "creditos_ya_inscritos": 12, "periodo": "actual",
