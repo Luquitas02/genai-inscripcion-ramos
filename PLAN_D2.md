@@ -218,10 +218,26 @@ no prueba la frontera real de la regla, que está entre 1 y 7 créditos. Ambos m
 9 hoy, así que la mejora sigue siendo real, pero mide si el modelo nota un cero y no si aplica un
 umbral.
 
-**La comparación no es de igual a igual.** El pipeline hace tres llamadas al modelo y el baseline
-hace una. Hay que medir tokens y segundos en ambos y reportarlo. Si el pipeline resulta más barato
-en tokens totales, lo que es probable porque el baseline mete 3.900 de contexto por caso, el
-argumento queda cerrado con datos.
+**La comparación no es de igual a igual, y el costo se mide distinto en cada variante.** El
+pipeline hace más de una llamada al modelo y el baseline hace una. Medido en caracteres de prompt
+sobre los 60 casos, antes de correr nada:
+
+| | llamadas | caracteres por caso | contra el baseline |
+|---|---|---|---|
+| baseline few-shot | 1 | 8.130 | |
+| pipeline `puro` | 3 | 11.873 | 1,46× |
+| pipeline `retrieval` | 2 | 4.849 | 0,60× |
+
+La variante `puro` cuesta 46 % más contexto que el baseline, porque su paso 2 necesita la malla
+completa y el historial completo para que el modelo sume los créditos. Si esa variante mejora el
+acierto, parte de la mejora se explica por más cómputo y hay que decirlo.
+
+La variante `retrieval` cuesta 40 % menos contexto que el baseline, porque su paso 2 no llama al
+modelo. Si esa variante mejora el acierto, lo hace siendo además más barata.
+
+Una versión anterior de este documento afirmaba que el pipeline probablemente saldría más barato.
+Esa afirmación resultó falsa para `puro` al medirla, y queda corregida acá. Los tokens y segundos
+reales se miden en la corrida y se reportan en el documento.
 
 **El rebalanceo por regla se posterga.** El D1 declaró que balancear sobre la regla y no sobre la
 decisión era trabajo del D2. Rebalancear rompe la comparabilidad con el baseline, y la rúbrica
