@@ -340,14 +340,27 @@ créditos del semestre: 18  (15 ya inscritos + 3 de este ramo)""",
 ]
 
 
-def prompt_paso3(f, malla):
+def prompt_paso3(f, malla, con_reglas=True, con_ejemplos=True):
+    """Arma el prompt del paso 3.
+
+    `con_reglas` y `con_ejemplos` existen para la ablación de `ablacion_p3.py`.
+
+    El bloque de reglas globales es redundante en este paso: el procedimiento del mensaje de
+    sistema ya trae los umbrales de 24 y 8, y la regla de las prácticas ya está incorporada
+    en `creditos_semestre`. Se sospecha además que domina por posición, porque su frase más
+    larga es la última prosa que el modelo lee y es la única de todo el mensaje de usuario
+    que nombra un valor de decisión.
+    """
     validos = identificadores_validos(f)
-    partes = ["=== EJEMPLOS RESUELTOS ==="]
-    for i, (ficha_ej, respuesta) in enumerate(EJEMPLOS_P3, 1):
-        partes += [f"Ejemplo {i}.", ficha_ej, "Respuesta: " + respuesta, ""]
-    partes += ["=== FICHA DEL CASO ===", render_ficha(f), "",
-               "=== REGLAS DE INSCRIPCIÓN ===", render_reglas(malla), "",
-               "=== IDENTIFICADORES VÁLIDOS ==="]
+    partes = []
+    if con_ejemplos:
+        partes.append("=== EJEMPLOS RESUELTOS ===")
+        for i, (ficha_ej, respuesta) in enumerate(EJEMPLOS_P3, 1):
+            partes += [f"Ejemplo {i}.", ficha_ej, "Respuesta: " + respuesta, ""]
+    partes += ["=== FICHA DEL CASO ===", render_ficha(f), ""]
+    if con_reglas:
+        partes += ["=== REGLAS DE INSCRIPCIÓN ===", render_reglas(malla), ""]
+    partes += ["=== IDENTIFICADORES VÁLIDOS ==="]
     partes += [f"- {x}" for x in validos]
     partes += ["", "Responde solo con el JSON."]
     return [{"role": "system", "content": INSTRUCCION_P3},

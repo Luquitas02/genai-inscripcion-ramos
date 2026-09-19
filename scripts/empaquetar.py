@@ -23,7 +23,7 @@ SALIDA = BASE / "paquete_colab.zip"
 CODIGO = [
     "scripts/verificador.py", "scripts/prompt.py", "scripts/runner.py",
     "scripts/generador.py", "scripts/ficha.py", "scripts/pipeline.py",
-    "scripts/runner_d2.py",
+    "scripts/runner_d2.py", "scripts/ablacion_p3.py",
     "datos/malla.json", "datos/casos.jsonl",
 ]
 
