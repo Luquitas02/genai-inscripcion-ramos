@@ -29,7 +29,7 @@ import json
 
 from verificador import Verificador, APROBADA, INSCRITA, REPROBADA, NO_CURSADA
 from prompt import render_malla, render_historial, render_reglas
-from ficha import render_ficha
+from ficha import render_ficha, decision_de_regla
 
 # La malla y el historial se renderizan con las MISMAS funciones que usa el baseline.
 # Si se representaran distinto, la comparación mediría el cambio de representación y no
@@ -122,12 +122,15 @@ EJEMPLOS_P1 = [
 ]
 
 
-def prompt_paso1(caso, malla):
+def prompt_paso1(caso, malla, con_ejemplos=True):
     catalogo = "\n".join(f"{a['codigo']}  {a['nombre']}" for a in malla["asignaturas"])
-    partes = [f"=== CATÁLOGO DE ASIGNATURAS ===\n{catalogo}\n", "=== EJEMPLOS RESUELTOS ==="]
-    for i, (consulta, respuesta) in enumerate(EJEMPLOS_P1, 1):
-        partes.append(f'Ejemplo {i}. "{consulta}"  ->  {respuesta}')
-    partes += ["", "=== CONSULTA DEL ESTUDIANTE ===", caso["pregunta_prosa"], "",
+    partes = [f"=== CATÁLOGO DE ASIGNATURAS ===\n{catalogo}\n"]
+    if con_ejemplos:
+        partes.append("=== EJEMPLOS RESUELTOS ===")
+        for i, (consulta, respuesta) in enumerate(EJEMPLOS_P1, 1):
+            partes.append(f'Ejemplo {i}. "{consulta}"  ->  {respuesta}')
+        partes.append("")
+    partes += ["=== CONSULTA DEL ESTUDIANTE ===", caso["pregunta_prosa"], "",
                "Responde solo con el JSON."]
     return [{"role": "system", "content": INSTRUCCION_P1},
             {"role": "user", "content": "\n".join(partes)}]
@@ -277,7 +280,11 @@ Revisa estas condiciones EN ORDEN y responde con la PRIMERA que se cumpla:
 El campo "regla" debe ser EXACTAMENTE uno de los valores de la lista de identificadores \
 válidos que se te entrega. No inventes identificadores ni los escribas de otra forma.
 
-Responde ÚNICAMENTE con el JSON, sin texto adicional."""
+No devuelvas la decisión. La decisión se deduce de la regla, así que basta con la regla.
+
+Responde ÚNICAMENTE con este JSON, sin texto adicional:
+
+{"regla": "<identificador>"}"""
 
 
 def identificadores_validos(f):
@@ -340,7 +347,7 @@ créditos del semestre: 18  (15 ya inscritos + 3 de este ramo)""",
 ]
 
 
-def prompt_paso3(f, malla, con_reglas=True, con_ejemplos=True):
+def prompt_paso3(f, malla, con_reglas=False, con_ejemplos=True):
     """Arma el prompt del paso 3.
 
     `con_reglas` y `con_ejemplos` existen para la ablación de `ablacion_p3.py`.
@@ -368,15 +375,27 @@ def prompt_paso3(f, malla, con_reglas=True, con_ejemplos=True):
 
 
 def parsear_paso3(texto, validos):
-    """Rechaza cualquier regla fuera de la lista cerrada. Ése es el mecanismo contra E3."""
+    """Lee la regla y DERIVA la decisión de ella.
+
+    Dos mecanismos del D1 quedan eliminados por construcción acá. E3, los identificadores
+    inventados, porque se rechaza cualquier regla fuera de la lista cerrada. Y E4, las
+    contradicciones entre decisión y regla, porque la decisión ya no se pide: se deduce.
+
+    Si el modelo devuelve igual un campo "decision", se ignora. Se registra en `contradijo`
+    cuando lo devolvió y no coincidía con lo que implica la regla, que es la medida directa
+    de cuántas veces E4 habría ocurrido.
+    """
     d, estado = _extraer_json(texto)
     if d is None:
-        return {"decision": None, "regla": None, "parseo": estado}
-    dec = _DECISIONES.get(str(d.get("decision", "")).strip().lower())
+        return {"decision": None, "regla": None, "parseo": estado, "contradijo": False}
     regla = str(d.get("regla", "")).strip()
     if regla not in validos:
-        return {"decision": dec, "regla": None, "parseo": "regla_fuera_de_lista"}
-    return {"decision": dec, "regla": regla, "parseo": "ok"}
+        return {"decision": None, "regla": None,
+                "parseo": "regla_fuera_de_lista", "contradijo": False}
+    decision = decision_de_regla(regla)
+    dicha = _DECISIONES.get(str(d.get("decision", "")).strip().lower())
+    return {"decision": decision, "regla": regla, "parseo": "ok",
+            "contradijo": bool(dicha) and dicha != decision}
 
 
 # --------------------------------------------------------------- pruebas
@@ -450,20 +469,28 @@ def _prueba_parseo():
     validos = ["R-SIN-IMPEDIMENTO", "R-DEPENDE-APROBACION", "R-EXCEPCION-PRERREQ",
                "R-TOPE-MAX", "R-CREDITOS-MINIMOS", "R-YA-CURSADA", "525140"]
     casos += [
-        ("p3 json limpio",
-         lambda: parsear_paso3('{"decision": "sí", "regla": "R-SIN-IMPEDIMENTO"}', validos),
-         {"decision": "sí", "regla": "R-SIN-IMPEDIMENTO", "parseo": "ok"}),
-        ("p3 decisión sin tilde y en mayúsculas",
-         lambda: parsear_paso3('{"decision": "SI", "regla": "525140"}', validos),
-         {"decision": "sí", "regla": "525140", "parseo": "ok"}),
+        ("p3 solo la regla, la decisión se deriva",
+         lambda: parsear_paso3('{"regla": "R-SIN-IMPEDIMENTO"}', validos),
+         {"decision": "sí", "regla": "R-SIN-IMPEDIMENTO", "parseo": "ok", "contradijo": False}),
+        ("p3 un código de prerrequisito implica no",
+         lambda: parsear_paso3('{"regla": "525140"}', validos),
+         {"decision": "no", "regla": "525140", "parseo": "ok", "contradijo": False}),
         ("p3 identificador inventado (E3)",
-         lambda: parsear_paso3('{"decision": "no", "regla": "R-CREDITOS-MINIMISMU"}', validos),
-         {"decision": "no", "regla": None, "parseo": "regla_fuera_de_lista"}),
+         lambda: parsear_paso3('{"regla": "R-CREDITOS-MINIMISMU"}', validos),
+         {"decision": None, "regla": None,
+          "parseo": "regla_fuera_de_lista", "contradijo": False}),
         ("p3 código de ramo que no es prerrequisito del caso",
-         lambda: parsear_paso3('{"decision": "no", "regla": "527150"}', validos),
-         {"decision": "no", "regla": None, "parseo": "regla_fuera_de_lista"}),
+         lambda: parsear_paso3('{"regla": "527150"}', validos),
+         {"decision": None, "regla": None,
+          "parseo": "regla_fuera_de_lista", "contradijo": False}),
+        ("p3 si igual devuelve decisión y contradice la regla (E4), se ignora y se marca",
+         lambda: parsear_paso3('{"decision": "sí", "regla": "525140"}', validos),
+         {"decision": "no", "regla": "525140", "parseo": "ok", "contradijo": True}),
+        ("p3 si devuelve decisión y coincide, no es contradicción",
+         lambda: parsear_paso3('{"decision": "no", "regla": "525140"}', validos),
+         {"decision": "no", "regla": "525140", "parseo": "ok", "contradijo": False}),
         ("p3 sin json", lambda: parsear_paso3('no puedo responder', validos),
-         {"decision": None, "regla": None, "parseo": "sin_json"}),
+         {"decision": None, "regla": None, "parseo": "sin_json", "contradijo": False}),
     ]
 
     fallas = []

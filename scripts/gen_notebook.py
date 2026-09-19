@@ -37,8 +37,8 @@ Dos mediciones distintas, y conviene correr la primera antes que la segunda:
 
 | sección | qué mide | cuánto tarda |
 |---|---|---|
-| 6, ablación | solo el paso 3, con cuatro versiones del prompt | ~10 min |
-| 7, la grilla | el pipeline completo, 2 variantes × 2 modos | ~25 min |
+| 6, ablaciones | el paso 1 con y sin ejemplos, y el paso 3 con cuatro prompts | ~15 min |
+| 7, la grilla | el pipeline completo, 3 variantes × 2 modos | ~20 min |
 """),
 
     md("""## 1 · GPU y dependencias
@@ -90,6 +90,7 @@ PRUEBAS = [
     ('pipeline.py',    ['pipeline.py']),
     ('runner_d2.py',   ['runner_d2.py', '--pruebas']),
     ('ablacion_p3.py', ['ablacion_p3.py', '--modelo-falso', '--limite', '2']),
+    ('ablacion_p1.py', ['ablacion_p1.py', '--modelo-falso', '--limite', '2']),
 ]
 
 todo_ok = True
@@ -128,43 +129,55 @@ Phi-3.5-mini, 3,8 mil millones de parámetros, cuantizado a 4 bits.
     code("""MODELO = 'microsoft/Phi-3.5-mini-instruct'
 print('modelo elegido:', MODELO)"""),
 
-    md("""## 6 · Ablación del paso 3
-Corre **solo el paso 3**, con la ficha verdadera de cada caso, bajo cuatro versiones del
-prompt: `completo`, `sin_reglas`, `sin_ejemplos` y `minimo`.
+    md("""## 6 · Ablaciones
+Dos mediciones cortas que deciden qué prompt usar, antes de gastar los 25 minutos de la
+grilla completa.
 
-Sirve para saber qué versión usar antes de gastar 25 minutos midiendo las tres etapas. El
-techo demostrado es 60/60. Unos 10 minutos.
+- **Paso 1**, con y sin ejemplos resueltos. Es el cuello de botella del sistema: si elige
+  mal la asignatura, el caso está perdido pase lo que pase después.
+- **Paso 3**, cuatro versiones del prompt, con la ficha verdadera de cada caso. El techo
+  demostrado es 60/60.
+
+Unos 15 minutos las dos.
 """),
     code("""import subprocess, sys, os, time
 
 os.chdir('/content/proyecto/scripts')
 t0 = time.time()
-r = subprocess.run([sys.executable, 'ablacion_p3.py', '--modelo', MODELO],
-                   capture_output=True, text=True)
-if r.returncode == 0:
-    print(r.stdout[-5000:])
-else:
-    print('FALLO:')
-    print('\\n'.join(r.stderr.strip().splitlines()[-12:]))
-print('\\nablacion completa en %.1f minutos' % ((time.time() - t0) / 60))"""),
+for script in ['ablacion_p1.py', 'ablacion_p3.py']:
+    r = subprocess.run([sys.executable, script, '--modelo', MODELO],
+                       capture_output=True, text=True)
+    if r.returncode == 0:
+        print(r.stdout[-4000:])
+    else:
+        print('FALLO en ' + script + ':')
+        print('\\n'.join(r.stderr.strip().splitlines()[-10:]))
+    print()
+print('ablaciones completas en %.1f minutos' % ((time.time() - t0) / 60))"""),
 
     md("""## 7 · La grilla
-El pipeline completo, cuatro corridas de 60 casos.
+El pipeline completo, seis corridas de 60 casos. Las variantes mueven el trabajo del modelo
+al código una pieza por vez, así que la diferencia entre dos filas contiguas mide lo que esa
+pieza aporta.
 
-| variante | modo | qué mide |
+| variante | paso 2, la ficha | paso 3, la decisión |
 |---|---|---|
-| `puro` | `encadenado` | el sistema: el modelo hace los tres pasos |
-| `puro` | `oraculo` | la competencia de cada paso por separado |
-| `retrieval` | `encadenado` | el sistema con la ficha armada por código |
-| `retrieval` | `oraculo` | el paso 3 solo, con ficha perfecta |
+| `puro` | el modelo | el modelo |
+| `retrieval` | el código | el modelo |
+| `codigo` | el código | el código |
 
-Unos 25 minutos. **Si algo se corta, vuelve a correr esta misma celda**: retoma donde iba.
+Y cada variante en dos modos: `encadenado`, que es el sistema, y `oraculo`, que le da a cada
+paso la entrada correcta para medir su competencia aislada.
+
+Las dos corridas de `codigo` casi no usan GPU, así que el total ronda los 20 minutos. **Si
+algo se corta, vuelve a correr esta misma celda**: retoma donde iba.
 """),
     code("""import subprocess, sys, os, time
 
 os.chdir('/content/proyecto/scripts')
 GRILLA = [('puro', 'encadenado'), ('puro', 'oraculo'),
-          ('retrieval', 'encadenado'), ('retrieval', 'oraculo')]
+          ('retrieval', 'encadenado'), ('retrieval', 'oraculo'),
+          ('codigo', 'encadenado'), ('codigo', 'oraculo')]
 
 t0 = time.time()
 for var, modo in GRILLA:

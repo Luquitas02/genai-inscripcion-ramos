@@ -111,6 +111,45 @@ def render_ficha(f):
     return "\n".join(lineas)
 
 
+# --------------------------------------------------------------- decisión desde la regla
+
+# La decisión queda determinada por la regla. Se verificó sobre los 60 casos: ninguna de las
+# ocho reglas admite más de una decisión. O sea que pedirle al modelo los dos campos le da un
+# grado de libertad que no existe en el dominio, y con él la posibilidad de contradecirse
+# citando una regla que bloquea junto a un "sí". Esa contradicción es el mecanismo E4 del D1,
+# y derivar la decisión en vez de pedirla lo elimina por construcción.
+DECISION_POR_REGLA = {
+    "R-SIN-IMPEDIMENTO": "sí",
+    "R-DEPENDE-APROBACION": "condicional",
+    "R-EXCEPCION-PRERREQ": "condicional",
+    "R-TOPE-MAX": "no",
+    "R-CREDITOS-MINIMOS": "no",
+    "R-YA-CURSADA": "no",
+}
+
+
+def decision_de_regla(regla):
+    """Devuelve la decisión que implica esa regla, o None si el identificador no es válido.
+
+    Los códigos de asignatura y los R-ESPECIAL-* siempre bloquean, así que implican "no".
+    """
+    if not regla:
+        return None
+    if regla in DECISION_POR_REGLA:
+        return DECISION_POR_REGLA[regla]
+    if regla.startswith("R-ESPECIAL-") or regla.isdigit():
+        return "no"
+    return None
+
+
+def _prueba_decision_de_regla():
+    """La derivación tiene que coincidir con el verificador en los 60 casos."""
+    casos = [json.loads(l) for l in open(RUTA_CASOS, encoding="utf-8") if l.strip()]
+    malos = [c for c in casos
+             if decision_de_regla(c["respuesta"]["regla"]) != c["respuesta"]["decision"]]
+    return len(casos) - len(malos), len(casos), malos
+
+
 # --------------------------------------------------------------- decisión de referencia
 
 def decidir_desde_ficha(v, f):
@@ -265,6 +304,13 @@ def main():
     for m in fallas2:
         print(f"[FALLA] {m}")
     print(f"{ok2}/{total2} chequeos de render y comparación correctos")
+
+    ok3, total3, malos3 = _prueba_decision_de_regla()
+    for c in malos3:
+        print(f"[FALLA] regla {c['respuesta']['regla']} implica "
+              f"{decision_de_regla(c['respuesta']['regla'])} y el caso dice "
+              f"{c['respuesta']['decision']}")
+    print(f"{ok3}/{total3} casos donde la decisión se deriva de la regla")
     print()
 
     ok, total, fallas = _prueba_suficiencia()
@@ -276,7 +322,7 @@ def main():
         print(f"        {esperado['detalle']}")
         print()
     print(f"{ok}/{total} casos reproducen al verificador desde la ficha")
-    return 0 if (ok == total and ok2 == total2) else 1
+    return 0 if (ok == total and ok2 == total2 and ok3 == total3) else 1
 
 
 if __name__ == "__main__":

@@ -6,10 +6,14 @@ Corre los tres pasos sobre los 60 casos y registra todo caso a caso, igual que e
 del baseline: guarda cada fila apenas la termina y retoma donde iba si el archivo ya
 existe, porque una Colab gratuita se desconecta sin avisar.
 
-Dos variantes, que se diferencian solo en quién arma la ficha del paso 2:
+Tres variantes, que mueven el trabajo del modelo al código una pieza por vez:
 
-    puro        la arma el modelo, leyendo la malla y el historial
-    retrieval   la arma `ficha.construir_ficha`, determinista
+    puro        la arma el modelo, y el modelo tambien decide
+    retrieval   la arma el codigo, y el modelo decide
+    codigo      la arma el codigo, y el codigo tambien decide
+
+La escalera de variantes mueve una pieza por vez del modelo al codigo, asi que la diferencia
+entre dos filas contiguas mide exactamente lo que esa pieza aporta.
 
 Dos modos, que se diferencian en qué recibe cada paso:
 
@@ -24,6 +28,7 @@ puede distinguir un paso malo de un paso que recibió basura del anterior.
 Uso:
     python runner_d2.py --variante puro --modo encadenado
     python runner_d2.py --variante retrieval --modo oraculo
+    python runner_d2.py --variante codigo --modo encadenado
     python runner_d2.py --modelo-falso --limite 3        # prueba local, sin GPU
 """
 
@@ -33,7 +38,7 @@ import time
 from pathlib import Path
 
 from verificador import Verificador, RUTA_MALLA
-from ficha import construir_ficha, comparar_fichas, RUTA_CASOS
+from ficha import construir_ficha, comparar_fichas, decidir_desde_ficha, RUTA_CASOS
 import pipeline as PL
 
 BASE = Path(__file__).resolve().parent.parent
@@ -143,8 +148,19 @@ def correr_caso(modelo, caso, v, malla, variante, modo):
         fila["segundos_total"] = seg1 + fila["paso2"]["segundos"]
         return fila
 
-    crudo3, tok3, seg3 = _llamar(modelo, PL.prompt_paso3(ficha3, malla))
-    p3 = PL.parsear_paso3(crudo3, PL.identificadores_validos(ficha3))
+    if variante == "codigo":
+        # La ablación del paso 3 midió que el modelo aplica las reglas al 28,3 % con la ficha
+        # perfecta delante, y que `decidir_desde_ficha` hace lo mismo al 100 %. Esta variante
+        # mueve esa aplicación al código. Es uso de herramientas, una de las intervenciones
+        # que la guía enumera. El modelo queda a cargo de lo que el código no puede hacer:
+        # entender la pregunta en prosa.
+        d = decidir_desde_ficha(v, ficha3)
+        p3 = {"decision": d["decision"], "regla": d["regla"],
+              "parseo": "determinista", "contradijo": False}
+        crudo3, tok3, seg3 = None, 0, 0.0
+    else:
+        crudo3, tok3, seg3 = _llamar(modelo, PL.prompt_paso3(ficha3, malla))
+        p3 = PL.parsear_paso3(crudo3, PL.identificadores_validos(ficha3))
     fila["paso3"] = {"crudo": crudo3, "parseado": p3, "tokens": tok3, "segundos": seg3}
     fila["prediccion"] = p3
     fila["acierto_decision"] = p3["decision"] == caso["respuesta"]["decision"]
@@ -285,7 +301,7 @@ def main_pruebas():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--modelo", default=MODELO_POR_DEFECTO)
-    ap.add_argument("--variante", default="puro", choices=["puro", "retrieval"])
+    ap.add_argument("--variante", default="puro", choices=["puro", "retrieval", "codigo"])
     ap.add_argument("--modo", default="encadenado", choices=["encadenado", "oraculo"])
     ap.add_argument("--limite", type=int, default=None,
                     help="correr solo los primeros N casos")
