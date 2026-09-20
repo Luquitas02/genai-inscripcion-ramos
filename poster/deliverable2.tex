@@ -95,11 +95,13 @@ Descomposición en tres pasos con contexto enfocado y salida restringida. El bas
   codigo/.style={caja,draw=verde,line width=0.6pt},
   fl/.style={-{Stealth[length=1.6mm]},draw=gris}]
 
-\node[caja,fill=fondo] (q) {\q me falta programación,\\ ¿puedo tomar Optimización 1?\q};
+\node[caja,fill=fondo] (q) {\q me falta cálculo 2 pero la estoy\\ tomando, ¿alcanzo a meter\\ ecuaciones el próximo?\q};
 \node[modelo,below=2.6mm of q] (p1) {\textbf{Paso 1 · Extracción}\\[0.3mm] {\color{acento}el modelo}\\ pregunta + 61 códigos};
 \node[codigo,below=2.6mm of p1] (p2) {\textbf{Paso 2 · Ficha}\\[0.3mm] {\color{verde}el código}\\ 8 campos, 1 ramo};
 \node[codigo,below=2.6mm of p2] (p3) {\textbf{Paso 3 · Decisión}\\[0.3mm] {\color{verde}el código}\\ lista cerrada de reglas};
-\node[caja,fill=fondo,below=2.6mm of p3] (out) {\cod{\{"regla": "503203"\}}\\ decisión derivada: \textbf{no}};
+% La comilla doble literal la come babel-spanish aun con \shorthandoff. Va \q, que es
+% \textquotedbl y es inmune, igual que en el resto del documento.
+\node[caja,fill=fondo,below=2.6mm of p3] (out) {\cod{\{\q regla\q: \q R-DEPENDE-APROBACION\q\}}\\ decisión derivada: \textbf{condicional}};
 
 \draw[fl] (q) -- (p1);
 \draw[fl] (p1) -- node[right=0.5mm,font=\tiny,text=gris]{ramo, período} (p2);
@@ -137,6 +139,28 @@ salidas sin JSON legible & \textbf{0} \\
 
 \vspace{1mm}
 En el baseline zero-shot, Phi inventaba identificadores en 18 de 60 casos.
+
+\seccion{Acierto por tipo de caso}
+
+Los 60 casos se generaron desde la regla que debía decidir, así que cada tipo se puede
+contar por separado. El sistema mejora en siete de las ocho familias.
+
+\vspace{0.5mm}
+{\footnotesize
+\begin{tabular}{@{}lrr@{}}
+\toprule
+regla que decide el caso & baseline & sistema \\
+\midrule
+sin impedimento              & 2/18 & \textbf{13/18} \\
+prerrequisito en curso, próximo período & 6/12 & 3/12 \\
+excepción por carga baja     & 0/9  & \textbf{8/9} \\
+prerrequisito faltante       & 2/6  & \textbf{3/6} \\
+prerrequisito en curso, período actual & 0/6 & \textbf{1/6} \\
+umbral de créditos aprobados & 0/3  & \textbf{3/3} \\
+tope máximo de créditos      & 0/3  & \textbf{2/3} \\
+requisito de año completo    & 0/3  & \textbf{2/3} \\
+\bottomrule
+\end{tabular}}
 
 % ================================================================ COLUMNA 2
 \columnbreak
