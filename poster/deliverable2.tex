@@ -102,8 +102,8 @@ Qwen2.5-7B & 7,6B & sin crudo & 31,7 \\
 \vspace{1mm}
 Phi acierta más del doble que Mistral con la mitad de los parámetros. Su acierto conjunto en el
 Deliverable~1 es el más bajo de los tres. Mistral responde \q sí\q\ en 50 de los 60 casos y
-acierta los 18 que efectivamente lo son, así que queda sobre el piso trivial sin haber leído el
-expediente. Phi reparte sus respuestas entre las tres categorías. Se eligió Phi porque el
+acierta 17 de los 18 que efectivamente lo son, así que queda sobre el piso trivial sin haber
+leído el expediente. Phi reparte sus respuestas entre las tres categorías. Se eligió Phi porque el
 sistema necesita un modelo que distinga categorías.
 
 Qwen queda fuera por ser el más grande de los tres y quedar bajo Mistral en la métrica
@@ -232,7 +232,7 @@ mínimo                       & 30,0 & \cod{R-DEPENDE} 47 \\
 \vspace{1mm}
 {\footnotesize
 El bloque de reglas globales dictaba la respuesta por su posición. Era la última prosa del
-prompt y la única que nombraba un valor de decisión. Sacarlo vale 5 puntos. Aun así el modelo
+prompt y la única que nombraba un valor de decisión. Sacarlo sube el acierto 5 puntos. Aun así el modelo
 sigue colapsando en una categoría. Con la ficha perfecta delante aplica las reglas al 31,7\,\%
 y el código lo hace al 100\,\%. Por esa diferencia las reglas quedaron en el código.
 
