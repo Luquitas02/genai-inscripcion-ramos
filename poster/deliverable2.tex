@@ -1,0 +1,249 @@
+% =====================================================================
+%  Deliverable 2 — Generative Artificial Intelligence (580694)
+%  Universidad de Concepción · 30 de septiembre de 2026
+%  Joaquín Sepúlveda · Renato Saavedra · Lucas Saldivia
+%
+%  UNA PÁGINA, VERTICAL, compilado desde LaTeX. Overleaf → pdfLaTeX.
+% =====================================================================
+\documentclass[9pt,a4paper]{extarticle}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish,es-noquoting]{babel}
+% babel-spanish vuelve activa la comilla doble: "c se convierte en ç y rompe
+% el JSON de ejemplo. Esto la desactiva.
+\shorthandoff{"}
+\usepackage{libertine}
+\usepackage[scaled=0.80]{beramono}
+\usepackage{microtype}
+\usepackage[margin=9mm]{geometry}
+\usepackage{multicol}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usepackage{array}
+\usepackage{colortbl}
+\usetikzlibrary{arrows.meta,positioning,fit}
+
+\definecolor{tinta}{HTML}{12191A}
+\definecolor{acento}{HTML}{B8501C}
+\definecolor{verde}{HTML}{146B5F}
+\definecolor{ambar}{HTML}{C08A24}
+\definecolor{gris}{HTML}{5A6A6B}
+\definecolor{fondo}{HTML}{EDF1F0}
+\definecolor{linea}{HTML}{C8D4D1}
+
+\color{tinta}
+\pagestyle{empty}
+\setlength{\columnsep}{5mm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.8mm}
+\renewcommand{\arraystretch}{0.97}
+
+\newcommand{\seccion}[1]{\vspace{0.9mm}{\bfseries\footnotesize\color{acento}\MakeUppercase{#1}}\par\nobreak\vspace{0.4mm}\nobreak}
+\newcommand{\sub}[1]{{\bfseries #1}\par\nobreak\vspace{-1.2mm}\nobreak}
+\newcommand{\q}{\textquotedbl}
+\newcommand{\cod}[1]{{\ttfamily\small #1}}
+\newcommand{\destaque}[1]{%
+  \begingroup\setlength{\fboxsep}{2.0mm}%
+  \colorbox{fondo}{\parbox{\dimexpr\columnwidth-4.0mm\relax}{#1}}%
+  \endgroup\par}
+
+\begin{document}
+\raggedright
+
+% ---------------------------------------------------------------- cabecera
+{\Large\bfseries De 16,7\,\% a 58,3\,\%: qué parte del trabajo puede hacer un modelo de 3,8B}\\[0.8mm]
+{\footnotesize\color{gris}%
+\textbf{Deliverable 2} · Generative Artificial Intelligence (580694) · Universidad de Concepción · 30 de septiembre de 2026\\
+\textbf{Equipo:} Joaquín Sepúlveda · Renato Saavedra · Lucas Saldivia \quad\textbullet\quad
+\textbf{Modelo:} \cod{microsoft/Phi-3.5-mini-instruct}, 3,8B, cuantizado a 4 bits, T4 de Colab\\
+\textbf{Repositorio:} \cod{github.com/Luquitas02/genai-inscripcion-ramos} \quad\textbullet\quad
+\textbf{Video:} \cod{<PEGAR LINK>}}
+
+\vspace{1.5mm}
+{\color{linea}\rule{\textwidth}{0.4pt}}
+\vspace{1mm}
+
+\begin{multicols}{2}
+
+% ================================================================ COLUMNA 1
+\seccion{La tarea y la falla que se ataca}
+
+Dado el historial de un estudiante y una pregunta escrita como la escribiría una persona,
+decidir si puede inscribir un ramo y citar la regla que lo sostiene. Salida de dos campos,
+corrección por coincidencia exacta, 60 casos balanceados. Es la misma tarea del Deliverable~1,
+con el mismo conjunto y el mismo criterio.
+
+El Deliverable~1 midió que el baseline no razona. Con prompting directo, Phi acierta 16,7\,\%
+de los casos en ambos campos, bajo el piso de 30,0\,\% que consigue quien responde siempre lo
+mismo. Se diagnosticaron cuatro mecanismos: no representa el estado \q cursándola ahora\q\ (E1),
+depende de que la pregunta le apunte al dato (E2), inventa identificadores (E3) y se contradice
+entre decisión y regla (E4).
+
+\seccion{La intervención}
+
+Descomposición en tres pasos con contexto enfocado y salida restringida. El baseline recibe
+3.862 tokens y debe hacer todo en una pasada. Acá cada paso recibe solo lo suyo.
+
+\vspace{1mm}
+\begin{center}
+\begin{tikzpicture}[
+  font=\scriptsize,
+  caja/.style={draw=linea,fill=white,rounded corners=1pt,inner sep=1.4mm,text width=30mm,align=center},
+  modelo/.style={caja,draw=acento,line width=0.6pt},
+  codigo/.style={caja,draw=verde,line width=0.6pt},
+  fl/.style={-{Stealth[length=1.6mm]},draw=gris}]
+
+\node[caja,fill=fondo] (q) {\q me falta programación,\\ ¿puedo tomar Optimización 1?\q};
+\node[modelo,below=2.6mm of q] (p1) {\textbf{Paso 1 · Extracción}\\[0.3mm] {\color{acento}el modelo}\\ pregunta + 61 códigos};
+\node[codigo,below=2.6mm of p1] (p2) {\textbf{Paso 2 · Ficha}\\[0.3mm] {\color{verde}el código}\\ 8 campos, 1 ramo};
+\node[codigo,below=2.6mm of p2] (p3) {\textbf{Paso 3 · Decisión}\\[0.3mm] {\color{verde}el código}\\ lista cerrada de reglas};
+\node[caja,fill=fondo,below=2.6mm of p3] (out) {\cod{\{"regla": "503203"\}}\\ decisión derivada: \textbf{no}};
+
+\draw[fl] (q) -- (p1);
+\draw[fl] (p1) -- node[right=0.5mm,font=\tiny,text=gris]{ramo, período} (p2);
+\draw[fl] (p2) -- node[right=0.5mm,font=\tiny,text=gris]{descarta 25 asignaturas} (p3);
+\draw[fl] (p3) -- (out);
+\end{tikzpicture}
+\end{center}
+\vspace{0.5mm}
+
+{\footnotesize
+El \textbf{paso 1} ataca E2: ve la pregunta y los 61 pares de código y nombre, sin historial ni
+reglas. El \textbf{paso 2} ataca E1: arma una ficha de ocho campos sobre un solo ramo, y
+descarta las 25 asignaturas del historial que no lo tocan. El \textbf{paso 3} ataca E3 y E4: la
+regla debe salir de una lista cerrada que incluye los códigos de los prerrequisitos del caso, y
+la decisión no se pide, se deriva.
+}
+
+\seccion{Dos mecanismos eliminados por construcción}
+
+Se verificó sobre los 60 casos que la decisión queda determinada por la regla, sin una sola
+ambigüedad. Pedir los dos campos le daba al modelo un grado de libertad que el dominio no tiene.
+Al derivar la decisión y restringir la regla, E3 y E4 desaparecen.
+
+\vspace{0.5mm}
+{\footnotesize
+\begin{tabular}{@{}lr@{}}
+\toprule
+sobre 240 respuestas donde el modelo decide & \\
+\midrule
+identificadores inventados (E3) & \textbf{0} \\
+contradicciones decisión/regla (E4) & \textbf{0} \\
+salidas sin JSON legible & \textbf{0} \\
+\bottomrule
+\end{tabular}}
+
+\vspace{1mm}
+En el baseline zero-shot, Phi inventaba identificadores en 18 de 60 casos.
+
+% ================================================================ COLUMNA 2
+\columnbreak
+
+\seccion{Resultados sobre los 60 casos}
+
+Las variantes mueven una pieza por vez del modelo al código, así que la diferencia entre dos
+filas mide lo que esa pieza aporta.
+
+\vspace{0.5mm}
+{\footnotesize
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+ & decisión & regla & \textbf{ambas} & tok/caso \\
+\midrule
+baseline few-shot       & 35,0 & 23,3 & 16,7 & 3.862 \\
+constante trivial       & 35,0 & 30,0 & 30,0 & --- \\
+\midrule
+ficha y reglas al modelo   & 45,0 & 25,0 & 25,0 & 6.072 \\
+ficha al código            & 45,0 & 28,3 & 28,3 & 2.743 \\
+\rowcolor{fondo}
+\textbf{ficha y reglas al código} & \textbf{71,7} & \textbf{58,3} & \textbf{58,3} & \textbf{1.153} \\
+\midrule
+{\itshape con el paso 1 resuelto} & 100,0 & 100,0 & 100,0 & 1.153 \\
+\bottomrule
+\end{tabular}}
+
+\vspace{1mm}
+\destaque{\footnotesize El sistema triplica el baseline y es además la condición más barata:
+\textbf{1.153 tokens por caso contra 3.862}, y 1,6 segundos contra 4,2. La mejora no viene de
+gastar más cómputo, porque gasta un tercio.}
+
+\seccion{Estrategias alternativas evaluadas}
+
+El paso 3 se midió con la ficha verdadera de cada caso, bajo cuatro versiones del prompt, contra
+un techo demostrado de 60/60.
+
+\vspace{0.5mm}
+{\footnotesize
+\begin{tabular}{@{}lrl@{}}
+\toprule
+versión del prompt del paso 3 & ambas & regla dominante \\
+\midrule
+completo                     & 26,7 & \cod{R-EXCEPCION} 38 \\
+sin el bloque de reglas      & \textbf{31,7} & \cod{R-DEPENDE} 49 \\
+sin ejemplos                 & 15,0 & \cod{R-EXCEPCION} 60 \\
+mínimo                       & 30,0 & \cod{R-DEPENDE} 47 \\
+\bottomrule
+\end{tabular}}
+
+\vspace{1mm}
+{\footnotesize
+El bloque de reglas globales dictaba la respuesta por posición: era la última prosa del prompt y
+la única que nombraba un valor de decisión. Sacarlo vale 5 puntos. Aun así el modelo colapsa en
+una categoría, y con la ficha perfecta delante aplica las reglas al 31,7\,\% mientras el código
+lo hace al 100\,\%. Esa diferencia es lo que justifica moverlas.
+
+En el paso 1, los ejemplos resueltos se midieron y se descartaron: bajan el acierto de ramo de
+51,7\,\% a 45,0\,\%.}
+
+\seccion{Dónde se rompe, y por qué}
+
+\vspace{0.5mm}
+{\footnotesize
+\begin{tabular}{@{}lr@{}}
+\toprule
+casos donde el paso 1 acierta ramo y período & \textbf{28 de 28} \\
+casos donde el paso 1 falla & 7 de 32 \\
+\bottomrule
+\end{tabular}}
+
+\vspace{1mm}
+{\footnotesize
+\textbf{Todo el error restante es extracción.} El paso 1 identifica el ramo en 31 de 60 casos, y
+se degrada con la forma de nombrarlo: 13/20 con el nombre completo, 10/20 abreviado, 8/20
+coloquial. Las 29 fallas devolvieron un código válido pero equivocado, ninguna devolvió basura.
+
+\textbf{Caso de falla, elegido por regla escrita antes de medir} (el primero de nivel 3 cuyo
+baseline falla). La pregunta es \q programación, la reprobé, ¿puedo tomar Optimización 1 ahora
+ya?\q. El ramo consultado es 580315. El paso 1 devolvió 503203, que la frase menciona de
+contexto y que además es el prerrequisito que bloquea. Los pasos 2 y 3 resolvieron con toda
+corrección la pregunta equivocada y respondieron que sí, porque un ramo reprobado se puede
+volver a inscribir. Es E2 del Deliverable~1 en estado puro.
+
+\textbf{El paso 2 tampoco puede leer el expediente} aun con el ramo correcto: estado del ramo
+0/60, créditos aprobados 0/60, prerrequisitos 7/60. Por eso la ficha la arma el código.}
+
+\seccion{Límites declarados}
+
+{\footnotesize
+\textbf{Una categoría empeora.} En los 12 casos con prerrequisito en curso preguntando por el
+próximo período, el sistema baja de 6/12 a 3/12. El baseline acertaba ahí porque apostaba a
+\q condicional\q, no porque razonara.
+
+\textbf{Filtración del conjunto.} Los 9 casos de \cod{R-EXCEPCION-PRERREQ} tienen todos cero
+créditos inscritos y los otros 51 tienen entre 12 y 24, con el umbral en 8. El conjunto no
+prueba la frontera de esa regla.
+
+\textbf{Selección sobre el mismo conjunto.} Las versiones del prompt se eligieron por ablación
+sobre los mismos 60 casos. Con n=60, diferencias de dos a cuatro casos no deben leerse como
+efectos firmes.
+
+\textbf{Desviación declarada.} El plan del Deliverable~1 reservaba la consulta al grafo para el
+Deliverable~3. Se adelantó porque la ablación mostró que el modelo no aplica las reglas. El
+Deliverable~3 pasa a atacar la extracción, que es el cuello de botella medido.
+
+\textbf{Un dominio, 60 casos.} Sin cambios respecto al Deliverable~1.}
+
+\end{multicols}
+\end{document}
