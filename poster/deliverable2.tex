@@ -16,7 +16,7 @@
 \usepackage{libertine}
 \usepackage[scaled=0.80]{beramono}
 \usepackage{microtype}
-\usepackage[margin=9mm]{geometry}
+\usepackage[margin=8mm]{geometry}
 \usepackage{multicol}
 \usepackage{xcolor}
 \usepackage{booktabs}
@@ -38,7 +38,7 @@
 \setlength{\columnsep}{5mm}
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{0.7mm}
-\renewcommand{\arraystretch}{0.97}
+\renewcommand{\arraystretch}{0.93}
 
 \newcommand{\seccion}[1]{\vspace{0.9mm}{\bfseries\footnotesize\color{acento}\MakeUppercase{#1}}\par\nobreak\vspace{0.4mm}\nobreak}
 \newcommand{\sub}[1]{{\bfseries #1}\par\nobreak\vspace{-1.2mm}\nobreak}
@@ -209,23 +209,7 @@ tercio del cómputo, la mejora no se explica por haber gastado más.}
 \vspace{1mm}
 {\footnotesize
 Los 60 casos se generaron desde la regla que debía decidir, así que cada familia se cuenta por
-separado. El sistema mejora en siete de las ocho.
-
-\vspace{0.8mm}
-\begin{tabular}{@{}lrr@{}}
-\toprule
-regla que decide el caso & baseline & sistema \\
-\midrule
-sin impedimento                        & 2/18 & \textbf{13/18} \\
-prerreq.\ en curso, próximo período    & 6/12 & 3/12 \\
-excepción por carga baja               & 0/9  & \textbf{8/9} \\
-prerrequisito faltante                 & 2/6  & \textbf{3/6} \\
-prerreq.\ en curso, período actual     & 0/6  & \textbf{1/6} \\
-umbral de créditos aprobados           & 0/3  & \textbf{3/3} \\
-tope máximo de créditos                & 0/3  & \textbf{2/3} \\
-requisito de año completo              & 0/3  & \textbf{2/3} \\
-\bottomrule
-\end{tabular}}
+separado. El sistema mejora en siete de las ocho, y la que empeora está declarada más abajo.}
 
 \seccion{Estrategias alternativas evaluadas}
 
@@ -252,8 +236,7 @@ prompt y la única que nombraba un valor de decisión. Sacarlo vale 5 puntos. Au
 sigue colapsando en una categoría. Con la ficha perfecta delante aplica las reglas al 31,7\,\%
 y el código lo hace al 100\,\%. Por esa diferencia las reglas quedaron en el código.
 
-En el paso 1 los ejemplos resueltos se midieron y se descartaron. Bajan el acierto de ramo de
-51,7\,\% a 45,0\,\%.}
+En el paso 1 los ejemplos bajan el acierto de ramo de 51,7\,\% a 45,0\,\%, así que se descartaron.}
 
 \seccion{Dónde se rompe, y por qué}
 
@@ -270,7 +253,7 @@ casos donde el paso 1 falla & 7 de 32 \\
 {\footnotesize
 \textbf{Todo el error restante es extracción.} El paso 1 identifica el ramo en 31 de 60 casos, y
 se degrada con la forma de nombrarlo: 13/20 con el nombre completo, 10/20 abreviado, 8/20
-coloquial. Las 29 fallas devolvieron un código válido pero equivocado, ninguna devolvió basura.
+coloquial.
 
 \textbf{Caso de falla, elegido por regla escrita antes de medir} (el primero de nivel 3 cuyo
 baseline falla). La pregunta es \q programación, la reprobé, ¿puedo tomar Optimización 1 ahora
@@ -290,18 +273,18 @@ próximo período, el sistema baja de 6/12 a 3/12. Los 12 tienen la misma respue
 el baseline la dio en 6 de ellos respondiendo \q condicional\q. Las 9 fallas del sistema son
 las 9 veces que el paso 1 tomó el ramo equivocado.
 
-\textbf{Filtración del conjunto.} Los 9 casos de \cod{R-EXCEPCION-PRERREQ} tienen todos cero
-créditos inscritos y los otros 51 tienen entre 12 y 24, con el umbral en 8. El conjunto no
-prueba la frontera de esa regla.
+\textbf{Filtración del conjunto.} Los 9 casos de \cod{R-EXCEPCION-PRERREQ} tienen cero créditos
+inscritos y los otros 51 entre 12 y 24, con el umbral en 8, así que el conjunto no prueba la
+frontera de esa regla.
 
 \textbf{Selección sobre el mismo conjunto.} Las versiones del prompt se eligieron por ablación
 sobre los mismos 60 casos. Con n=60, diferencias de dos a cuatro casos no deben leerse como
 efectos firmes.
 
 \textbf{Desviación declarada.} El plan del Deliverable~1 reservaba la consulta al grafo para el
-Deliverable~3. Se adelantó porque la ablación mostró que el modelo no aplica las reglas. El
-Deliverable~3 pasa a atacar la extracción, que es el cuello de botella medido.
-Un dominio y 60 casos, sin cambios respecto al Deliverable~1.}
+Deliverable~3. Se adelantó porque la ablación mostró que el modelo no aplica las reglas, y el
+Deliverable~3 pasa a atacar la extracción. Un dominio y 60 casos, sin cambios respecto al
+Deliverable~1.}
 
 \end{multicols}
 \end{document}
