@@ -37,7 +37,7 @@
 \pagestyle{empty}
 \setlength{\columnsep}{5mm}
 \setlength{\parindent}{0pt}
-\setlength{\parskip}{0.8mm}
+\setlength{\parskip}{0.7mm}
 \renewcommand{\arraystretch}{0.97}
 
 \newcommand{\seccion}[1]{\vspace{0.9mm}{\bfseries\footnotesize\color{acento}\MakeUppercase{#1}}\par\nobreak\vspace{0.4mm}\nobreak}
@@ -108,11 +108,10 @@ sistema necesita un modelo que distinga categorías.
 
 Qwen queda fuera por ser el más grande de los tres y quedar bajo Mistral en la métrica
 conjunta. Sus archivos crudos se perdieron en agosto, así que su columna de colapso no se pudo
-recalcular.
+recalcular. Phi es además el más chico de los tres candidatos.
 
-Phi es también el más chico de los tres candidatos. El sistema completo corre en la T4 gratuita
-de Colab, el hardware declarado en el Deliverable~1, a 1,6 segundos por caso y 1,6 minutos los
-sesenta.
+El sistema completo corre en la T4 gratuita de Colab, el hardware declarado en el
+Deliverable~1, a 1,6 segundos por caso y 1,6 minutos los sesenta.
 
 \seccion{La intervención}
 
@@ -152,6 +151,12 @@ debe salir de una lista cerrada que incluye los códigos de los prerrequisitos d
 decisión se deriva de esa regla.
 }
 
+% ================================================================ COLUMNA 2
+% El corte va ACA. Lo anterior llena exactamente la primera columna. Dejarlo mas
+% abajo desbordaba la columna 1 hacia la 2 y empujaba el resto a una segunda
+% pagina, que la guia rechaza.
+\columnbreak
+
 \seccion{Dos mecanismos eliminados por construcción}
 
 Se verificó sobre los 60 casos que la decisión queda determinada por la regla, sin una sola
@@ -172,9 +177,6 @@ salidas sin JSON legible & \textbf{0} \\
 
 \vspace{1mm}
 En el baseline zero-shot, Phi inventaba identificadores en 18 de 60 casos.
-
-% ================================================================ COLUMNA 2
-\columnbreak
 
 \seccion{Resultados sobre los 60 casos}
 
@@ -299,8 +301,7 @@ efectos firmes.
 \textbf{Desviación declarada.} El plan del Deliverable~1 reservaba la consulta al grafo para el
 Deliverable~3. Se adelantó porque la ablación mostró que el modelo no aplica las reglas. El
 Deliverable~3 pasa a atacar la extracción, que es el cuello de botella medido.
-
-\textbf{Un dominio, 60 casos.} Sin cambios respecto al Deliverable~1.}
+Un dominio y 60 casos, sin cambios respecto al Deliverable~1.}
 
 \end{multicols}
 \end{document}
