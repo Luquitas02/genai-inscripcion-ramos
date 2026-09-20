@@ -81,6 +81,39 @@ mismo. Se diagnosticaron cuatro mecanismos: no representa el estado \q cursándo
 depende de que la pregunta le apunte al dato (E2), inventa identificadores (E3) y se contradice
 entre decisión y regla (E4).
 
+\seccion{Por qué este modelo, y no los otros dos}
+
+El Deliverable~1 propuso tres candidatos de familias distintas. El criterio de selección se
+escribió antes de mirar los datos: acierto de decisión fuera de la categoría donde cada modelo
+colapsa. Esa métrica descuenta lo que gana quien responde siempre lo mismo.
+
+\vspace{0.5mm}
+{\footnotesize
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+ & params & fuera del colapso & ambas (D1) \\
+\midrule
+\textbf{Phi-3.5-mini} & \textbf{3,8B} & \textbf{40,5} & 16,7 \\
+Mistral-7B-v0.3 & 7,2B & 19,0 & 38,3 \\
+Qwen2.5-7B & 7,6B & sin crudo & 31,7 \\
+\bottomrule
+\end{tabular}}
+
+\vspace{1mm}
+Phi acierta más del doble que Mistral con la mitad de los parámetros. Su acierto conjunto en el
+Deliverable~1 es el más bajo de los tres. Mistral responde \q sí\q\ en 50 de los 60 casos y
+acierta los 18 que efectivamente lo son, así que queda sobre el piso trivial sin haber leído el
+expediente. Phi reparte sus respuestas entre las tres categorías. Se eligió Phi porque el
+sistema necesita un modelo que distinga categorías.
+
+Qwen queda fuera por ser el más grande de los tres y quedar bajo Mistral en la métrica
+conjunta. Sus archivos crudos se perdieron en agosto, así que su columna de colapso no se pudo
+recalcular.
+
+Phi es también el más chico de los tres candidatos. El sistema completo corre en la T4 gratuita
+de Colab, el hardware declarado en el Deliverable~1, a 1,6 segundos por caso y 1,6 minutos los
+sesenta.
+
 \seccion{La intervención}
 
 Descomposición en tres pasos con contexto enfocado y salida restringida. El baseline recibe
@@ -140,28 +173,6 @@ salidas sin JSON legible & \textbf{0} \\
 \vspace{1mm}
 En el baseline zero-shot, Phi inventaba identificadores en 18 de 60 casos.
 
-\seccion{Acierto por tipo de caso}
-
-Los 60 casos se generaron desde la regla que debía decidir, así que cada tipo se puede
-contar por separado. El sistema mejora en siete de las ocho familias.
-
-\vspace{0.5mm}
-{\footnotesize
-\begin{tabular}{@{}lrr@{}}
-\toprule
-regla que decide el caso & baseline & sistema \\
-\midrule
-sin impedimento              & 2/18 & \textbf{13/18} \\
-prerrequisito en curso, próximo período & 6/12 & 3/12 \\
-excepción por carga baja     & 0/9  & \textbf{8/9} \\
-prerrequisito faltante       & 2/6  & \textbf{3/6} \\
-prerrequisito en curso, período actual & 0/6 & \textbf{1/6} \\
-umbral de créditos aprobados & 0/3  & \textbf{3/3} \\
-tope máximo de créditos      & 0/3  & \textbf{2/3} \\
-requisito de año completo    & 0/3  & \textbf{2/3} \\
-\bottomrule
-\end{tabular}}
-
 % ================================================================ COLUMNA 2
 \columnbreak
 
@@ -192,6 +203,27 @@ ficha al código            & 45,0 & 28,3 & 28,3 & 2.743 \\
 \destaque{\footnotesize El sistema triplica el baseline y es además la condición más barata.
 Usa \textbf{1.153 tokens por caso contra 3.862} del baseline, y 1,6 segundos contra 4,2. Con un
 tercio del cómputo, la mejora no se explica por haber gastado más.}
+
+\vspace{1mm}
+{\footnotesize
+Los 60 casos se generaron desde la regla que debía decidir, así que cada familia se cuenta por
+separado. El sistema mejora en siete de las ocho.
+
+\vspace{0.8mm}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+regla que decide el caso & baseline & sistema \\
+\midrule
+sin impedimento                        & 2/18 & \textbf{13/18} \\
+prerreq.\ en curso, próximo período    & 6/12 & 3/12 \\
+excepción por carga baja               & 0/9  & \textbf{8/9} \\
+prerrequisito faltante                 & 2/6  & \textbf{3/6} \\
+prerreq.\ en curso, período actual     & 0/6  & \textbf{1/6} \\
+umbral de créditos aprobados           & 0/3  & \textbf{3/3} \\
+tope máximo de créditos                & 0/3  & \textbf{2/3} \\
+requisito de año completo              & 0/3  & \textbf{2/3} \\
+\bottomrule
+\end{tabular}}
 
 \seccion{Estrategias alternativas evaluadas}
 
