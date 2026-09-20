@@ -53,7 +53,7 @@
 \raggedright
 
 % ---------------------------------------------------------------- cabecera
-{\Large\bfseries De 16,7\,\% a 58,3\,\%: qué parte del trabajo puede hacer un modelo de 3,8B}\\[0.8mm]
+{\Large\bfseries De 16,7\,\% a 58,3\,\% en la validación de inscripción de ramos con un modelo de 3,8B}\\[0.8mm]
 {\footnotesize\color{gris}%
 \textbf{Deliverable 2} · Generative Artificial Intelligence (580694) · Universidad de Concepción · 30 de septiembre de 2026\\
 \textbf{Equipo:} Joaquín Sepúlveda · Renato Saavedra · Lucas Saldivia \quad\textbullet\quad
@@ -110,11 +110,11 @@ Descomposición en tres pasos con contexto enfocado y salida restringida. El bas
 \vspace{0.5mm}
 
 {\footnotesize
-El \textbf{paso 1} ataca E2: ve la pregunta y los 61 pares de código y nombre, sin historial ni
-reglas. El \textbf{paso 2} ataca E1: arma una ficha de ocho campos sobre un solo ramo, y
-descarta las 25 asignaturas del historial que no lo tocan. El \textbf{paso 3} ataca E3 y E4: la
-regla debe salir de una lista cerrada que incluye los códigos de los prerrequisitos del caso, y
-la decisión no se pide, se deriva.
+El \textbf{paso 1} ataca E2. Ve la pregunta y los 61 pares de código y nombre, sin historial ni
+reglas. El \textbf{paso 2} ataca E1. Arma una ficha de ocho campos sobre un solo ramo y descarta
+las 25 asignaturas del historial que no lo tocan. El \textbf{paso 3} ataca E3 y E4. La regla
+debe salir de una lista cerrada que incluye los códigos de los prerrequisitos del caso, y la
+decisión se deriva de esa regla.
 }
 
 \seccion{Dos mecanismos eliminados por construcción}
@@ -165,9 +165,9 @@ ficha al código            & 45,0 & 28,3 & 28,3 & 2.743 \\
 \end{tabular}}
 
 \vspace{1mm}
-\destaque{\footnotesize El sistema triplica el baseline y es además la condición más barata:
-\textbf{1.153 tokens por caso contra 3.862}, y 1,6 segundos contra 4,2. La mejora no viene de
-gastar más cómputo, porque gasta un tercio.}
+\destaque{\footnotesize El sistema triplica el baseline y es además la condición más barata.
+Usa \textbf{1.153 tokens por caso contra 3.862} del baseline, y 1,6 segundos contra 4,2. Con un
+tercio del cómputo, la mejora no se explica por haber gastado más.}
 
 \seccion{Estrategias alternativas evaluadas}
 
@@ -189,12 +189,12 @@ mínimo                       & 30,0 & \cod{R-DEPENDE} 47 \\
 
 \vspace{1mm}
 {\footnotesize
-El bloque de reglas globales dictaba la respuesta por posición: era la última prosa del prompt y
-la única que nombraba un valor de decisión. Sacarlo vale 5 puntos. Aun así el modelo colapsa en
-una categoría, y con la ficha perfecta delante aplica las reglas al 31,7\,\% mientras el código
-lo hace al 100\,\%. Esa diferencia es lo que justifica moverlas.
+El bloque de reglas globales dictaba la respuesta por su posición. Era la última prosa del
+prompt y la única que nombraba un valor de decisión. Sacarlo vale 5 puntos. Aun así el modelo
+sigue colapsando en una categoría. Con la ficha perfecta delante aplica las reglas al 31,7\,\%
+y el código lo hace al 100\,\%. Por esa diferencia las reglas quedaron en el código.
 
-En el paso 1, los ejemplos resueltos se midieron y se descartaron: bajan el acierto de ramo de
+En el paso 1 los ejemplos resueltos se midieron y se descartaron. Bajan el acierto de ramo de
 51,7\,\% a 45,0\,\%.}
 
 \seccion{Dónde se rompe, y por qué}
@@ -217,9 +217,9 @@ coloquial. Las 29 fallas devolvieron un código válido pero equivocado, ninguna
 \textbf{Caso de falla, elegido por regla escrita antes de medir} (el primero de nivel 3 cuyo
 baseline falla). La pregunta es \q programación, la reprobé, ¿puedo tomar Optimización 1 ahora
 ya?\q. El ramo consultado es 580315. El paso 1 devolvió 503203, que la frase menciona de
-contexto y que además es el prerrequisito que bloquea. Los pasos 2 y 3 resolvieron con toda
-corrección la pregunta equivocada y respondieron que sí, porque un ramo reprobado se puede
-volver a inscribir. Es E2 del Deliverable~1 en estado puro.
+contexto y que además es el prerrequisito que bloquea. Los pasos 2 y 3 evaluaron 503203 y
+respondieron que sí, porque un ramo reprobado se puede volver a inscribir. La respuesta es
+correcta para ese ramo y ese ramo no era el consultado. Es el mecanismo E2 del Deliverable~1.
 
 \textbf{El paso 2 tampoco puede leer el expediente} aun con el ramo correcto: estado del ramo
 0/60, créditos aprobados 0/60, prerrequisitos 7/60. Por eso la ficha la arma el código.}
@@ -228,8 +228,9 @@ volver a inscribir. Es E2 del Deliverable~1 en estado puro.
 
 {\footnotesize
 \textbf{Una categoría empeora.} En los 12 casos con prerrequisito en curso preguntando por el
-próximo período, el sistema baja de 6/12 a 3/12. El baseline acertaba ahí porque apostaba a
-\q condicional\q, no porque razonara.
+próximo período, el sistema baja de 6/12 a 3/12. Los 12 tienen la misma respuesta correcta, y
+el baseline la dio en 6 de ellos respondiendo \q condicional\q. Las 9 fallas del sistema son
+las 9 veces que el paso 1 tomó el ramo equivocado.
 
 \textbf{Filtración del conjunto.} Los 9 casos de \cod{R-EXCEPCION-PRERREQ} tienen todos cero
 créditos inscritos y los otros 51 tienen entre 12 y 24, con el umbral en 8. El conjunto no
