@@ -88,7 +88,7 @@ abreviado y forma coloquial.
 
 ### Paso 2 — Ficha del caso
 
-Entra el código del ramo, la malla y el historial. Sale una ficha de siete campos.
+Entra el código del ramo, la malla y el historial. Sale una ficha de ocho campos.
 
 ```
 ramo objetivo:         525223  Ecuaciones Diferenciales
@@ -99,6 +99,8 @@ prerrequisitos:        525150  Álgebra II       aprobada
 créditos aprobados:    118   (contados para el período consultado)
 umbral del ramo:       ninguno
 requisitos especiales: ninguno
+créditos ya inscritos: 12
+créditos del semestre: 17  (12 ya inscritos + 5 de este ramo)
 ```
 
 Ataca el mecanismo E1, la falta de representación del estado "cursándola ahora". La ficha obliga a
@@ -109,7 +111,9 @@ El paso 2 descarta unas 25 asignaturas irrelevantes por caso. Entre ellas están
 que el generador puso a propósito: 38 casos traen un ramo reprobado que no bloquea nada y 19 traen
 uno inscrito que tampoco.
 
-Los siete campos cubren las seis ramas del verificador. Una versión anterior de este diseño
+Los ocho campos cubren las seis ramas del verificador. El octavo, `creditos_semestre`, se agregó
+al implementar: dos ramas comparan contra el total del semestre y la ficha solo daba los sumandos,
+lo que obligaba al modelo a una suma que no acierta. Una versión anterior de este diseño
 entregaba solo los prerrequisitos y su estado, lo que dejaba sin resolver los 3 casos de umbral de
 créditos, los 3 de requisito especial y los 3 de tope máximo. Además habría respondido `sí` a esos
 9 casos por no poder descartarlos, que es la misma patología de Mistral con más pasos.
@@ -120,11 +124,15 @@ aritmética.
 
 ### Paso 3 — Decisión
 
-Entra la ficha, los créditos ya inscritos, las reglas globales y la lista cerrada de
-identificadores válidos. Sale `{decision, regla}`.
+Entra la ficha y la lista cerrada de identificadores válidos. Sale `{regla}`, y la decisión se
+deriva de esa regla.
 
-Ataca E3 y E4. La lista cerrada elimina los identificadores inventados y las contradicciones entre
-decisión y regla.
+Ataca E3 y E4. La lista cerrada elimina los identificadores inventados. Derivar la decisión en vez
+de pedirla elimina las contradicciones entre decisión y regla.
+
+> **Nota del 20 de septiembre.** Dos cosas cambiaron acá al medir. El bloque de reglas globales
+> salió del prompt, porque dictaba la respuesta por su posición. Y la decisión dejó de pedirse:
+> queda determinada por la regla en los 60 casos, sin ambigüedad.
 
 La lista cerrada incluye explícitamente los códigos de los prerrequisitos del caso. Sin eso el
 sistema queda estructuralmente incapaz de responder los 12 casos cuya respuesta es un código de
@@ -132,7 +140,12 @@ ramo, que es el 20 % del conjunto.
 
 ---
 
-## Las dos variantes
+## Las variantes
+
+> **Nota del 20 de septiembre.** Esta sección describe el diseño como estaba el 17 de
+> septiembre, con dos variantes. Después de la segunda corrida se agregó una tercera, `codigo`,
+> y es la que se entrega. El detalle está en
+> [La segunda revisión y el sistema que se entrega](#la-segunda-revisión-y-el-sistema-que-se-entrega).
 
 Las variantes se diferencian solo en quién resuelve el paso 2.
 
@@ -258,6 +271,68 @@ prompt, y está descrita acá.
 
 ---
 
+## La segunda revisión y el sistema que se entrega
+
+La segunda corrida tampoco mejoró al baseline. El paso 3 citó `R-EXCEPCION-PRERREQ` en los 60
+casos, incluso en el modo oráculo, donde recibe la ficha perfecta y tiene el procedimiento de
+ocho condiciones delante. Ese identificador no aparece en ninguno de los tres ejemplos, así que
+no vino de ahí.
+
+Diagnosticar mal dos veces seguidas costó dos corridas de veinticinco minutos, así que la tercera
+vez se midió. `ablacion_p3.py` corre solo el paso 3, con la ficha verdadera de cada caso, bajo
+cuatro versiones del prompt. Son 60 llamadas cortas por versión.
+
+| versión del prompt del paso 3 | acierto conjunto | regla dominante |
+|---|---|---|
+| completo | 26,7 % | `R-EXCEPCION-PRERREQ` 38 |
+| **sin el bloque de reglas** | **31,7 %** | `R-DEPENDE-APROBACION` 49 |
+| sin ejemplos | 15,0 % | `R-EXCEPCION-PRERREQ` 60 |
+| mínimo | 30,0 % | `R-DEPENDE-APROBACION` 47 |
+
+El bloque de reglas globales dictaba la respuesta por su posición. Era la última prosa que el
+modelo leía antes de responder, y la única de todo el mensaje de usuario que nombraba un valor de
+decisión. Además era redundante, porque el procedimiento ya traía los umbrales y
+`creditos_semestre` ya incorporaba la regla de las prácticas.
+
+Pero el colapso no se rompió. Con la ficha perfecta delante, la mejor versión aplica las reglas al
+31,7 % y `decidir_desde_ficha` lo hace al 100 %.
+
+### Los tres cambios
+
+1. **El paso 3 deja de recibir el bloque de reglas.** Medido: vale 5 puntos.
+2. **El paso 3 pide solo la regla y la decisión se deriva.** Se verificó sobre los 60 casos que
+   ninguna de las ocho reglas admite más de una decisión, así que pedir los dos campos daba un
+   grado de libertad que el dominio no tiene. Con él venía la posibilidad de citar una regla que
+   bloquea junto a un `sí`, que es el mecanismo E4 del D1. Queda eliminado por construcción, igual
+   que la lista cerrada eliminó E3.
+3. **El paso 1 deja de recibir ejemplos.** `ablacion_p1.py` midió que bajan el acierto de ramo de
+   51,7 % a 45,0 %. Aplanan el comportamiento: con ejemplos el acierto queda en 9/20 para las tres
+   formas de nombrar el ramo, y sin ellos el nombre completo sube a 13/20.
+
+### La tercera variante
+
+La ablación mostró que el modelo no aplica las reglas y que el código sí. Se agregó la variante
+`codigo`, donde el código arma la ficha y también decide. Es uso de herramientas, una de las
+intervenciones que la guía enumera.
+
+Las tres variantes forman una escalera que mueve una pieza por vez del modelo al código, así que
+la diferencia entre dos filas mide lo que esa pieza aporta.
+
+| | paso 2, la ficha | paso 3, la decisión | acierto conjunto | tokens |
+|---|---|---|---|---|
+| baseline few-shot | | | 16,7 % | 3.862 |
+| `puro` | el modelo | el modelo | 25,0 % | 6.072 |
+| `retrieval` | el código | el modelo | 28,3 % | 2.743 |
+| **`codigo`** | el código | el código | **58,3 %** | **1.153** |
+
+Mover la ficha al código vale 3,3 puntos. Mover la aplicación de reglas vale 30. El sistema que se
+entrega es `codigo`, y es además el más barato de los cuatro.
+
+En modo oráculo, `codigo` acierta 60 de 60. El sistema encadenado acierta 28 de 28 cuando el paso
+1 identifica bien ramo y período, y 7 de 32 cuando no. Todo el error restante es extracción.
+
+---
+
 ## Limitaciones declaradas
 
 **Filtración en los casos de excepción.** Los 9 casos cuya respuesta es `R-EXCEPCION-PRERREQ`
@@ -299,23 +374,27 @@ declarada acá.
 
 ## Calendario
 
-Quedan 13 días y el Certamen 1 es el 9 de octubre, así que el trabajo con riesgo debe cerrarse
-antes del 24 de septiembre.
+El trabajo con riesgo se cerró el 20 de septiembre, cuatro días antes de la fecha tope que este
+plan se había puesto, y diez días antes de la entrega.
 
 | Paso | Qué | Estado |
 |---|---|---|
 | 0 | Reponer el baseline de Phi y verificar el entorno | ✅ 17 sep |
 | 1 | Contrato de los tres pasos | ✅ 17 sep, este documento |
-| 2 | Implementar `ficha.py`, `pipeline.py`, `runner_d2.py` | |
-| 3 | Correr la grilla: 2 variantes × 2 modos × 60 casos | |
-| 4 | Atribución de errores por paso y elección de variante | |
-| 5 | `demo.py` para el video | |
-| 6 | Documento LaTeX de una página con el diagrama | |
-| 7 | Video y README | |
+| 2 | Implementar `ficha.py`, `pipeline.py`, `runner_d2.py` | ✅ 17 sep |
+| 3 | Correr la grilla: 3 variantes × 2 modos × 60 casos | ✅ 20 sep |
+| 4 | Atribución de errores por paso y elección de variante | ✅ 20 sep |
+| 5 | `demo.py` para el video | ✅ 20 sep |
+| 6 | Documento LaTeX de una página con el diagrama | ✅ 20 sep |
+| 7 | Video y README | README ✅ · video ⏳ |
 
 **Línea de corte si algo se atrasa.** Se sacrifica la variante `retrieval` y se conserva la
 medición por paso. La medición por paso sostiene el criterio de lectura de los límites, que vale 10
-puntos. La segunda variante es una columna más en la tabla.
+puntos.
+
+> **Nota del 20 de septiembre.** Esta línea de corte no se usó, y de haberse usado habría sido un
+> error. Las variantes resultaron ser la escalera que mide cuánto aporta mover cada pieza al
+> código, que es el argumento central del entregable. Ninguna sobraba.
 
 ---
 
@@ -334,6 +413,18 @@ criterio de lectura de los límites.
 
 **17 sep 2026 — Baseline de comparación.** La condición few-shot con pregunta en prosa, que es la
 más fuerte del D1.
+
+**20 sep 2026 — El sistema que se entrega es `codigo`.** La ablación del paso 3 midió que el
+modelo aplica las reglas al 31,7 % con la ficha perfecta delante y que el código lo hace al 100 %.
+Se movieron las reglas al código. Es uso de herramientas, una de las intervenciones que la guía
+enumera, y la desviación del plan del D1 queda declarada en el documento técnico.
+
+**20 sep 2026 — El paso 3 pide solo la regla.** La decisión queda determinada por la regla en los
+60 casos, sin ambigüedad, así que pedir los dos campos daba un grado de libertad inexistente. E4
+queda eliminado por construcción.
+
+**20 sep 2026 — El paso 1 va sin ejemplos.** Medido por ablación: 51,7 % de acierto de ramo sin
+ellos contra 45,0 % con ellos.
 
 **17 sep 2026 — El paso 2 entrega ficha completa.** La primera versión del contrato entregaba solo
 prerrequisitos y dejaba 9 casos sin resolver y 18 respondidos por suerte. Corregido antes de
