@@ -112,6 +112,12 @@ Responde ÚNICAMENTE con este JSON, sin texto adicional:
 # Un ejemplo por cada forma de nombrar el ramo que aparece en el conjunto de prueba: nombre
 # completo, abreviación y forma coloquial. Los tres usan ramos que NO son objetivo de ningún
 # caso medido.
+#
+# Quedan DESACTIVADOS por defecto. Se agregaron por paridad con el baseline, que es few-shot,
+# y la ablación midió que empeoran el paso: 45,0 % de acierto de ramo con ellos contra 51,7 %
+# sin ellos. Aplanan el comportamiento, porque con ejemplos el acierto queda en 9/20 para las
+# tres formas de nombrar el ramo, y sin ellos el nombre completo sube a 13/20 y el coloquial
+# baja a 8/20. Se conservan en el código porque son una de las versiones de la ablación.
 EJEMPLOS_P1 = [
     ("¿puedo inscribir Química General II este semestre?",
      '{"ramo": "531150", "periodo": "actual"}'),
@@ -122,7 +128,7 @@ EJEMPLOS_P1 = [
 ]
 
 
-def prompt_paso1(caso, malla, con_ejemplos=True):
+def prompt_paso1(caso, malla, con_ejemplos=False):
     catalogo = "\n".join(f"{a['codigo']}  {a['nombre']}" for a in malla["asignaturas"])
     partes = [f"=== CATÁLOGO DE ASIGNATURAS ===\n{catalogo}\n"]
     if con_ejemplos:
