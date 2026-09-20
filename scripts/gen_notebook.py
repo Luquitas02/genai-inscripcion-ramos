@@ -254,7 +254,26 @@ for f in sorted(glob.glob('/content/proyecto/resultados/pipeline__*.raw.jsonl'))
     print('  CONJUNTO %5.1f%%' % (100 * sum(x['acierto_conjunto'] for x in r) / n))
     print()"""),
 
-    md("""## 10 · Descargar
+    md("""## 10 · Demostración de un caso
+Los dos casos del video, con el baseline y el sistema lado a lado.
+
+El **caso 40** salió de una regla escrita antes de mirar resultados: el primero de nivel 3
+cuyo baseline falla. El sistema también falla ahí, y ése es el caso de falla que la guía
+exige. El **caso 42** está elegido para mostrar el sistema funcionando, y se declara así.
+"""),
+    code("""import subprocess, sys, os
+
+os.chdir('/content/proyecto/scripts')
+for caso in [40, 42]:
+    r = subprocess.run([sys.executable, 'demo.py', '--caso', str(caso), '--modelo', MODELO],
+                       capture_output=True, text=True)
+    if r.returncode == 0:
+        print(r.stdout)
+    else:
+        print('FALLO en el caso %d:' % caso)
+        print('\\n'.join(r.stderr.strip().splitlines()[-10:]))"""),
+
+    md("""## 11 · Descargar
 Baja todo lo medido para comitearlo al repositorio.
 """),
     code("""import shutil
