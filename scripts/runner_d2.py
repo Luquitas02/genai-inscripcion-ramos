@@ -149,7 +149,7 @@ def correr_caso(modelo, caso, v, malla, variante, modo):
         return fila
 
     if variante == "codigo":
-        # La ablación del paso 3 midió que el modelo aplica las reglas al 28,3 % con la ficha
+        # La ablación del paso 3 midió que el modelo aplica las reglas al 31,7 % con la ficha
         # perfecta delante, y que `decidir_desde_ficha` hace lo mismo al 100 %. Esta variante
         # mueve esa aplicación al código. Es uso de herramientas, una de las intervenciones
         # que la guía enumera. El modelo queda a cargo de lo que el código no puede hacer:

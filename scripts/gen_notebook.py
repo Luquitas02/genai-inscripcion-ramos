@@ -260,18 +260,34 @@ Los dos casos del video, con el baseline y el sistema lado a lado.
 El **caso 40** salió de una regla escrita antes de mirar resultados: el primero de nivel 3
 cuyo baseline falla. El sistema también falla ahí, y ése es el caso de falla que la guía
 exige. El **caso 42** está elegido para mostrar el sistema funcionando, y se declara así.
-"""),
-    code("""import subprocess, sys, os
 
+Son **dos celdas**. La primera carga el modelo y tarda minutos. La segunda corre la
+demostración en segundos, y **ésa es la que se graba**.
+"""),
+    code("""# --- CELDA A: cargar el modelo. NO hace falta grabar esto. ---
+# Cargar Phi en 4 bits toma minutos y la demostracion toma segundos. Separarlos es lo que
+# hace que el video quepa en tres minutos mostrando ejecucion y no una barra de progreso.
+import sys, os
+sys.path.insert(0, '/content/proyecto/scripts')
 os.chdir('/content/proyecto/scripts')
+
+from runner import ModeloHF
+import demo
+
+modelo = ModeloHF(MODELO, max_new_tokens=256)
+v, malla, casos = demo.cargar_contexto()
+print('modelo cargado y', len(casos), 'casos listos')"""),
+
+    md("""### Celda B: la demostración
+**Ésta es la que se graba.** Con el modelo ya en memoria, los dos casos corren en segundos y
+la salida aparece en vivo.
+"""),
+    code("""# --- CELDA B: la demostracion. ESTO es lo que se graba. ---
+import importlib
+importlib.reload(demo)
+
 for caso in [40, 42]:
-    r = subprocess.run([sys.executable, 'demo.py', '--caso', str(caso), '--modelo', MODELO],
-                       capture_output=True, text=True)
-    if r.returncode == 0:
-        print(r.stdout)
-    else:
-        print('FALLO en el caso %d:' % caso)
-        print('\\n'.join(r.stderr.strip().splitlines()[-10:]))"""),
+    demo.correr(caso, modelo, v, malla, casos)"""),
 
     md("""## 11 · Descargar
 Baja todo lo medido para comitearlo al repositorio.

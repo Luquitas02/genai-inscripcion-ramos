@@ -15,10 +15,17 @@ casos que usa el video se eligieron con reglas escritas antes de mirar los resul
             Está elegido para mostrar el sistema funcionando, y eso se declara sin
             disfrazarlo: la honestidad está en decirlo, no en fingir que salió al azar.
 
+El modelo se carga UNA vez y sirve para todos los casos. Eso importa para el video: cargar
+Phi en 4 bits toma minutos y la ejecucion real toma segundos, asi que conviene tener el modelo
+ya en memoria antes de empezar a grabar.
+
 Uso:
-    python demo.py                      # el caso 40, el de la regla declarada
-    python demo.py --caso 42
-    python demo.py --caso 40 --modelo-falso     # sin GPU, para probar el formato
+    python demo.py --casos 40 42              # los dos casos del video
+    python demo.py --casos 40 --modelo-falso  # sin GPU, para probar el formato
+
+Desde un notebook, con el modelo ya cargado en una celda anterior:
+    import demo
+    demo.correr(40, modelo, v, malla, casos)
 """
 
 import argparse
@@ -50,29 +57,27 @@ def veredicto(obtenido, esperado):
     return "CORRECTO" if ok else "INCORRECTO", ok
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--caso", type=int, default=CASO_DECLARADO)
-    ap.add_argument("--modelo", default=MODELO_POR_DEFECTO)
-    ap.add_argument("--modelo-falso", action="store_true")
-    args = ap.parse_args()
-
+def cargar_contexto():
+    """Devuelve (verificador, malla, casos). No toca el modelo."""
     v = Verificador()
     malla = json.load(open(RUTA_MALLA, encoding="utf-8"))
     casos = [json.loads(l) for l in open(RUTA_CASOS, encoding="utf-8") if l.strip()]
-    caso = casos[args.caso]
+    return v, malla, casos
 
-    if args.modelo_falso:
-        from runner_d2 import ModeloFalso
-        modelo = ModeloFalso(['{"decision": "condicional", "regla": "R-DEPENDE-APROBACION"}',
-                              '{"ramo": "503203", "periodo": "actual"}'])
-    else:
-        from runner import ModeloHF
-        print(f"cargando {args.modelo} en 4 bits...")
-        modelo = ModeloHF(args.modelo, max_new_tokens=256)
+
+def correr(n_caso, modelo, v=None, malla=None, casos=None):
+    """Corre el baseline y el sistema sobre un caso y los imprime lado a lado.
+
+    Recibe el modelo ya cargado. Cargar Phi en 4 bits toma minutos y esto toma segundos,
+    asi que separarlos es lo que hace grabable el video.
+    """
+    if v is None:
+        v, malla, casos = cargar_contexto()
+    caso = casos[n_caso]
+    args_caso = n_caso
 
     # ------------------------------------------------------------------ el caso
-    titulo(f"CASO {args.caso}   ·   nivel {caso['nivel']}   ·   {', '.join(caso['rasgos'])}")
+    titulo(f"CASO {args_caso}   ·   nivel {caso['nivel']}   ·   {', '.join(caso['rasgos'])}")
     print()
     print("  PREGUNTA DEL ESTUDIANTE")
     print(f'    "{caso["pregunta_prosa"]}"')
@@ -131,7 +136,7 @@ def main():
 
     print()
     print("  PASO 3 · DECISIÓN   (el código, determinista)")
-    print("    la ablación midió que el modelo aplica las reglas al 28,3 % con esta ficha")
+    print("    la ablación midió que el modelo aplica las reglas al 31,7 % con esta ficha")
     print("    delante, y que el código hace lo mismo al 100 %")
     d = decidir_desde_ficha(v, f)
     print(f"    regla que dispara: {d['regla']}")
@@ -159,11 +164,33 @@ def main():
         print(f"    El paso 1 devolvió {p1['ramo']} ({v.asig[p1['ramo']]['nombre']}), que la")
         print(f"    pregunta menciona como contexto, en vez de {ramo_real} "
               f"({v.asig[ramo_real]['nombre']}),")
-        print("    que es por lo que realmente pregunta. Los pasos 2 y 3 resolvieron")
-        print("    correctamente la pregunta equivocada.")
+        print("    que es por lo que realmente pregunta. Los pasos 2 y 3 evaluaron ese")
+        print("    ramo y respondieron bien sobre él, y no era el ramo consultado.")
     print()
     print("  Sobre los 60 casos: baseline 16,7 % · sistema 58,3 % de acierto conjunto.")
     print("  El sistema acierta 28 de 28 cuando el paso 1 identifica bien el ramo.")
+    return ok_s
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--casos", type=int, nargs="+", default=[CASO_DECLARADO])
+    ap.add_argument("--modelo", default=MODELO_POR_DEFECTO)
+    ap.add_argument("--modelo-falso", action="store_true")
+    args = ap.parse_args()
+
+    if args.modelo_falso:
+        from runner_d2 import ModeloFalso
+        modelo = ModeloFalso(['{"decision": "condicional", "regla": "R-DEPENDE-APROBACION"}',
+                              '{"ramo": "503203", "periodo": "actual"}'])
+    else:
+        from runner import ModeloHF
+        print(f"cargando {args.modelo} en 4 bits, una sola vez...")
+        modelo = ModeloHF(args.modelo, max_new_tokens=256)
+
+    v, malla, casos = cargar_contexto()
+    for n in args.casos:
+        correr(n, modelo, v, malla, casos)
     return 0
 
 
