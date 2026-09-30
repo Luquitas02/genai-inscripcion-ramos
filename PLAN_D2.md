@@ -400,6 +400,16 @@ puntos.
 
 ## Registro de decisiones
 
+**30 sep 2026 — El modelo se elige midiendo el trabajo que hace en el sistema.** Una auditoría
+encontró que el criterio de la sección "La elección de modelo" (acierto de decisión fuera de la
+categoría de colapso) no descuenta a una respuesta constante: responder siempre "no" saca 50 %
+con ese criterio, más que Phi. Como en el sistema el modelo solo hace el paso 1, los tres
+candidatos corrieron el sistema completo con una regla subida antes
+([`PROTOCOLO_30SEP.md`](PROTOCOLO_30SEP.md)): cambiar solo con 6 casos más y McNemar p < 0,05.
+Phi 35, Mistral 36, Qwen 42 de 60 (p = 0,17): se mantiene Phi. Qwen extrae mejor el ramo (41
+contra 31, p = 0,03), y esa brecha pasa a ser el objetivo del D3. En la misma fecha se midió el
+sistema en 60 casos nuevos: 37 contra 18 del baseline (p = 0,003).
+
 **17 sep 2026 — Modelo.** Phi-3.5-mini sobre Mistral-7B y Qwen2.5-7B. Criterio declarado antes de
 mirar los datos recuperados: acierto de decisión fuera de la categoría de colapso. Phi 40,5 %
 contra 19,0 % de Mistral, con la mitad de los parámetros. Gana además el criterio de economía de

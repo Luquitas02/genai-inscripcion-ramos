@@ -92,7 +92,7 @@ La fila de la constante toma la mejor respuesta fija de cada columna, así que n
 constante: responder siempre "sí" da 30,0 % en las tres. Se detectó en la auditoría del 30 de
 septiembre, y el D2 compara contra "siempre sí".
 
-**Cinco de las nueve condiciones quedan por debajo de la constante trivial** en la métrica
+**Cinco de las nueve condiciones quedan por debajo de la mejor constante** en la métrica
 conjunta. Solo la superan Mistral en sus tres condiciones y Qwen con few-shot, y el mejor
 margen es de 8,3 puntos.
 
@@ -232,7 +232,9 @@ cadena y reglas simultáneas.
 ```
 datos/
 ├── malla.json               grafo de prerrequisitos y reglas, congelado
-└── casos.jsonl              60 casos etiquetados por el verificador
+├── casos.jsonl              60 casos etiquetados por el verificador
+└── casos_nuevos.jsonl       60 casos más con la semilla 20260930, generados el 30 de
+                             septiembre con el sistema ya fijo
 
 scripts/
 │   ── Deliverable 1, congelado: produjo las cifras del baseline ──
@@ -251,12 +253,14 @@ scripts/
 ├── ablacion_p3.py           el paso 3, cuatro versiones del prompt
 ├── demo.py                  lo del video: baseline y sistema en vivo, casos 40 a 49
 ├── empaquetar.py            arma paquete_colab.zip y lo verifica byte a byte
-└── gen_notebook.py          genera los dos notebooks de Colab
+└── gen_notebook.py          genera los tres notebooks de Colab
 
 resultados/
 ├── Mistral-*.raw.jsonl      baseline del D1
 ├── Phi-*.raw.jsonl          baseline del D1, relanzado el 17 de septiembre
-├── pipeline__*.raw.jsonl    la corrida final del D2, de donde salen las cifras
+├── pipeline__*.raw.jsonl    la corrida final del D2, de donde salen las cifras, y
+│                            el sistema con Mistral y Qwen (30 de septiembre)
+├── *__casos_nuevos.raw.jsonl baseline y sistema sobre los 60 casos nuevos
 ├── ablacion_p1__*.raw.jsonl el paso 1 con y sin ejemplos
 ├── ablacion_p3__*.raw.jsonl el paso 3, cuatro versiones del prompt
 ├── corrida_1_prompt_v1/     primera corrida, no mejoró (se conserva)
@@ -278,6 +282,9 @@ PLAN_D2_TAREAS.md            el plan de implementación por tareas
 corrida_final_colab.ipynb    notebook del baseline del D1
 corrida_d2_colab.ipynb       notebook del D2: ablaciones, grilla y demo
 demo_colab.ipynb             solo la demo del video, clona el repositorio
+corridas_30sep_colab.ipynb   los tres candidatos en el sistema y los 60 casos nuevos
+PROTOCOLO_30SEP.md           las reglas de esas corridas, subidas antes de correrlas
+requirements-colab.txt       las versiones con que se ensayó y grabó la demo
 ```
 
 ### Reproducir
@@ -462,7 +469,8 @@ período el sistema baja de 6/12 a 3/12. La respuesta correcta de los 12 es `con
 baseline da con frecuencia. Los 9 casos de `R-EXCEPCION-PRERREQ` tienen todos cero créditos inscritos, así
 que el conjunto no prueba la frontera de esa regla. Y las versiones del prompt se eligieron
 por ablación sobre estos mismos 60 casos, así que diferencias de dos a cuatro casos no deben
-leerse como efectos firmes.
+leerse como efectos firmes. Por eso el sistema se midió además en 60 casos nuevos, donde acierta
+37 contra 18 del baseline.
 
 ---
 
