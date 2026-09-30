@@ -17,6 +17,9 @@ Prof. Carlos Navarrete, PhD
 **Deliverable 2 completo** (30 de septiembre de 2026). Sistema de tres pasos funcionando
 sobre los mismos 60 casos, con el acierto conjunto subiendo de **16,7 % a 58,3 %** y usando
 **un tercio de los tokens** del baseline. Detalle en [la sección del D2](#deliverable-2--el-sistema-de-tres-pasos).
+Documento técnico: [`poster/Deliverable_2.pdf`](poster/Deliverable_2.pdf). Para reproducir el
+video: [`demo_colab.ipynb`](demo_colab.ipynb) en una T4 de Colab, detalle en
+[Reproducir lo que muestra el video](#reproducir-lo-que-muestra-el-video).
 
 **Deliverable 1 completo** (31 de agosto de 2026). Tarea definida, ground truth
 construido y auditado, conjunto de prueba de 60 casos balanceados, y baseline medido sobre
@@ -123,6 +126,12 @@ expediente. Cada uno se vuelca sobre una sola categoría.
 | Qwen | 3 → 0 | 0 → 0 | 8,3 % → 31,7 % | 40,0 % → 43,3 % |
 | Mistral | 10 → 3 | 0 → 0 | 35,0 % → 45,0 % | 40,0 % → 41,7 % |
 
+Los conteos de contradicciones y alucinaciones de Phi son los que reportó el D1, sobre la
+corrida original. La corrida de Phi relanzada el 17 de septiembre reproduce las nueve cifras
+de acierto, pero da 33 → 3 alucinaciones y 15 → 11 contradicciones con `analisis.py`. El
+documento del D2 cuenta 18 alucinaciones en zero-shot porque excluye `R-TOPE-MIN`, un
+identificador que el prompt del baseline ofrece y que no es correcto en ningún caso.
+
 Tres modelos de tres familias, el mismo patrón. Eso delimita con evidencia qué puede lograr
 el trabajo de prompt del Deliverable 2 y qué queda para el harness del Deliverable 3.
 
@@ -228,31 +237,42 @@ scripts/
 ├── runner.py                corrida del baseline, métricas y reanudación
 ├── analisis.py              identificadores inventados y contradicciones
 │   ── Deliverable 2 ──
-├── ficha.py                 la ficha del caso, su prueba de suficiencia y la
-│                            decisión determinista que marca el techo de 60/60
+├── ficha.py                 la ficha del caso y el paso 3 del sistema: aplica las
+│                            reglas con la lógica del verificador (60/60 con la
+│                            ficha verdadera)
 ├── pipeline.py              los prompts y parsers de los tres pasos
 ├── runner_d2.py             corrida del pipeline, 3 variantes × 2 modos
 ├── ablacion_p1.py           el paso 1 con y sin ejemplos
 ├── ablacion_p3.py           el paso 3, cuatro versiones del prompt
-├── demo.py                  un caso, baseline y sistema lado a lado
+├── demo.py                  lo del video: baseline y sistema en vivo, casos 40 a 49
 ├── empaquetar.py            arma paquete_colab.zip y lo verifica byte a byte
-└── gen_notebook.py          genera el notebook de Colab
+└── gen_notebook.py          genera los dos notebooks de Colab
 
 resultados/
 ├── Mistral-*.raw.jsonl      baseline del D1
 ├── Phi-*.raw.jsonl          baseline del D1, relanzado el 17 de septiembre
-├── pipeline__*.raw.jsonl    la corrida final del D2
+├── pipeline__*.raw.jsonl    la corrida final del D2, de donde salen las cifras
+├── ablacion_p1__*.raw.jsonl el paso 1 con y sin ejemplos
+├── ablacion_p3__*.raw.jsonl el paso 3, cuatro versiones del prompt
 ├── corrida_1_prompt_v1/     primera corrida, no mejoró (se conserva)
-└── corrida_2_prompt_v2/     segunda corrida, no mejoró (se conserva)
+├── corrida_2_prompt_v2/     segunda corrida, no mejoró (se conserva)
+└── corrida_3_final/         copia idéntica de pipeline__*, archivada junto a
+                             las otras dos para compararlas
 
 poster/
 ├── poster.tex               el entregable del D1, una página apaisada
-└── deliverable2.tex         el entregable del D2, una página vertical
+├── Deliverable_1.pdf        el D1 compilado
+├── deliverable2.tex         el entregable del D2, una página vertical
+└── Deliverable_2.pdf        el D2 compilado
 
+PLAN.md                      el plan del D1
+Hallazgos del baseline - Deliverable 1.docx
+                             notas de trabajo del D1, previas al póster
 PLAN_D2.md                   el diseño del D2 y su registro de decisiones
 PLAN_D2_TAREAS.md            el plan de implementación por tareas
 corrida_final_colab.ipynb    notebook del baseline del D1
 corrida_d2_colab.ipynb       notebook del D2: ablaciones, grilla y demo
+demo_colab.ipynb             solo la demo del video, clona el repositorio
 ```
 
 ### Reproducir
@@ -261,7 +281,7 @@ corrida_d2_colab.ipynb       notebook del D2: ablaciones, grilla y demo
 python scripts/verificador.py            # 9/9 casos de control
 python scripts/generador.py              # regenera los 60 casos
 python scripts/runner.py --modelo mistralai/Mistral-7B-Instruct-v0.3 --condicion zero_shot
-python scripts/analisis.py resultados/*.raw.jsonl
+python scripts/analisis.py resultados/Mistral*.raw.jsonl resultados/Phi*.raw.jsonl
 ```
 
 La generación es determinista (`do_sample=False`); la corrida se reprodujo idéntica al
@@ -328,18 +348,22 @@ coloquial.
 
 ## Lo que muestra el video
 
-Dos casos, los dos con el baseline visible sobre el mismo input.
+Los diez primeros casos de nivel 3, del 40 al 49, corridos en vivo en una T4 sin saltarse
+ninguno. El baseline y el sistema corren sobre el mismo input, y cada salida del modelo se
+compara en pantalla con la corrida guardada en `resultados/`.
 
-**Caso 40.** Elegido por una regla escrita antes de medir: el primero de nivel 3 cuyo baseline
-falla. El sistema también falla acá, y es el caso de falla que la guía exige. La pregunta es
-*"programación, la reprobé, ¿puedo tomar Optimización 1 ahora ya?"*. El ramo consultado es
-580315, pero el paso 1 devolvió 503203, que la frase menciona de contexto y que además es el
-prerrequisito que bloquea. Los pasos 2 y 3 resolvieron con toda corrección la pregunta
-equivocada.
+**Caso 40, completo.** Es el primer caso de nivel 3. La regla que lo elige quedó escrita en
+`PLAN_D2_TAREAS.md` (commit `c8e0cca`, 17 de septiembre) antes de correr el sistema. El
+sistema falla acá, y es el caso de falla que la guía exige. La pregunta es *"programación, la
+reprobé, ¿puedo tomar Optimización 1 ahora ya?"*. El ramo consultado es 580315, pero el paso 1
+devolvió 503203, que la pregunta nombra primero y que además es el prerrequisito que bloquea.
+Los pasos 2 y 3 evaluaron 503203, así que la respuesta vale para Programación y no para
+Optimización I.
 
-**Caso 42.** Elegido para mostrar el sistema funcionando, y se declara así. La pregunta es
-*"¿puedo tomar termodinámica cuando salga de esto?"*, el baseline cita el código del ramo y el
-sistema acierta con `R-CREDITOS-MINIMOS`.
+**Casos 41 a 49, una línea cada uno.** Según la corrida guardada, el baseline acierta 1 de 10
+y el sistema 4 de 10. De esos cuatro, el caso 49 acierta con el ramo equivocado: el paso 1
+devolvió 580325 en vez de 580327, y la respuesta para 580325 coincide por azar con la
+correcta.
 
 ## Reproducir lo que muestra el video
 
@@ -359,15 +383,25 @@ python scripts/empaquetar.py                              # arma paquete_colab.z
 # subir corrida_d2_colab.ipynb y paquete_colab.zip a Colab, y correr de arriba abajo
 
 # o, dentro de Colab, los comandos sueltos:
-python scripts/demo.py --caso 40    # el caso del video, el que falla
-python scripts/demo.py --caso 42    # el caso del video, el que funciona
+python scripts/demo.py              # lo del video: caso 40 completo y 41 a 49 en una línea
+python scripts/demo.py --modelo-falso   # sin GPU: solo prueba el formato, respuestas fijas
 python scripts/runner_d2.py --variante codigo --modo encadenado    # el sistema, 60 casos
 python scripts/ablacion_p1.py       # el paso 1 con y sin ejemplos
 python scripts/ablacion_p3.py       # el paso 3, cuatro versiones del prompt
 ```
 
+**Solo la demo.** `demo_colab.ipynb` clona este repositorio, corre las autopruebas, carga
+Phi y ejecuta `demo.video(modelo)`. Son unos cinco minutos en una T4, casi todos de carga del
+modelo.
+
 `demo.py` imprime exactamente lo que se ve en el video: la pregunta, el baseline con su
-veredicto, los tres pasos uno por uno y la comparación final. Las salidas caso a caso quedan
+veredicto, los tres pasos uno por uno, la comparación final y, para cada salida del modelo, si
+es igual a la guardada en `resultados/`.
+
+Los runners retoman una corrida a medias: si el archivo de salida ya existe en `resultados/`,
+saltan los casos que ya tiene. En un clon del repositorio los 60 casos ya están, así que para
+medir de nuevo hay que mover o borrar primero el `.raw.jsonl` correspondiente. El notebook
+`corrida_d2_colab.ipynb` lo hace en su sección 4. Las salidas caso a caso quedan
 en `resultados/pipeline__*.raw.jsonl`, así que cualquier cifra de este README se recalcula
 desde ahí.
 

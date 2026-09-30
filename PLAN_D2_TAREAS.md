@@ -7,7 +7,7 @@
 Phi-3.5-mini, medirlo contra el baseline del D1 sobre los mismos 60 casos, y atribuir cada falla
 al paso donde ocurre.
 
-**Arquitectura:** el trabajo que hoy hace una sola llamada con 3.900 tokens se parte en tres
+**Arquitectura:** el trabajo que hoy hace una sola llamada con 3.862 tokens se parte en tres
 llamadas con contexto enfocado. El paso 1 extrae ramo y período de la pregunta en prosa. El paso 2
 arma una ficha de siete campos con el estado del expediente. El paso 3 decide sobre esa ficha con
 una lista cerrada de identificadores. El paso 2 tiene dos variantes, una donde lo resuelve el

@@ -465,4 +465,8 @@ def main():
 
 
 if __name__ == "__main__":
+    # La consola de Windows no escribe en UTF-8 por defecto y rompe los acentos.
+    import sys
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     raise SystemExit(main())

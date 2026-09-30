@@ -2,7 +2,7 @@
 """
 El pipeline de tres pasos — Deliverable 2.
 
-El baseline hace una sola llamada con 3.900 tokens y falla. Acá el trabajo se parte en
+El baseline hace una sola llamada con 3.862 tokens y falla. Acá el trabajo se parte en
 tres llamadas, y cada una recibe solo lo que necesita:
 
   paso 1  extracción   la pregunta en prosa y el catálogo de códigos
@@ -523,4 +523,8 @@ def main():
 
 
 if __name__ == "__main__":
+    # La consola de Windows no escribe en UTF-8 por defecto y rompe los acentos.
+    import sys
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     raise SystemExit(main())

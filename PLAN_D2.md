@@ -71,7 +71,7 @@ cifras reproducen sin desviación. El entorno declarado en el D1 sigue siendo v�
 
 ## El diseño
 
-El baseline recibe 3.900 tokens por caso: la malla completa de 61 asignaturas, las reglas, el
+El baseline recibe 3.862 tokens por caso: la malla completa de 61 asignaturas, las reglas, el
 historial de 26 asignaturas y la pregunta. Con eso debe identificar el ramo, recorrer el grafo,
 cruzar cada prerrequisito contra el historial, distinguir aprobada de inscrita, sumar créditos y
 aplicar un orden de prioridad entre ocho reglas. Todo en una sola pasada.

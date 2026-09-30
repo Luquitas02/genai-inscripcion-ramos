@@ -2,13 +2,13 @@
 """
 La ficha del caso — Deliverable 2.
 
-El baseline le entrega al modelo 3.900 tokens: la malla completa de 61 asignaturas,
+El baseline le entrega al modelo 3.862 tokens: la malla completa de 61 asignaturas,
 las reglas, el historial de 26 asignaturas y la pregunta. Con eso tiene que identificar
 el ramo, recorrer el grafo, cruzar cada prerrequisito contra el historial, distinguir
 aprobada de inscrita, sumar créditos y aplicar un orden de prioridad entre ocho reglas.
 Todo en una pasada. No lo logra.
 
-La ficha es el contexto enfocado que reemplaza esos 3.900 tokens en el paso 3 del
+La ficha es el contexto enfocado que reemplaza esos 3.862 tokens en el paso 3 del
 pipeline. Son ocho campos sobre un solo ramo. El historial trae 26 asignaturas en
 promedio y el ramo objetivo tiene 1,2 prerrequisitos directos, así que la ficha descarta
 unas 25 asignaturas irrelevantes por caso, incluidos los distractores que el generador
@@ -18,11 +18,15 @@ Este módulo sirve para dos cosas a la vez:
 
   - es el ground truth contra el que se mide el paso 2 en la variante `puro`, donde la
     ficha la arma el modelo;
-  - es el paso 2 mismo en la variante `retrieval`, donde la arma el código.
+  - es el paso 2 mismo en las variantes `retrieval` y `codigo`, donde la arma el código.
 
-`decidir_desde_ficha` no es parte del sistema que se entrega. Existe para probar que la
-ficha contiene todo lo necesario para decidir, y para dar el techo de acierto que el
-paso 3 podría alcanzar si recibiera una ficha perfecta.
+`decidir_desde_ficha` aplica las reglas sobre la ficha con la misma lógica del verificador
+que etiqueta los 60 casos. Primero sirvió para probar que la ficha basta para decidir y para
+medir el techo del paso 3. Después la ablación mostró que el modelo aplica las reglas al
+31,7 % con la ficha perfecta delante, y pasó a ser el paso 3 del sistema que se entrega, en
+la variante `codigo`. Como es la misma lógica del verificador, con el ramo y el período
+correctos el sistema acierta por construcción, y todo lo que mide el acierto final es la
+extracción que hace el modelo en el paso 1.
 """
 
 import json
@@ -155,8 +159,8 @@ def _prueba_decision_de_regla():
 def decidir_desde_ficha(v, f):
     """Replica las seis ramas del verificador leyendo solo la ficha, en el mismo orden.
 
-    No es parte del sistema que se entrega. Prueba que la ficha es suficiente, y marca el
-    techo de acierto que el paso 3 podría alcanzar con una ficha perfecta.
+    Es el paso 3 del sistema en la variante `codigo`. En las variantes `puro` y `retrieval`
+    marca el techo de acierto que el paso 3 podría alcanzar con una ficha perfecta.
     """
     # 1. el ramo ya está aprobado o inscrito
     if f["estado_actual"] in (APROBADA, INSCRITA):
@@ -326,4 +330,8 @@ def main():
 
 
 if __name__ == "__main__":
+    # La consola de Windows no escribe en UTF-8 por defecto y rompe los acentos.
+    import sys
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     raise SystemExit(main())
