@@ -366,6 +366,9 @@ coloquial.
 
 ## Lo que muestra el video
 
+Video: https://www.youtube.com/watch?v=GvLJfazDHvs (1:46). Corre el commit `4dde2d1`, marcado
+con el tag [`d2-video`](https://github.com/Luquitas02/genai-inscripcion-ramos/tree/d2-video).
+
 Los diez primeros casos de nivel 3, del 40 al 49, corridos en vivo en una T4 sin saltarse
 ninguno. El baseline y el sistema corren sobre el mismo input, y cada salida del modelo se
 compara en pantalla con la corrida guardada en `resultados/`.
