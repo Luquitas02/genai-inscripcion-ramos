@@ -24,6 +24,8 @@
 \usepackage{array}
 \usepackage{colortbl}
 \usetikzlibrary{arrows.meta,positioning,fit}
+\usepackage[hidelinks]{hyperref}
+\urlstyle{tt}
 
 \definecolor{tinta}{HTML}{12191A}
 \definecolor{acento}{HTML}{B8501C}
@@ -58,8 +60,9 @@
 \textbf{Deliverable 2} · Generative Artificial Intelligence (580694) · Universidad de Concepción · 30 de septiembre de 2026\\
 \textbf{Equipo:} Joaquín Sepúlveda · Renato Saavedra · Lucas Saldivia \quad\textbullet\quad
 \textbf{Modelo:} \cod{microsoft/Phi-3.5-mini-instruct} (revisión \cod{2fe1924}), 3,8B, NF4 de 4 bits, T4 de Colab\\
-\textbf{Repositorio:} \cod{github.com/Luquitas02/genai-inscripcion-ramos} \quad\textbullet\quad
-\textbf{Video:} \cod{<PEGAR LINK>}}
+\textbf{Repositorio:} \href{https://github.com/Luquitas02/genai-inscripcion-ramos}{\cod{github.com/Luquitas02/genai-inscripcion-ramos}} \quad\textbullet\quad
+% >>> PEGAR EL LINK DEL VIDEO ENTRE LAS LLAVES DE \url, reemplazando PEGAR-LINK-AQUI <<<
+\textbf{Video:} {\small\url{PEGAR-LINK-AQUI}}}
 
 \vspace{1.5mm}
 {\color{linea}\rule{\textwidth}{0.4pt}}
@@ -154,10 +157,6 @@ cada prerrequisito, y descarta las 25 asignaturas que no lo tocan. El \textbf{pa
 E3 y E4. La regla sale de una lista cerrada y la decisión se deriva de ella.\par}
 
 % ================================================================ COLUMNA 2
-% El corte va ACA. Lo anterior llena exactamente la primera columna. Dejarlo mas
-% abajo desbordaba la columna 1 hacia la 2 y empujaba el resto a una segunda
-% pagina, que la guia rechaza.
-\columnbreak
 
 \seccion{Dos mecanismos eliminados por construcción}
 
@@ -181,6 +180,11 @@ salidas sin JSON legible & \textbf{0} \\
 \vspace{1mm}
 {\footnotesize En el baseline, Phi inventaba identificadores en 18 de 60 casos en zero-shot y en 3 en
 few-shot, sin contar \cod{R-TOPE-MIN}, que el prompt ofrecía. El Deliverable~1 lo contaba.\par}
+
+% El corte va antes de los resultados para que cada seccion quede entera en una
+% columna. Mas arriba dejaba 6 cm en blanco al pie de la columna 1, y sin corte
+% multicols separaba la tabla de E3 y E4 de su frase.
+\columnbreak
 
 \seccion{Resultados sobre los 60 casos}
 
