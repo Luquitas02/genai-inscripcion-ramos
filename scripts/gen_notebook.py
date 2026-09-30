@@ -51,7 +51,8 @@ Debe decir `cuda: True` y mostrar una **Tesla T4**.
 Si no aparece la T4: menú *Entorno de ejecución* → *Cambiar tipo de entorno de ejecución* →
 acelerador **T4 GPU**.
 """),
-    code("""!nvidia-smi -L
+    code("""%cd /content
+!nvidia-smi -L
 !pip -q install transformers==5.17.0 accelerate bitsandbytes
 import torch; print('cuda:', torch.cuda.is_available())
 # transformers queda fijo en 5.17.0, la version con que se midio del 17 al 19 de septiembre.
@@ -320,7 +321,8 @@ celdas en orden. No hay que subir nada: la primera celda clona el repositorio.
 Si no aparece la T4: menú *Entorno de ejecución* → *Cambiar tipo de entorno de ejecución* →
 acelerador **T4 GPU**.
 """),
-    code("""!nvidia-smi -L
+    code("""%cd /content
+!nvidia-smi -L
 !pip -q install transformers==5.17.0 accelerate bitsandbytes
 !rm -rf /content/proyecto && git clone -q """ + REPO + """ /content/proyecto
 !git -C /content/proyecto log -1 --format='commit %h  %ad  %s'
@@ -386,7 +388,8 @@ esa misma celda**: retoma donde iba.
     md("""## 1 · GPU, dependencias y repositorio
 Debe decir `cuda: True`, mostrar una **Tesla T4** e imprimir el commit que se va a correr.
 """),
-    code("""!nvidia-smi -L
+    code("""%cd /content
+!nvidia-smi -L
 !pip -q install transformers==5.17.0 accelerate bitsandbytes
 !rm -rf /content/proyecto && git clone -q """ + REPO + """ /content/proyecto
 !git -C /content/proyecto log -1 --format='commit %h  %ad  %s'
