@@ -313,13 +313,12 @@ files.download('/content/resultados_d2.zip')"""),
 # El notebook corto: solo lo que muestra el video, desde un clon del repositorio. Trae las
 # corridas guardadas en resultados/, así que la demo compara cada salida en vivo con ellas.
 CELDAS_DEMO = [
-    md("""# Demostración del Deliverable 2 — Phi-3.5-mini
+    md("""# Demostración del Deliverable 2 con Phi-3.5-mini
 
-Reproduce lo que muestra el video, en una T4 de Colab y en unos cinco minutos. Ejecuta las
-celdas en orden. No hay que subir nada: la primera celda clona el repositorio.
+Corre el baseline y el sistema sobre los casos 40 a 49 en una T4 de Colab. Las celdas se
+ejecutan en orden. La primera clona el repositorio, así que no hay que subir archivos.
 
-Si no aparece la T4: menú *Entorno de ejecución* → *Cambiar tipo de entorno de ejecución* →
-acelerador **T4 GPU**.
+Para elegir la GPU: *Entorno de ejecución*, *Cambiar tipo de entorno de ejecución*, T4 GPU.
 """),
     code("""%cd /content
 !nvidia-smi -L
@@ -333,8 +332,8 @@ from importlib.metadata import version
 for paquete in ('torch', 'transformers', 'accelerate', 'bitsandbytes'):
     print(f'{paquete}=={version(paquete)}')"""),
 
-    md("""## Autopruebas, sin GPU
-Deben pasar las cuatro antes de cargar el modelo.
+    md("""## Autopruebas
+Revisan el verificador, la ficha, el parseo y el encadenado de pasos. No usan la GPU.
 """),
     code("""import subprocess, sys, os
 os.chdir('/content/proyecto/scripts')
@@ -346,8 +345,8 @@ for args in (['verificador.py'], ['ficha.py'], ['pipeline.py'], ['runner_d2.py',
         raise SystemExit('*** NO SIGAS: fallo ' + args[0] + ' ***')
 print('TODO EN ORDEN')"""),
 
-    md("""## Cargar el modelo
-Tarda unos minutos. No hace falta grabar esta celda.
+    md("""## Carga del modelo
+Phi-3.5-mini en 4 bits. La carga tarda entre tres y cinco minutos.
 """),
     code("""import sys
 sys.path.insert(0, '/content/proyecto/scripts')
@@ -357,10 +356,9 @@ import demo
 modelo = ModeloHF('microsoft/Phi-3.5-mini-instruct', max_new_tokens=256)
 print('modelo cargado')"""),
 
-    md("""## La demostración
-**Ésta es la que se graba.** Los diez primeros casos de nivel 3, del 40 al 49, sin saltarse
-ninguno. El caso 40 se muestra completo y es el caso de falla. Cada salida del modelo se
-compara con la corrida guardada en `resultados/`.
+    md("""## Demostración
+Los diez primeros casos de nivel 3, del 40 al 49. El caso 40 es el caso de falla y se muestra
+con sus tres pasos. Cada salida del modelo se compara con la corrida guardada en `resultados/`.
 """),
     code("""casos_mostrados = demo.video(modelo)"""),
 ]

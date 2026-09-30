@@ -229,8 +229,8 @@ def mostrar_detalle(n_caso, r, v, malla, guard_b, guard_s):
         print("  POR QUÉ FALLA EL SISTEMA")
         print(f"    El paso 1 devolvió {r['ramo']} ({v.asig[r['ramo']]['nombre']}) en vez de "
               f"{ramo_real} ({v.asig[ramo_real]['nombre']}).")
-        print(f"    Los pasos 2 y 3 evaluaron {r['ramo']}, así que la respuesta vale para ese")
-        print("    ramo y no para el que se consultó.")
+        print(f"    Los pasos 2 y 3 evaluaron {r['ramo']}, así que la respuesta corresponde")
+        print("    a ese ramo.")
 
 
 def mostrar_linea(n_caso, r, guard_b, guard_s):
