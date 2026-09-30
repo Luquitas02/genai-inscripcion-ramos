@@ -408,10 +408,18 @@ def tabla_balance(casos):
 
 
 def main():
-    g = Generador()
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--seed", type=int, default=20260830,
+                    help="semilla del conjunto; la original es 20260830")
+    ap.add_argument("--salida", default="casos.jsonl",
+                    help="nombre del archivo dentro de datos/")
+    args = ap.parse_args()
+
+    g = Generador(seed=args.seed)
     casos = g.generar_lote(n_por_nivel=20)
 
-    salida = Path(__file__).resolve().parent.parent / "datos" / "casos.jsonl"
+    salida = Path(__file__).resolve().parent.parent / "datos" / args.salida
     with open(salida, "w", encoding="utf-8") as f:
         for c in casos:
             f.write(json.dumps(c, ensure_ascii=False) + "\n")

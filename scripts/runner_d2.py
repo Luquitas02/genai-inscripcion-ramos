@@ -303,6 +303,8 @@ def main():
     ap.add_argument("--modelo", default=MODELO_POR_DEFECTO)
     ap.add_argument("--variante", default="puro", choices=["puro", "retrieval", "codigo"])
     ap.add_argument("--modo", default="encadenado", choices=["encadenado", "oraculo"])
+    ap.add_argument("--casos", default=str(RUTA_CASOS),
+                    help="archivo de casos; por defecto los 60 de datos/casos.jsonl")
     ap.add_argument("--limite", type=int, default=None,
                     help="correr solo los primeros N casos")
     ap.add_argument("--modelo-falso", action="store_true",
@@ -316,7 +318,7 @@ def main():
 
     v = Verificador()
     malla = json.load(open(RUTA_MALLA, encoding="utf-8"))
-    casos = [json.loads(l) for l in open(RUTA_CASOS, encoding="utf-8") if l.strip()]
+    casos = [json.loads(l) for l in open(args.casos, encoding="utf-8") if l.strip()]
     if args.limite:
         casos = casos[:args.limite]
 
@@ -338,7 +340,11 @@ def main():
 
     etq = args.modelo.split("/")[-1] if not args.modelo_falso else "falso"
     RESULTADOS.mkdir(exist_ok=True)
-    salida = RESULTADOS / f"pipeline__{etq}__{args.variante}__{args.modo}.raw.jsonl"
+    # Otro conjunto de casos lleva su nombre en el archivo, para no retomar ni pisar la
+    # corrida de los 60 casos originales.
+    conjunto = Path(args.casos).stem
+    sufijo = "" if Path(args.casos).resolve() == Path(RUTA_CASOS).resolve() else f"__{conjunto}"
+    salida = RESULTADOS / f"pipeline__{etq}__{args.variante}__{args.modo}{sufijo}.raw.jsonl"
 
     print(f"{len(casos)} casos · {etq} · variante {args.variante} · modo {args.modo}")
     print(f"salida: {salida.name}\n")

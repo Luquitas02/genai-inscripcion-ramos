@@ -189,8 +189,11 @@ def main():
 
     RESULTADOS.mkdir(exist_ok=True)
     etq = args.modelo.split("/")[-1]
+    # Otro conjunto de casos lleva su nombre en el archivo, para no retomar ni pisar la
+    # corrida de los 60 casos originales.
+    sufijo = "" if Path(args.casos).resolve() == CASOS.resolve() else f"__{Path(args.casos).stem}"
     salida = RESULTADOS / (f"{etq}__{args.condicion}__"
-                           f"{'limpia' if args.limpia else 'prosa'}.raw.jsonl")
+                           f"{'limpia' if args.limpia else 'prosa'}{sufijo}.raw.jsonl")
 
     if not args.solo_resumen:
         casos = cargar_casos(args.casos)

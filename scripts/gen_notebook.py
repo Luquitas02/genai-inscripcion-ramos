@@ -19,6 +19,7 @@ from pathlib import Path
 BASE = Path(__file__).resolve().parent.parent
 SALIDA = BASE / "corrida_d2_colab.ipynb"
 SALIDA_DEMO = BASE / "demo_colab.ipynb"
+SALIDA_30SEP = BASE / "corridas_30sep_colab.ipynb"
 REPO = "https://github.com/Luquitas02/genai-inscripcion-ramos"
 
 
@@ -51,9 +52,10 @@ Si no aparece la T4: menú *Entorno de ejecución* → *Cambiar tipo de entorno 
 acelerador **T4 GPU**.
 """),
     code("""!nvidia-smi -L
-!pip -q install -U transformers accelerate bitsandbytes
+!pip -q install transformers==5.17.0 accelerate bitsandbytes
 import torch; print('cuda:', torch.cuda.is_available())
-# Las versiones quedan impresas para poder fijarlas en requirements-colab.txt.
+# transformers queda fijo en 5.17.0, la version con que se midio del 17 al 19 de septiembre.
+# Las demas quedan impresas para poder registrarlas en requirements-colab.txt.
 from importlib.metadata import version
 for paquete in ('torch', 'transformers', 'accelerate', 'bitsandbytes'):
     print(f'{paquete}=={version(paquete)}')"""),
@@ -319,10 +321,12 @@ Si no aparece la T4: menú *Entorno de ejecución* → *Cambiar tipo de entorno 
 acelerador **T4 GPU**.
 """),
     code("""!nvidia-smi -L
-!pip -q install -U transformers accelerate bitsandbytes
+!pip -q install transformers==5.17.0 accelerate bitsandbytes
 !rm -rf /content/proyecto && git clone -q """ + REPO + """ /content/proyecto
+!git -C /content/proyecto log -1 --format='commit %h  %ad  %s'
 import torch; print('cuda:', torch.cuda.is_available())
-# Las versiones quedan impresas para poder fijarlas en requirements-colab.txt.
+# transformers queda fijo en 5.17.0, la version con que se midio del 17 al 19 de septiembre.
+# Las demas quedan impresas para poder registrarlas en requirements-colab.txt.
 from importlib.metadata import version
 for paquete in ('torch', 'transformers', 'accelerate', 'bitsandbytes'):
     print(f'{paquete}=={version(paquete)}')"""),
@@ -335,7 +339,10 @@ os.chdir('/content/proyecto/scripts')
 for args in (['verificador.py'], ['ficha.py'], ['pipeline.py'], ['runner_d2.py', '--pruebas']):
     r = subprocess.run([sys.executable] + args, capture_output=True, text=True)
     ultima = (r.stdout.strip().splitlines() or ['(sin salida)'])[-1]
-    print(f'[{"OK  " if r.returncode == 0 else "FALLA"}] {args[0]:16} {ultima[:60]}')"""),
+    print(f'[{"OK  " if r.returncode == 0 else "FALLA"}] {args[0]:16} {ultima[:60]}')
+    if r.returncode != 0:
+        raise SystemExit('*** NO SIGAS: fallo ' + args[0] + ' ***')
+print('TODO EN ORDEN')"""),
 
     md("""## Cargar el modelo
 Tarda unos minutos. No hace falta grabar esta celda.
@@ -354,6 +361,154 @@ ninguno. El caso 40 se muestra completo y es el caso de falla. Cada salida del m
 compara con la corrida guardada en `resultados/`.
 """),
     code("""demo.video(modelo)"""),
+]
+
+
+# Las corridas del 30 de septiembre, descritas en PROTOCOLO_30SEP.md: los otros dos
+# candidatos haciendo el trabajo del sistema, y los 60 casos nuevos. Clona el repositorio,
+# así que corre exactamente el commit que imprime la primera celda.
+CELDAS_30SEP = [
+    md("""# Corridas del 30 de septiembre
+
+Lo que describe `PROTOCOLO_30SEP.md`, escrito antes de correr esto:
+
+| sección | qué corre | cuánto tarda |
+|---|---|---|
+| 4 | Phi en los 60 casos nuevos: baseline y sistema | ~15 min |
+| 5 | el sistema con Mistral-7B en los 60 casos originales | ~25 min |
+| 6 | el sistema con Qwen2.5-7B en los 60 casos originales | ~25 min |
+
+Ejecuta las celdas en orden. Cada sección copia lo que mide a Google Drive apenas termina,
+así que si la sesión se cae no se pierde nada. **Si una sección se corta, vuelve a correr
+esa misma celda**: retoma donde iba.
+"""),
+
+    md("""## 1 · GPU, dependencias y repositorio
+Debe decir `cuda: True`, mostrar una **Tesla T4** e imprimir el commit que se va a correr.
+"""),
+    code("""!nvidia-smi -L
+!pip -q install transformers==5.17.0 accelerate bitsandbytes
+!rm -rf /content/proyecto && git clone -q """ + REPO + """ /content/proyecto
+!git -C /content/proyecto log -1 --format='commit %h  %ad  %s'
+import torch; print('cuda:', torch.cuda.is_available())
+from importlib.metadata import version
+for paquete in ('torch', 'transformers', 'accelerate', 'bitsandbytes'):
+    print(f'{paquete}=={version(paquete)}')"""),
+
+    md("""## 2 · Google Drive
+**No te saltes esta celda.** Sin Drive los resultados quedan en el disco temporal de Colab y se
+pierden si la sesión se cae. Pide permiso para acceder a tu Drive: acéptalo.
+"""),
+    code("""from google.colab import drive
+drive.mount('/content/drive')
+import os, shutil, glob
+RESPALDO = '/content/drive/MyDrive/genai_30sep'
+os.makedirs(RESPALDO, exist_ok=True)
+
+def respaldar():
+    nuevos = (glob.glob('/content/proyecto/resultados/*casos_nuevos*.raw.jsonl')
+              + glob.glob('/content/proyecto/resultados/pipeline__Mistral*.raw.jsonl')
+              + glob.glob('/content/proyecto/resultados/pipeline__Qwen*.raw.jsonl'))
+    for f in nuevos:
+        shutil.copy(f, RESPALDO)
+    print(f'{len(nuevos)} archivos copiados a {RESPALDO}')
+
+print('Drive listo:', RESPALDO)"""),
+
+    md("""## 3 · Autopruebas, sin GPU
+Debe terminar con `TODO EN ORDEN`, y la última línea confirma el conjunto nuevo:
+`60 casos · {'no': 21, 'condicional': 21, 'sí': 18}`.
+"""),
+    code("""import subprocess, sys, os, json
+from collections import Counter
+os.chdir('/content/proyecto/scripts')
+for args in (['verificador.py'], ['ficha.py'], ['pipeline.py'], ['runner_d2.py', '--pruebas']):
+    r = subprocess.run([sys.executable] + args, capture_output=True, text=True)
+    ultima = (r.stdout.strip().splitlines() or ['(sin salida)'])[-1]
+    print(f'[{"OK  " if r.returncode == 0 else "FALLA"}] {args[0]:16} {ultima[:60]}')
+    if r.returncode != 0:
+        raise SystemExit('*** NO SIGAS: fallo ' + args[0] + ' ***')
+print('TODO EN ORDEN')
+nuevos = [json.loads(l) for l in open('../datos/casos_nuevos.jsonl', encoding='utf-8')]
+print(len(nuevos), 'casos ·', dict(Counter(c['respuesta']['decision'] for c in nuevos)))"""),
+
+    md("""## 4 · Phi en los 60 casos nuevos
+Dos celdas. Primero el baseline del Deliverable 1 (few-shot, 64 tokens) y después el sistema.
+Cada una carga el modelo por su cuenta, unos 3 minutos.
+"""),
+    code("""%cd /content/proyecto/scripts
+!python runner.py --modelo microsoft/Phi-3.5-mini-instruct --condicion few_shot --casos ../datos/casos_nuevos.jsonl
+respaldar()"""),
+    code("""%cd /content/proyecto/scripts
+!python runner_d2.py --modelo microsoft/Phi-3.5-mini-instruct --variante codigo --modo encadenado --casos ../datos/casos_nuevos.jsonl
+respaldar()"""),
+
+    md("""## 5 · El sistema con Mistral-7B-Instruct-v0.3
+Si falla con un error 401 o *gated repo*: entra a
+huggingface.co/mistralai/Mistral-7B-Instruct-v0.3, acepta las condiciones, y agrega tu token
+de Hugging Face en el panel de la llave (Secretos) de Colab con el nombre `HF_TOKEN`.
+"""),
+    code("""%cd /content/proyecto/scripts
+!python runner_d2.py --modelo mistralai/Mistral-7B-Instruct-v0.3 --variante codigo --modo encadenado
+respaldar()"""),
+
+    md("""## 6 · El sistema con Qwen2.5-7B-Instruct
+"""),
+    code("""%cd /content/proyecto/scripts
+!python runner_d2.py --modelo Qwen/Qwen2.5-7B-Instruct --variante codigo --modo encadenado
+respaldar()"""),
+
+    md("""## 7 · Resumen
+Solo lee lo que ya se midió, y aplica la regla de elección del protocolo.
+"""),
+    code("""import json, os
+from math import comb
+R = '/content/proyecto/resultados/'
+
+def leer(nombre):
+    ruta = R + nombre
+    if not os.path.exists(ruta):
+        return None
+    return {x['id']: x['acierto_conjunto'] for x in map(json.loads, open(ruta, encoding='utf-8'))}
+
+def mcnemar(a, b):
+    ga = sum(a[i] and not b[i] for i in a)
+    gb = sum(b[i] and not a[i] for i in a)
+    n, k = ga + gb, min(ga, gb)
+    p = min(1.0, 2 * sum(comb(n, j) for j in range(k + 1)) / 2 ** n) if n else 1.0
+    return ga, gb, p
+
+print('CORRIDA B · Phi en los 60 casos nuevos')
+b = leer('Phi-3.5-mini-instruct__few_shot__prosa__casos_nuevos.raw.jsonl')
+s = leer('pipeline__Phi-3.5-mini-instruct__codigo__encadenado__casos_nuevos.raw.jsonl')
+for et, r in (('baseline', b), ('sistema', s)):
+    print(f'  {et:9}', f'{sum(r.values())}/{len(r)}' if r else 'falta')
+if b and s and len(b) == len(s) == 60:
+    gs, gb, p = mcnemar(s, b)
+    print(f'  sistema gana {gs}, baseline gana {gb}, McNemar p = {p:.2g}')
+
+print()
+print('CORRIDA A · el sistema con cada candidato, 60 casos originales')
+phi = leer('pipeline__Phi-3.5-mini-instruct__codigo__encadenado.raw.jsonl')
+print(f'  Phi-3.5-mini             {sum(phi.values())}/60')
+for nombre in ('Mistral-7B-Instruct-v0.3', 'Qwen2.5-7B-Instruct'):
+    r = leer(f'pipeline__{nombre}__codigo__encadenado.raw.jsonl')
+    if not r or len(r) < 60:
+        print(f'  {nombre:24} falta')
+        continue
+    go, gp, p = mcnemar(r, phi)
+    cambia = sum(r.values()) - sum(phi.values()) >= 6 and p < 0.05
+    print(f'  {nombre:24} {sum(r.values())}/60  gana {go}, Phi gana {gp}, p = {p:.2g}'
+          f'  -> {"SUPERA la regla" if cambia else "no supera la regla, se mantiene Phi"}')"""),
+
+    md("""## 8 · Descargar
+Baja los archivos nuevos en un zip. Están también en tu Drive, en `genai_30sep`.
+"""),
+    code("""respaldar()
+import shutil
+shutil.make_archive('/content/corridas_30sep', 'zip', RESPALDO)
+from google.colab import files
+files.download('/content/corridas_30sep.zip')"""),
 ]
 
 
@@ -390,6 +545,7 @@ def escribir(salida, celdas):
 def main():
     ok = escribir(SALIDA, CELDAS)
     ok = escribir(SALIDA_DEMO, CELDAS_DEMO) and ok
+    ok = escribir(SALIDA_30SEP, CELDAS_30SEP) and ok
     return 0 if ok else 1
 
 
