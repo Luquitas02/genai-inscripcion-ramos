@@ -372,8 +372,7 @@ compara en pantalla con la corrida guardada en `resultados/`.
 
 **Caso 40, completo.** La regla que lo elige es *"primer caso de nivel 3 cuyo baseline
 falla"*, y quedó escrita en `PLAN_D2_TAREAS.md` (commit `c8e0cca`, 17 de septiembre) antes de
-correr el sistema. Nivel 3 es el más difícil: el ramo se nombra de forma coloquial, la pregunta
-menciona dos ramos y el historial trae distractores. El
+correr el sistema. Nivel 3 es el más difícil: el ramo se nombra de forma coloquial, a veces junto a otro, y el historial trae distractores. El
 sistema falla acá, y es el caso de falla que la guía exige. La pregunta es *"programación, la
 reprobé, ¿puedo tomar Optimización 1 ahora ya?"*. El ramo consultado es 580315, pero el paso 1
 devolvió 503203, que la pregunta nombra primero y que además es el prerrequisito que bloquea.

@@ -175,8 +175,7 @@ agosto y contando esa regla. Relanzada, da 33 y 3.\par}
 
 {\footnotesize
 Corre en vivo en la T4 los casos 40 a 49, sin saltarse ninguno. Son los diez primeros de
-nivel 3, el más difícil: el ramo se nombra de forma coloquial, la pregunta menciona dos ramos
-y el historial trae distractores. En cada caso se ven la respuesta del baseline y la del
+nivel 3, el más difícil: el ramo se nombra de forma coloquial, a veces junto a otro, y el historial trae distractores. En cada caso se ven la respuesta del baseline y la del
 sistema sobre la misma pregunta, y cada salida se compara con la corrida guardada en el
 repositorio. El 40 es el caso de falla y se ve completo. \cod{demo\_colab.ipynb} lo reproduce.\par}
 
@@ -240,7 +239,7 @@ total                            &             & 60 & 10 & \textbf{35} \\
 
 \seccion{Estrategias alternativas evaluadas}
 
-{\footnotesize El paso 3 con el modelo, medido con la ficha verdadera de cada caso, con la que el código acierta 60/60.\par}
+{\footnotesize Se midió el paso 3 con el modelo sobre la ficha verdadera, con la que el código acierta 60/60.\par}
 
 \vspace{0.5mm}
 {\footnotesize
@@ -257,12 +256,11 @@ mínimo                       & 30,0 & \cod{R-DEPENDE-APROBACION} 47 \\
 
 \vspace{1mm}
 {\footnotesize
-En las cuatro versiones el modelo colapsa en una sola regla. Con la ficha verdadera delante aplica las reglas al
+En las cuatro versiones una regla acapara entre 38 y 60 respuestas. Con la ficha verdadera delante aplica las reglas al
 31,7\,\% y el código lo hace al 100\,\%. Por esa diferencia las reglas quedaron en el código.
 
 En el paso 1 los ejemplos bajan el acierto de ramo de 51,7\,\% a 45,0\,\% (4 casos), y se
-descartaron. Con 60 casos son diferencias pequeñas, y se eligió sobre el mismo conjunto, por eso
-se midió además en casos nuevos.\par}
+descartaron. Con 60 casos son diferencias pequeñas y se eligió sobre el mismo conjunto. Por eso se midió además en casos nuevos.\par}
 
 \seccion{Dónde se rompe, y por qué}
 
@@ -283,7 +281,7 @@ período equivocado llevan a la misma respuesta. El paso 1 identifica el ramo en
 coloquial.
 
 \textbf{Caso de falla}, el primero de nivel 3, elegido por una regla escrita antes de correr
-el sistema. La pregunta es \q programación, la reprobé, ¿puedo tomar Optimización 1 ahora ya?\q.
+el sistema. La pregunta dice \q ...programación, la reprobé, ¿puedo tomar Optimización 1 ahora ya?\q.
 Nombra dos ramos y el prerrequisito va primero. \q programación\q\ coincide con el nombre del
 catálogo y \q Optimización 1\q\ no coincide con \q Optimización I\q. El prompt no distingue
 el ramo consultado del que se nombra de contexto, y el modelo devolvió 503203, el código de Programación. Los pasos 2 y 3
@@ -310,7 +308,7 @@ frontera de esa regla.
 \textbf{Desviación declarada.} En el Deliverable~1 el modelo leía la pregunta y el
 expediente y decidía. En este sistema el modelo solo identifica el ramo y el período, y la
 ficha y la decisión las calcula el código con la lógica del verificador que etiqueta los casos.
-E1, E3 y E4 los resuelve el código, y el 58,3\,\% mide la extracción que hace el modelo. El
+Con el ramo correcto, el código evita E1 a E4, y el 58,3\,\% mide la extracción que hace el modelo. El
 Deliverable~1 planeaba atacar E1 con el prompt y dejaba el grafo y un validador de la salida
 para el Deliverable~3. Se cambió porque la ablación mostró que el modelo no aplica las reglas,
 y el Deliverable~3 pasa a atacar la extracción.\par}
