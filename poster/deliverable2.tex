@@ -87,9 +87,7 @@ entre decisión y regla (E4).\par}
 \seccion{Elección del modelo}
 
 {\footnotesize
-El Deliverable~1 propuso tres candidatos de familias distintas, con Mistral como base.
-En el sistema final el modelo solo hace el paso 1, así que los tres se midieron haciendo ese
-trabajo, con el mismo sistema y los mismos 60 casos. La regla de elección se subió al
+El Deliverable~1 propuso tres candidatos de familias distintas, con Mistral como base del sistema. En el sistema final el modelo solo hace el paso 1. Por eso los tres se midieron haciendo ese trabajo, con el mismo sistema y los mismos 60 casos. La regla de elección se subió al
 repositorio antes de correr (\cod{PROTOCOLO\_30SEP.md}). Se cambia a un modelo de 7B solo si
 acierta al menos 6 casos más que Phi, con McNemar $p<0{,}05$.
 
@@ -106,8 +104,7 @@ Qwen2.5-7B & 7,6B & 41 & 42 & 2,8 \\
 \end{tabular}}
 
 \vspace{1mm}
-Mistral acierta un caso más con el doble de parámetros. Qwen acierta 7 más, con $p=0{,}17$, así
-que no cumple la regla y se mantiene Phi, el más pequeño. Qwen sí identifica mejor el ramo (41
+Mistral acierta un caso más con el doble de parámetros. Qwen acierta 7 más, con $p=0{,}17$. No cumple la regla y se mantiene Phi, el más pequeño. Qwen sí identifica mejor el ramo (41
 contra 31, $p=0{,}03$), y esa brecha es la que el Deliverable~3 tiene que cerrar con Phi. El
 Deliverable~1 descartó a Phi cuando el modelo decidía, por su acierto conjunto y por inventar
 identificadores. En el paso 1 un código que no está en la malla se descarta. Phi no devolvió
@@ -133,13 +130,13 @@ los 60 casos. La salida sigue siendo decisión y regla, evaluadas igual que en e
   codigo/.style={caja,draw=verde,line width=0.6pt},
   fl/.style={-{Stealth[length=1.6mm]},draw=gris}]
 
-\node[caja,fill=fondo] (q) {\q me falta cálculo 2 pero la estoy\\ tomando, ¿alcanzo a meter\\ ecuaciones el próximo?\q};
+\node[caja,fill=fondo] (q) {\q oye una consulta, ¿puedo\\ inscribir microeconomía\\ de una vez?\q\\[0.3mm] {\color{gris}caso 48}};
 \node[modelo,below=2.6mm of q] (p1) {\textbf{Paso 1 · Extracción}\\[0.3mm] {\color{acento}el modelo}\\ pregunta + 61 códigos};
 \node[codigo,below=2.6mm of p1] (p2) {\textbf{Paso 2 · Ficha}\\[0.3mm] {\color{verde}el código}\\ 8 campos, 1 ramo};
 \node[codigo,below=2.6mm of p2] (p3) {\textbf{Paso 3 · Decisión}\\[0.3mm] {\color{verde}el código}\\ aplica el reglamento};
 % La comilla doble literal la come babel-spanish aun con \shorthandoff. Va \q, que es
 % \textquotedbl y es inmune, igual que en el resto del documento.
-\node[caja,fill=fondo,below=2.6mm of p3] (out) {decisión: \textbf{condicional}\\ regla: \cod{R-DEPENDE-APROBACION}};
+\node[caja,fill=fondo,below=2.6mm of p3] (out) {decisión: \textbf{condicional}\\ regla: \cod{R-EXCEPCION-PRERREQ}};
 
 \draw[fl] (q) -- (p1);
 \draw[fl] (p1) -- node[right=0.5mm,font=\scriptsize,text=gris]{ramo, período} (p2);
@@ -154,8 +151,7 @@ El \textbf{paso 1} aísla la lectura de la prosa y permite medirla sola. Ve la p
 61 pares de código y nombre, sin historial ni reglas. El \textbf{paso 2} lleva E1 y E2 al
 código. Arma una ficha de ocho campos sobre un solo ramo, con el estado \q inscrita\q\ de cada
 prerrequisito, así que el dato que decide queda a la vista aunque la pregunta no lo nombre.
-Deja fuera unas 25 asignaturas del historial que no tocan ese ramo. En el \textbf{paso 3} el
-código aplica el reglamento y entrega regla y decisión, así que E3 y E4 no pueden ocurrir.\par}
+Deja fuera unas 25 asignaturas del historial que no tocan ese ramo. En el \textbf{paso 3} el código aplica el reglamento y entrega regla y decisión.\par}
 
 % ================================================================ COLUMNA 2
 
@@ -173,8 +169,7 @@ agosto y contando esa regla. Relanzada, da 33 y 3.\par}
 \seccion{Lo que muestra el video}
 
 {\footnotesize
-Corre en vivo en la T4 los casos 40 a 49, sin saltarse ninguno. Son los diez primeros de
-nivel 3, el más difícil: el ramo se nombra de forma coloquial, a veces junto a otro, y el historial trae distractores. En cada caso se ven la respuesta del baseline y la del
+Corre en vivo en la T4 los casos 40 a 49, sin saltarse ninguno. Son los diez primeros de nivel 3, el más difícil. En ese nivel el ramo se nombra de forma coloquial, a veces junto a otro, y el historial trae distractores. En cada caso se ven la respuesta del baseline y la del
 sistema sobre la misma pregunta, y cada salida se compara con la corrida guardada en el
 repositorio. El 40 es el caso de falla y se ve completo. \cod{demo\_colab.ipynb} lo reproduce.\par}
 
@@ -206,8 +201,7 @@ baseline few-shot       & 51,7 & 35,0 & 30,0 & 3.836 \\
 \end{tabular}}
 
 \vspace{1mm}
-\destaque{\footnotesize El sistema sube de 16,7\,\% a 58,3\,\% y supera por 28,3 puntos a la
-constante. En los 39 casos donde difieren, gana 32 y el baseline 7 (McNemar exacto, $p<0{,}001$).
+\destaque{\footnotesize El sistema sube de 16,7\,\% a 58,3\,\% y supera por 28,3 puntos a responder siempre \q sí\q. En los 39 casos donde difieren, gana 32 y el baseline 7 (McNemar exacto, $p<0{,}001$).
 Usa \textbf{1.153 tokens por caso contra 3.862}, y 1,6 segundos contra 4,2. En 60 casos
 nuevos, generados después de fijar el sistema, gana 29 a 10 ($p=0{,}003$). Ocho preguntas se
 repiten del conjunto original. Sin ellas el sistema acierta 30 de 52 y el baseline 16.}
@@ -255,13 +249,12 @@ mínimo                       & 30,0 & \cod{R-DEPENDE-APROBACION} 47 \\
 
 \vspace{1mm}
 {\footnotesize
-En las cuatro versiones una regla acapara entre 38 y 60 respuestas. Con la ficha verdadera delante aplica las reglas al
-31,7\,\% y el código lo hace al 100\,\%. Por esa diferencia las reglas quedaron en el código.
+En las cuatro versiones una regla acapara entre 38 y 60 respuestas. Con la ficha verdadera delante, el modelo aplica las reglas al 31,7\,\% y el código al 100\,\%. Por esa diferencia las reglas quedaron en el código.
 
 En el paso 1 los ejemplos bajan el acierto de ramo de 51,7\,\% a 45,0\,\% (4 casos), y se
 descartaron. Con 60 casos son diferencias pequeñas y se eligió sobre el mismo conjunto. Por eso se midió además en casos nuevos.\par}
 
-\seccion{Dónde se rompe, y por qué}
+\seccion{Dónde se rompe y por qué}
 
 \vspace{0.5mm}
 {\footnotesize
@@ -301,8 +294,7 @@ baja de 6 a 3. La respuesta correcta de los 12 es \q condicional\q, que el basel
 frecuencia, y así acierta 6. Las 9 fallas del sistema tienen el ramo equivocado.
 
 \textbf{Atajo en el conjunto.} Los 9 casos de \cod{R-EXCEPCION-PRERREQ} tienen cero créditos
-inscritos y los otros 51 entre 12 y 24, con el umbral en 8, así que el conjunto no prueba la
-frontera de esa regla.
+inscritos y los otros 51 entre 12 y 24, con el umbral en 8. El conjunto no prueba la frontera de esa regla.
 
 \textbf{Desviación declarada.} En el Deliverable~1 el modelo leía la pregunta y el
 expediente y decidía. En este sistema el modelo solo identifica el ramo y el período, y la
