@@ -341,6 +341,12 @@ asignaturas irrelevantes por caso.
 El sistema triplica el baseline y es además la condición más barata, así que la mejora no
 viene de gastar más cómputo.
 
+**En 60 casos nuevos** (`datos/casos_nuevos.jsonl`, mismo generador con la semilla 20260930,
+generados el 30 de septiembre con el sistema ya fijo) el baseline acierta 18/60 (30,0 %) y el
+sistema 37/60 (61,7 %). Donde difieren, el sistema gana 29 y el baseline 10 (McNemar exacto,
+p = 0,003). Ocho preguntas se repiten del conjunto original; sin ellas, 30/52 contra 16/52. El
+protocolo se subió antes de correr: [`PROTOCOLO_30SEP.md`](PROTOCOLO_30SEP.md).
+
 **E3 y E4 no ocurren en el sistema**, porque la regla y la decisión las entrega el código. En
 el paso intermedio que se probó antes, donde el modelo elegía la regla de una lista cerrada y la
 decisión se calculaba desde ella, las cuatro corridas de 60 casos no inventaron ningún
@@ -422,9 +428,23 @@ desde ahí.
 
 ## Decisiones, y por qué
 
-**El modelo es Phi-3.5-mini**, el más chico de los tres candidatos del D1. Se eligió con un
-criterio declarado antes de mirar los datos: acierto de decisión fuera de la categoría donde
-cada modelo colapsa. Phi da 40,5 % y Mistral 19,0 %, con la mitad de los parámetros.
+**El modelo es Phi-3.5-mini**, el más chico de los tres candidatos del D1. En el sistema el
+modelo solo hace el paso 1, así que los tres se midieron haciendo ese trabajo sobre los 60
+casos, con una regla de elección subida antes de correr ([`PROTOCOLO_30SEP.md`](PROTOCOLO_30SEP.md)):
+cambiar a un modelo de 7B solo si acierta al menos 6 casos más que Phi con McNemar p < 0,05.
+
+| modelo | params | ramo bien extraído | acierto conjunto | s/caso |
+|---|---|---|---|---|
+| **Phi-3.5-mini** | 3,8 B | 31/60 | 35/60 | 1,6 |
+| Mistral-7B-v0.3 | 7,2 B | 32/60 | 36/60 | 3,1 |
+| Qwen2.5-7B | 7,6 B | 41/60 | 42/60 | 2,8 |
+
+Qwen acierta 7 casos más con p = 0,17, así que no cumple la regla y se mantiene Phi. Qwen sí
+extrae mejor el ramo (p = 0,03), y esa brecha es el objetivo del D3. Qwen devolvió además dos
+códigos que no existen en la malla; Phi ninguno. La primera versión del D2 argumentaba la elección con
+el acierto de decisión fuera de la categoría donde cada modelo colapsa (Phi 40,5 %, Mistral
+19,0 %). La auditoría del 30 de septiembre mostró que esa métrica no descuenta a una respuesta
+constante, y se reemplazó por esta medición.
 
 **Las reglas las aplica el código.** La ablación midió que el modelo las aplica al 31,7 % con
 la ficha verdadera delante, y que el código lo hace al 100 %. Es uso de herramientas, una de

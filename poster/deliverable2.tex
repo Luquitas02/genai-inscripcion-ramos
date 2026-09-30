@@ -88,30 +88,31 @@ entre decisión y regla (E4).\par}
 \seccion{Elección del modelo}
 
 {\footnotesize
-El Deliverable~1 propuso tres candidatos de familias distintas. El criterio se fijó antes de
-recalcular los crudos recuperados, cuando el plan era que el modelo decidiera. Es el acierto de
-decisión fuera de la categoría donde cada modelo colapsa, en few-shot, y descuenta lo que gana
-quien responde siempre lo mismo.
+El Deliverable~1 propuso tres candidatos de familias distintas, con Mistral como base.
+En el sistema final el modelo solo hace el paso 1, así que los tres se midieron haciendo ese
+trabajo, con el mismo sistema y los mismos 60 casos. La regla de elección se subió al
+repositorio antes de correr (\cod{PROTOCOLO\_30SEP.md}). Se cambia a un modelo de 7B solo si
+acierta al menos 6 casos más que Phi, con McNemar $p<0{,}05$.
 
 \vspace{0.5mm}
 {\footnotesize
-\begin{tabular}{@{}lrrr@{}}
+\begin{tabular}{@{}lrrrr@{}}
 \toprule
- & params & fuera del colapso & ambas (D1) \\
+ & params & ramo (paso 1) & ambas & s/caso \\
 \midrule
-\textbf{Phi-3.5-mini} & \textbf{3,8B} & \textbf{40,5} & 16,7 \\
-Mistral-7B-v0.3 & 7,2B & 19,0 & 38,3 \\
-Qwen2.5-7B & 7,6B & sin crudo & 31,7 \\
+\textbf{Phi-3.5-mini} & \textbf{3,8B} & 31 & 35 & 1,6 \\
+Mistral-7B-v0.3 & 7,2B & 32 & 36 & 3,1 \\
+Qwen2.5-7B & 7,6B & 41 & 42 & 2,8 \\
 \bottomrule
 \end{tabular}}
 
 \vspace{1mm}
-El Deliverable~1 descartó a Phi por su acierto conjunto, el más bajo de los tres. Mistral
-responde \q sí\q\ en 50 de los 60 casos y acierta 17 de los 18 que lo son, así que su acierto
-conjunto sale del colapso y no de leer el expediente. Phi reparte sus respuestas entre las tres
-categorías. Qwen, el más grande, no se pudo medir con este criterio porque sus crudos se
-perdieron en agosto. En el sistema final el modelo solo extrae el ramo, y el Deliverable~3
-comparará esa extracción entre modelos.
+Mistral acierta un caso más con el doble de parámetros. Qwen acierta 7 más, con $p=0{,}17$, así
+que no cumple la regla y se mantiene Phi, el más pequeño. Qwen sí identifica mejor el ramo (41
+contra 31, $p=0{,}03$), y esa brecha es la que el Deliverable~3 tiene que cerrar con Phi. El
+Deliverable~1 descartó a Phi cuando el modelo decidía, por su acierto conjunto y por inventar
+identificadores. En el paso 1 un código que no está en la malla se descarta. Phi no devolvió
+ninguno y Qwen devolvió 2.
 
 El sistema corre en la T4 gratuita de Colab, el hardware declarado en el Deliverable~1, a
 1,6 segundos por caso.\par}
@@ -168,7 +169,7 @@ y la decisión se calculaba desde ella. En sus cuatro corridas de 60 casos no in
 identificador y todas sus salidas fueron JSON legible. En el baseline, Phi inventaba
 identificadores en 18 de 60 casos (zero-shot) y en 3 (few-shot), sin contar
 \cod{R-TOPE-MIN}, que el prompt ofrecía. El Deliverable~1 reportaba 35 y 4 con la corrida de
-agosto y contando esa regla. La corrida relanzada da 33 y 3 contando igual.\par}
+agosto y contando esa regla. Relanzada, da 33 y 3.\par}
 
 \seccion{Lo que muestra el video}
 
@@ -184,11 +185,8 @@ repositorio. El 40 es el caso de falla y se ve completo. \cod{demo\_colab.ipynb}
 % multicols separaba la tabla de E3 y E4 de su frase.
 \columnbreak
 
-\seccion{Resultados sobre los 60 casos}
+\seccion{Resultados contra el baseline}
 
-{\footnotesize Las variantes pasan una pieza por vez del modelo al código.\par}
-
-\vspace{0.5mm}
 {\footnotesize
 \begin{tabular}{@{}lrrrr@{}}
 \toprule
@@ -201,15 +199,20 @@ responder siempre \q sí\q & 30,0 & 30,0 & 30,0 & --- \\
 ficha por código             & 45,0 & 28,3 & 28,3 & 2.743 \\
 \rowcolor{fondo}
 \textbf{ficha y reglas por código} & \textbf{71,7} & \textbf{58,3} & \textbf{58,3} & \textbf{1.153} \\
-\midrule
 {\itshape techo, paso 1 perfecto} & 100,0 & 100,0 & 100,0 & 1.153 \\
+\midrule
+\multicolumn{5}{@{}l}{\itshape 60 casos nuevos, otra semilla del generador} \\
+baseline few-shot       & 51,7 & 35,0 & 30,0 & 3.836 \\
+\textbf{ficha y reglas por código} & 71,7 & 61,7 & \textbf{61,7} & 1.153 \\
 \bottomrule
 \end{tabular}}
 
 \vspace{1mm}
 \destaque{\footnotesize El sistema sube de 16,7\,\% a 58,3\,\% y supera por 28,3 puntos a la
 constante. En los 39 casos donde difieren, gana 32 y el baseline 7 (McNemar exacto, $p<0{,}001$).
-Usa \textbf{1.153 tokens por caso contra 3.862}, y 1,6 segundos contra 4,2.}
+Usa \textbf{1.153 tokens por caso contra 3.862}, y 1,6 segundos contra 4,2. En 60 casos
+nuevos, generados después de fijar el sistema, gana 29 a 10 ($p=0{,}003$). Ocho preguntas se
+repiten del conjunto original. Sin ellas el sistema acierta 30 de 52 y el baseline 16.}
 
 \vspace{1mm}
 {\footnotesize
@@ -254,12 +257,12 @@ mínimo                       & 30,0 & \cod{R-DEPENDE-APROBACION} 47 \\
 
 \vspace{1mm}
 {\footnotesize
-Sacar el bloque de reglas globales sube el acierto 5 puntos, que son 3 casos, y cambia la
-regla dominante. El modelo sigue colapsando en una sola. Con la ficha verdadera delante aplica las reglas al
+En las cuatro versiones el modelo colapsa en una sola regla. Con la ficha verdadera delante aplica las reglas al
 31,7\,\% y el código lo hace al 100\,\%. Por esa diferencia las reglas quedaron en el código.
 
 En el paso 1 los ejemplos bajan el acierto de ramo de 51,7\,\% a 45,0\,\% (4 casos), y se
-descartaron. Con 60 casos son diferencias pequeñas, y se eligió sobre el mismo conjunto.\par}
+descartaron. Con 60 casos son diferencias pequeñas, y se eligió sobre el mismo conjunto, por eso
+se midió además en casos nuevos.\par}
 
 \seccion{Dónde se rompe, y por qué}
 
@@ -284,15 +287,12 @@ el sistema. La pregunta es \q programación, la reprobé, ¿puedo tomar Optimiza
 Nombra dos ramos y el prerrequisito va primero. \q programación\q\ coincide con el nombre del
 catálogo y \q Optimización 1\q\ no coincide con \q Optimización I\q. El prompt no distingue
 el ramo consultado del que se nombra de contexto, y el modelo devolvió 503203, el código de Programación. Los pasos 2 y 3
-evaluaron ese ramo y respondieron que sí, porque un reprobado se vuelve a inscribir. Esa
-respuesta corresponde a Programación. En las 20 preguntas
+evaluaron Programación y respondieron que sí. En las 20 preguntas
 que nombran otro ramo antes del consultado, el paso 1 acierta 3. En las otras 40 acierta 28.
 
-\textbf{Cuando el modelo armaba la ficha}, en la variante sin código en el paso 2, tampoco
-leía el expediente aun recibiendo el ramo correcto. Acertó estado 0/60, créditos aprobados 0/60
-y prerrequisitos 7/60. Nunca respondió \q no cursada\q, que es el estado real en los 60, y en
-créditos aprobados devolvió casi siempre los de un ramo en vez de la suma (30 a 163). Por eso
-la ficha la arma el código.\par}
+\textbf{Cuando el modelo armaba la ficha}, aun con el ramo correcto, acertó estado 0/60 y
+créditos aprobados 0/60. Nunca respondió \q no cursada\q, el estado real en los 60. Por eso la
+ficha la arma el código.\par}
 
 \seccion{Límites declarados}
 
