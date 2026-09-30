@@ -297,7 +297,7 @@ minuto y la salida aparece en vivo.
 import importlib
 importlib.reload(demo)
 
-demo.video(modelo)"""),
+casos_mostrados = demo.video(modelo)"""),
 
     md("""## 11 · Descargar
 Baja todo lo medido para comitearlo al repositorio.
@@ -360,7 +360,7 @@ print('modelo cargado')"""),
 ninguno. El caso 40 se muestra completo y es el caso de falla. Cada salida del modelo se
 compara con la corrida guardada en `resultados/`.
 """),
-    code("""demo.video(modelo)"""),
+    code("""casos_mostrados = demo.video(modelo)"""),
 ]
 
 
