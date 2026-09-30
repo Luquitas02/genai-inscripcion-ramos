@@ -18,8 +18,9 @@ Prof. Carlos Navarrete, PhD
 sobre los mismos 60 casos, con el acierto conjunto subiendo de **16,7 % a 58,3 %** y usando
 **un tercio de los tokens** del baseline. Detalle en [la sección del D2](#deliverable-2--el-sistema-de-tres-pasos).
 Documento técnico: [`poster/Deliverable_2.pdf`](poster/Deliverable_2.pdf). Para reproducir el
-video: [`demo_colab.ipynb`](demo_colab.ipynb) en una T4 de Colab, detalle en
-[Reproducir lo que muestra el video](#reproducir-lo-que-muestra-el-video).
+video: [`demo_colab.ipynb`](demo_colab.ipynb) en una T4 de Colab
+([abrir en Colab](https://colab.research.google.com/github/Luquitas02/genai-inscripcion-ramos/blob/main/demo_colab.ipynb)),
+detalle en [Reproducir lo que muestra el video](#reproducir-lo-que-muestra-el-video).
 
 **Deliverable 1 completo** (31 de agosto de 2026). Tarea definida, ground truth
 construido y auditado, conjunto de prueba de 60 casos balanceados, y baseline medido sobre
@@ -85,7 +86,11 @@ La métrica principal es el **acierto conjunto**: ambos campos correctos.
 | Phi-3.5-mini | 3,8 B | zero-shot, prosa | 43,3 % | 6,7 % | 5,0 % |
 | | | zero-shot, reducida | 35,0 % | 5,0 % | 5,0 % |
 | | | few-shot | 35,0 % | 23,3 % | 16,7 % |
-| **Constante trivial** | — | (sin leer nada) | **35,0 %** | **30,0 %** | **30,0 %** |
+| **Mejor constante, por columna** | — | "no" en decisión, "sí" en regla y ambas | **35,0 %** | **30,0 %** | **30,0 %** |
+
+La fila de la constante toma la mejor respuesta fija de cada columna, así que no es una sola
+constante: responder siempre "sí" da 30,0 % en las tres. Se detectó en la auditoría del 30 de
+septiembre, y el D2 compara contra "siempre sí".
 
 **Cinco de las nueve condiciones quedan por debajo de la constante trivial** en la métrica
 conjunta. Solo la superan Mistral en sus tres condiciones y Qwen con few-shot, y el mejor
@@ -284,15 +289,17 @@ python scripts/runner.py --modelo mistralai/Mistral-7B-Instruct-v0.3 --condicion
 python scripts/analisis.py resultados/Mistral*.raw.jsonl resultados/Phi*.raw.jsonl
 ```
 
-La generación es determinista (`do_sample=False`); la corrida se reprodujo idéntica al
-repetirla tras perder la sesión de Colab.
+La generación es greedy (`do_sample=False`), así que el mismo entorno da la misma salida. Entre
+entornos distintos (otra versión de `transformers` u otra GPU) el texto puede cambiar en algún
+caso, como pasó con los conteos de E3 y E4 de Phi al relanzarlo. Por eso los notebooks fijan
+`transformers==5.17.0`, la versión con que se midió el D2.
 
 > **Sobre `resultados/`.** Están las tres corridas de Mistral y las tres de Phi caso a caso,
 > así que sus cifras se recalculan con `analisis.py`. Las de Phi se relanzaron el 17 de
 > septiembre y reprodujeron las nueve cifras reportadas sin desviación, lo que confirma que el
 > entorno declarado sigue siendo válido. Las de Qwen siguen sin crudo: se midieron en una
-> sesión de Colab que expiró antes de la descarga. Sus métricas están completas en este README
-> y los comandos de arriba las reproducen, porque la generación es determinista.
+> sesión de Colab que expiró antes de la descarga. Sus métricas del D1 están completas en este
+> README.
 
 ---
 
@@ -307,9 +314,14 @@ uno recibe solo lo que necesita.
 
 | paso | quién lo hace | qué ve | ataca |
 |---|---|---|---|
-| 1 · extracción | **el modelo** | la pregunta y los 61 pares de código y nombre | E2 |
-| 2 · ficha | el código | el ramo, la malla y el historial | E1 |
-| 3 · decisión | el código | la ficha y la lista cerrada de reglas | E3, E4 |
+| 1 · extracción | **el modelo** | la pregunta y los 61 pares de código y nombre | la lectura de la prosa |
+| 2 · ficha | el código | el ramo, la malla y el historial | E1, E2 |
+| 3 · decisión | el código | la ficha y el reglamento | E3, E4 |
+
+En el D1 el modelo leía la pregunta y el expediente y decidía. En este sistema solo identifica
+el ramo y el período, y la ficha y la decisión las calcula el código con la lógica del
+verificador que etiqueta los casos. Es una desviación del plan del D1, declarada en el
+documento técnico: el 58,3 % mide la extracción que hace el modelo.
 
 La ficha son ocho campos sobre un solo ramo. Como el historial trae 26 asignaturas en
 promedio y el ramo objetivo tiene 1,2 prerrequisitos directos, el paso 2 descarta unas 25
@@ -320,7 +332,7 @@ asignaturas irrelevantes por caso.
 | condición | decisión | regla | **ambas** | tok/caso | s/caso |
 |---|---|---|---|---|---|
 | baseline few-shot | 35,0 % | 23,3 % | 16,7 % | 3.862 | 4,2 |
-| constante trivial | 35,0 % | 30,0 % | 30,0 % | — | — |
+| responder siempre "sí" | 30,0 % | 30,0 % | 30,0 % | — | — |
 | ficha y reglas al modelo | 45,0 % | 25,0 % | 25,0 % | 6.072 | 10,4 |
 | ficha al código | 45,0 % | 28,3 % | 28,3 % | 2.743 | 3,4 |
 | **ficha y reglas al código** | **71,7 %** | **58,3 %** | **58,3 %** | **1.153** | **1,6** |
@@ -329,18 +341,18 @@ asignaturas irrelevantes por caso.
 El sistema triplica el baseline y es además la condición más barata, así que la mejora no
 viene de gastar más cómputo.
 
-**E3 y E4 quedan en cero** sobre las 240 respuestas donde el modelo decide. La lista cerrada
-elimina los identificadores inventados, y derivar la decisión desde la regla elimina las
-contradicciones. Se verificó sobre los 60 casos que la decisión queda determinada por la
-regla, sin una sola ambigüedad, así que pedir los dos campos daba un grado de libertad que el
-dominio no tiene.
+**E3 y E4 no ocurren en el sistema**, porque la regla y la decisión las entrega el código. En
+el paso intermedio que se probó antes, donde el modelo elegía la regla de una lista cerrada y la
+decisión se calculaba desde ella, las cuatro corridas de 60 casos no inventaron ningún
+identificador. Dos de esas corridas (modo oráculo) reciben la misma ficha y repiten sus
+salidas, así que son 180 respuestas distintas.
 
 ## Dónde se rompe
 
 | | |
 |---|---|
-| casos donde el paso 1 acierta ramo y período | **28 de 28** |
-| casos donde el paso 1 falla | 7 de 32 |
+| acierto del sistema si el paso 1 acierta ramo y período | **28 de 28** |
+| acierto del sistema si el paso 1 se equivoca | 7 de 32 |
 
 Todo el error restante es extracción. El paso 1 identifica el ramo en 31 de 60 casos y se
 degrada con la forma de nombrarlo: 13/20 con el nombre completo, 10/20 abreviado, 8/20
@@ -352,13 +364,14 @@ Los diez primeros casos de nivel 3, del 40 al 49, corridos en vivo en una T4 sin
 ninguno. El baseline y el sistema corren sobre el mismo input, y cada salida del modelo se
 compara en pantalla con la corrida guardada en `resultados/`.
 
-**Caso 40, completo.** Es el primer caso de nivel 3. La regla que lo elige quedó escrita en
-`PLAN_D2_TAREAS.md` (commit `c8e0cca`, 17 de septiembre) antes de correr el sistema. El
+**Caso 40, completo.** La regla que lo elige es *"primer caso de nivel 3 cuyo baseline
+falla"*, y quedó escrita en `PLAN_D2_TAREAS.md` (commit `c8e0cca`, 17 de septiembre) antes de
+correr el sistema. Nivel 3 es el más difícil: el ramo se nombra de forma coloquial, la pregunta
+menciona dos ramos y el historial trae distractores. El
 sistema falla acá, y es el caso de falla que la guía exige. La pregunta es *"programación, la
 reprobé, ¿puedo tomar Optimización 1 ahora ya?"*. El ramo consultado es 580315, pero el paso 1
 devolvió 503203, que la pregunta nombra primero y que además es el prerrequisito que bloquea.
-Los pasos 2 y 3 evaluaron 503203, así que la respuesta vale para Programación y no para
-Optimización I.
+Los pasos 2 y 3 evaluaron 503203, así que la respuesta corresponde a Programación.
 
 **Casos 41 a 49, una línea cada uno.** Según la corrida guardada, el baseline acierta 1 de 10
 y el sistema 4 de 10. De esos cuatro, el caso 49 acierta con el ramo equivocado: el paso 1
@@ -390,9 +403,11 @@ python scripts/ablacion_p1.py       # el paso 1 con y sin ejemplos
 python scripts/ablacion_p3.py       # el paso 3, cuatro versiones del prompt
 ```
 
-**Solo la demo.** `demo_colab.ipynb` clona este repositorio, corre las autopruebas, carga
-Phi y ejecuta `demo.video(modelo)`. Son unos cinco minutos en una T4, casi todos de carga del
-modelo.
+**Solo la demo.** `demo_colab.ipynb`
+([abrir en Colab](https://colab.research.google.com/github/Luquitas02/genai-inscripcion-ramos/blob/main/demo_colab.ipynb))
+clona este repositorio, imprime el commit que corre, pasa las autopruebas, carga Phi y ejecuta
+`demo.video(modelo)`. Son unos cinco minutos en una T4, casi todos de carga del modelo. Las
+pruebas sin GPU solo necesitan Python 3, sin dependencias externas.
 
 `demo.py` imprime exactamente lo que se ve en el video: la pregunta, el baseline con su
 veredicto, los tres pasos uno por uno, la comparación final y, para cada salida del modelo, si
@@ -412,7 +427,7 @@ criterio declarado antes de mirar los datos: acierto de decisión fuera de la ca
 cada modelo colapsa. Phi da 40,5 % y Mistral 19,0 %, con la mitad de los parámetros.
 
 **Las reglas las aplica el código.** La ablación midió que el modelo las aplica al 31,7 % con
-la ficha perfecta delante, y que el código lo hace al 100 %. Es uso de herramientas, una de
+la ficha verdadera delante, y que el código lo hace al 100 %. Es uso de herramientas, una de
 las intervenciones que la guía enumera.
 
 **Hubo una revisión del prompt.** La primera corrida no mejoró al baseline porque el prompt
@@ -421,8 +436,8 @@ del paso 3 solo nombraba un desenlace. Las corridas fallidas están en
 [`PLAN_D2.md`](PLAN_D2.md).
 
 **Límites declarados.** En los 12 casos con prerrequisito en curso preguntando por el próximo
-período el sistema baja de 6/12 a 3/12: el baseline acertaba ahí apostando a `condicional`,
-no razonando. Los 9 casos de `R-EXCEPCION-PRERREQ` tienen todos cero créditos inscritos, así
+período el sistema baja de 6/12 a 3/12. La respuesta correcta de los 12 es `condicional`, que el
+baseline da con frecuencia. Los 9 casos de `R-EXCEPCION-PRERREQ` tienen todos cero créditos inscritos, así
 que el conjunto no prueba la frontera de esa regla. Y las versiones del prompt se eligieron
 por ablación sobre estos mismos 60 casos, así que diferencias de dos a cuatro casos no deben
 leerse como efectos firmes.

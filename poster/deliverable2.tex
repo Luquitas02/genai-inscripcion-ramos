@@ -55,7 +55,7 @@
 \raggedright
 
 % ---------------------------------------------------------------- cabecera
-{\Large\bfseries De 16,7\,\% a 58,3\,\% en la validación de inscripción de ramos con un modelo de 3,8B}\\[0.8mm]
+{\Large\bfseries De 16,7\,\% a 58,3\,\% en la validación de inscripción de ramos con un modelo de 3,8B y el reglamento en código}\\[0.8mm]
 {\footnotesize\color{gris}%
 \textbf{Deliverable 2} · Generative Artificial Intelligence (580694) · Universidad de Concepción · 30 de septiembre de 2026\\
 \textbf{Equipo:} Joaquín Sepúlveda · Renato Saavedra · Lucas Saldivia \quad\textbullet\quad
@@ -77,11 +77,11 @@
 {\footnotesize
 Dado el historial de un estudiante y una pregunta escrita como la escribiría una persona,
 decidir si puede inscribir un ramo y citar la regla que lo sostiene. Salida de dos campos,
-corrección por coincidencia exacta, 60 casos balanceados. Es la misma tarea del Deliverable~1,
-con el mismo conjunto y el mismo criterio.
+corrección por coincidencia exacta, 60 casos con las tres decisiones en partes casi iguales
+(21 no, 21 condicional, 18 sí). La tarea, los casos y el criterio son los del Deliverable~1.
 
 Con prompting directo, en su mejor condición (few-shot), Phi acierta 16,7\,\% de los casos en
-ambos campos, bajo el piso de 30,0\,\% que consigue quien responde siempre lo mismo. Se diagnosticaron cuatro mecanismos: no representa el estado \q cursándola ahora\q\ (E1),
+ambos campos, bajo el 30,0\,\% que consigue quien responde siempre \q sí\q. Se diagnosticaron cuatro mecanismos: no representa el estado \q cursándola ahora\q\ (E1),
 depende de que la pregunta le apunte al dato (E2), inventa identificadores (E3) y se contradice
 entre decisión y regla (E4).\par}
 
@@ -136,57 +136,48 @@ los 60 casos. La salida sigue siendo decisión y regla, evaluadas igual que en e
 \node[caja,fill=fondo] (q) {\q me falta cálculo 2 pero la estoy\\ tomando, ¿alcanzo a meter\\ ecuaciones el próximo?\q};
 \node[modelo,below=2.6mm of q] (p1) {\textbf{Paso 1 · Extracción}\\[0.3mm] {\color{acento}el modelo}\\ pregunta + 61 códigos};
 \node[codigo,below=2.6mm of p1] (p2) {\textbf{Paso 2 · Ficha}\\[0.3mm] {\color{verde}el código}\\ 8 campos, 1 ramo};
-\node[codigo,below=2.6mm of p2] (p3) {\textbf{Paso 3 · Decisión}\\[0.3mm] {\color{verde}el código}\\ lista cerrada de reglas};
+\node[codigo,below=2.6mm of p2] (p3) {\textbf{Paso 3 · Decisión}\\[0.3mm] {\color{verde}el código}\\ aplica el reglamento};
 % La comilla doble literal la come babel-spanish aun con \shorthandoff. Va \q, que es
 % \textquotedbl y es inmune, igual que en el resto del documento.
-\node[caja,fill=fondo,below=2.6mm of p3] (out) {\cod{\{\q regla\q: \q R-DEPENDE-APROBACION\q\}}\\ decisión derivada: \textbf{condicional}};
+\node[caja,fill=fondo,below=2.6mm of p3] (out) {decisión: \textbf{condicional}\\ regla: \cod{R-DEPENDE-APROBACION}};
 
 \draw[fl] (q) -- (p1);
-\draw[fl] (p1) -- node[right=0.5mm,font=\tiny,text=gris]{ramo, período} (p2);
-\draw[fl] (p2) -- node[right=0.5mm,font=\tiny,text=gris]{descarta 25 asignaturas} (p3);
+\draw[fl] (p1) -- node[right=0.5mm,font=\scriptsize,text=gris]{ramo, período} (p2);
+\draw[fl] (p2) -- node[right=0.5mm,font=\scriptsize,text=gris]{ficha de un ramo} (p3);
 \draw[fl] (p3) -- (out);
 \end{tikzpicture}
 \end{center}
 \vspace{0.5mm}
 
 {\footnotesize
-El \textbf{paso 1} aísla la lectura de la prosa, donde vive E2, y permite medirla sola. Ve la
-pregunta y los 61 pares de código y nombre, sin historial ni reglas. El \textbf{paso 2} lleva
-E1 al código. Arma una ficha de ocho campos sobre un solo ramo, con el estado \q inscrita\q\ de
-cada prerrequisito, y descarta las 25 asignaturas que no lo tocan. El \textbf{paso 3} elimina
-E3 y E4. La regla sale de una lista cerrada y la decisión se deriva de ella.\par}
+El \textbf{paso 1} aísla la lectura de la prosa y permite medirla sola. Ve la pregunta y los
+61 pares de código y nombre, sin historial ni reglas. El \textbf{paso 2} lleva E1 y E2 al
+código. Arma una ficha de ocho campos sobre un solo ramo, con el estado \q inscrita\q\ de cada
+prerrequisito, así que el dato que decide queda a la vista aunque la pregunta no lo nombre.
+Deja fuera unas 25 asignaturas del historial que no tocan ese ramo. En el \textbf{paso 3} el
+código aplica el reglamento y entrega regla y decisión, así que E3 y E4 no pueden ocurrir.\par}
 
 % ================================================================ COLUMNA 2
 
-\seccion{Dos mecanismos eliminados por construcción}
+\seccion{E3 y E4 en el sistema}
 
 {\footnotesize
-En los 60 casos la regla determina la decisión sin ambigüedad. Por eso basta pedir la regla,
-elegida de una lista cerrada, y calcular la decisión. Así quedó en las variantes donde el
-modelo hace el paso 3:\par}
-
-\vspace{0.5mm}
-{\footnotesize
-\begin{tabular}{@{}lr@{}}
-\toprule
-240 respuestas del modelo en el paso 3 & \\
-\midrule
-identificadores inventados (E3) & \textbf{0} \\
-contradicciones decisión/regla (E4) & \textbf{0} \\
-salidas sin JSON legible & \textbf{0} \\
-\bottomrule
-\end{tabular}}
-
-\vspace{1mm}
-{\footnotesize En el baseline, Phi inventaba identificadores en 18 de 60 casos en zero-shot y en 3 en
-few-shot, sin contar \cod{R-TOPE-MIN}, que el prompt ofrecía. El Deliverable~1 lo contaba.\par}
+En el sistema la regla y la decisión las entrega el código, así que E3 y E4 no ocurren por
+diseño. Antes se probó un paso intermedio, donde el modelo elegía la regla de una lista cerrada
+y la decisión se calculaba desde ella. En sus cuatro corridas de 60 casos no inventó ningún
+identificador y todas sus salidas fueron JSON legible. En el baseline, Phi inventaba
+identificadores en 18 de 60 casos (zero-shot) y en 3 (few-shot), sin contar
+\cod{R-TOPE-MIN}, que el prompt ofrecía. El Deliverable~1 reportaba 35 y 4 con la corrida de
+agosto y contando esa regla. La corrida relanzada da 33 y 3 contando igual.\par}
 
 \seccion{Lo que muestra el video}
 
 {\footnotesize
-Corre en vivo en la T4 los casos 40 a 49, los diez primeros de nivel 3, sin saltarse ninguno.
-El 40 es el caso de falla y se ve completo. Cada salida del modelo se compara con la corrida
-guardada en el repositorio, y \cod{demo\_colab.ipynb} lo reproduce.\par}
+Corre en vivo en la T4 los casos 40 a 49, sin saltarse ninguno. Son los diez primeros de
+nivel 3, el más difícil: el ramo se nombra de forma coloquial, la pregunta menciona dos ramos
+y el historial trae distractores. En cada caso se ven la respuesta del baseline y la del
+sistema sobre la misma pregunta, y cada salida se compara con la corrida guardada en el
+repositorio. El 40 es el caso de falla y se ve completo. \cod{demo\_colab.ipynb} lo reproduce.\par}
 
 % El corte va antes de los resultados para que cada seccion quede entera en una
 % columna. Mas arriba dejaba 6 cm en blanco al pie de la columna 1, y sin corte
@@ -204,14 +195,14 @@ guardada en el repositorio, y \cod{demo\_colab.ipynb} lo reproduce.\par}
  & decisión & regla & \textbf{ambas} & tok/caso \\
 \midrule
 baseline few-shot       & 35,0 & 23,3 & 16,7 & 3.862 \\
-constante trivial       & 35,0 & 30,0 & 30,0 & --- \\
+responder siempre \q sí\q & 30,0 & 30,0 & 30,0 & --- \\
 \midrule
 3 pasos, todo el modelo      & 45,0 & 25,0 & 25,0 & 6.072 \\
 ficha por código             & 45,0 & 28,3 & 28,3 & 2.743 \\
 \rowcolor{fondo}
 \textbf{ficha y reglas por código} & \textbf{71,7} & \textbf{58,3} & \textbf{58,3} & \textbf{1.153} \\
 \midrule
-{\itshape techo, paso 1 correcto} & 100,0 & 100,0 & 100,0 & 1.153 \\
+{\itshape techo, paso 1 perfecto} & 100,0 & 100,0 & 100,0 & 1.153 \\
 \bottomrule
 \end{tabular}}
 
@@ -234,7 +225,7 @@ familia & correcta & n & baseline & sistema \\
 sin impedimento                  & sí          & 18 & 2 & \textbf{13} \\
 excepción de prerrequisito       & condicional &  9 & 0 & \textbf{8} \\
 prerrequisito en curso, próximo  & condicional & 12 & \textbf{6} & 3 \\
-prerrequisito reprobado          & no          &  6 & 2 & \textbf{3} \\
+prerrequisito faltante           & no          &  6 & 2 & \textbf{3} \\
 prerrequisito en curso, actual   & no          &  6 & 0 & \textbf{1} \\
 créditos mínimos                 & no          &  3 & 0 & \textbf{3} \\
 requisito especial               & no          &  3 & 0 & \textbf{2} \\
@@ -246,7 +237,7 @@ total                            &             & 60 & 10 & \textbf{35} \\
 
 \seccion{Estrategias alternativas evaluadas}
 
-{\footnotesize El paso 3 se midió con la ficha verdadera de cada caso, con la que el código acierta 60/60.\par}
+{\footnotesize El paso 3 con el modelo, medido con la ficha verdadera de cada caso, con la que el código acierta 60/60.\par}
 
 \vspace{0.5mm}
 {\footnotesize
@@ -254,21 +245,21 @@ total                            &             & 60 & 10 & \textbf{35} \\
 \toprule
 versión del prompt del paso 3 & ambas & regla dominante \\
 \midrule
-completo                     & 26,7 & \cod{R-EXCEPCION} 38 \\
-sin el bloque de reglas      & \textbf{31,7} & \cod{R-DEPENDE} 49 \\
-sin ejemplos                 & 15,0 & \cod{R-EXCEPCION} 60 \\
-mínimo                       & 30,0 & \cod{R-DEPENDE} 47 \\
+completo                     & 26,7 & \cod{R-EXCEPCION-PRERREQ} 38 \\
+sin el bloque de reglas      & \textbf{31,7} & \cod{R-DEPENDE-APROBACION} 49 \\
+sin ejemplos                 & 15,0 & \cod{R-EXCEPCION-PRERREQ} 60 \\
+mínimo                       & 30,0 & \cod{R-DEPENDE-APROBACION} 47 \\
 \bottomrule
 \end{tabular}}
 
 \vspace{1mm}
 {\footnotesize
 Sacar el bloque de reglas globales sube el acierto 5 puntos, que son 3 casos, y cambia la
-regla dominante. El modelo sigue colapsando en una sola. Con la ficha perfecta delante aplica las reglas al 31,7\,\%
-y el código lo hace al 100\,\%. Por esa diferencia las reglas quedaron en el código.
+regla dominante. El modelo sigue colapsando en una sola. Con la ficha verdadera delante aplica las reglas al
+31,7\,\% y el código lo hace al 100\,\%. Por esa diferencia las reglas quedaron en el código.
 
 En el paso 1 los ejemplos bajan el acierto de ramo de 51,7\,\% a 45,0\,\% (4 casos), y se
-descartaron. Con 60 casos son diferencias chicas, y se eligió sobre el mismo conjunto.\par}
+descartaron. Con 60 casos son diferencias pequeñas, y se eligió sobre el mismo conjunto.\par}
 
 \seccion{Dónde se rompe, y por qué}
 
@@ -276,30 +267,32 @@ descartaron. Con 60 casos son diferencias chicas, y se eligió sobre el mismo co
 {\footnotesize
 \begin{tabular}{@{}lr@{}}
 \toprule
-casos donde el paso 1 acierta ramo y período & \textbf{28 de 28} \\
-casos donde el paso 1 falla & 7 de 32 \\
+acierto del sistema si el paso 1 acierta ramo y período & \textbf{28 de 28} \\
+acierto del sistema si el paso 1 se equivoca & 7 de 32 \\
 \bottomrule
 \end{tabular}}
 
 \vspace{1mm}
 {\footnotesize
 Con ramo y período correctos el código reproduce al verificador, así que \textbf{todo el error
-viene del paso 1}. Identifica el ramo en 31 de 60 casos y se degrada con la forma de nombrarlo: 13/20 con el nombre completo, 10/20 abreviado, 8/20
+viene del paso 1}. Los 7 aciertos con el paso 1 equivocado son casos donde el ramo o el
+período equivocado llevan a la misma respuesta. El paso 1 identifica el ramo en 31 de 60 casos y se degrada con la forma de nombrarlo: 13/20 con el nombre completo, 10/20 abreviado, 8/20
 coloquial.
 
 \textbf{Caso de falla}, el primero de nivel 3, elegido por una regla escrita antes de correr
 el sistema. La pregunta es \q programación, la reprobé, ¿puedo tomar Optimización 1 ahora ya?\q.
-Nombra dos ramos y el prerrequisito va primero. \q programación\q\ coincide letra por letra con
-el catálogo y \q Optimización 1\q\ no coincide con \q Optimización I\q. El prompt no distingue
-el ramo consultado del que se nombra de contexto, y el modelo devolvió 503203. Los pasos 2 y 3
+Nombra dos ramos y el prerrequisito va primero. \q programación\q\ coincide con el nombre del
+catálogo y \q Optimización 1\q\ no coincide con \q Optimización I\q. El prompt no distingue
+el ramo consultado del que se nombra de contexto, y el modelo devolvió 503203, el código de Programación. Los pasos 2 y 3
 evaluaron ese ramo y respondieron que sí, porque un reprobado se vuelve a inscribir. Esa
-respuesta vale para Programación y no para Optimización I. Es un patrón. En las 20 preguntas
+respuesta corresponde a Programación. En las 20 preguntas
 que nombran otro ramo antes del consultado, el paso 1 acierta 3. En las otras 40 acierta 28.
 
-\textbf{El paso 2 tampoco lee el expediente} con el ramo correcto. Acierta estado 0/60,
-créditos aprobados 0/60 y prerrequisitos 7/60. Nunca responde \q no cursada\q, que es el estado
-real en los 60, y en créditos aprobados devuelve los de un ramo (3 a 5) en vez de la suma (30 a
-163). Por eso la ficha la arma el código.\par}
+\textbf{Cuando el modelo armaba la ficha}, en la variante sin código en el paso 2, tampoco
+leía el expediente aun recibiendo el ramo correcto. Acertó estado 0/60, créditos aprobados 0/60
+y prerrequisitos 7/60. Nunca respondió \q no cursada\q, que es el estado real en los 60, y en
+créditos aprobados devolvió casi siempre los de un ramo en vez de la suma (30 a 163). Por eso
+la ficha la arma el código.\par}
 
 \seccion{Límites declarados}
 
@@ -307,17 +300,20 @@ real en los 60, y en créditos aprobados devuelve los de un ramo (3 a 5) en vez 
 \textbf{E1 pasa a ser un problema de extracción.} En los 18 casos con prerrequisito en curso el
 sistema acierta 4 y el baseline 6. Estas preguntas nombran primero el ramo en curso, y el paso 1
 identifica el consultado en 3 de 18. En los 12 que preguntan por el próximo período el sistema
-baja de 6 a 3. Los 12 tienen la misma respuesta, y el baseline la dio 6 veces respondiendo
-\q condicional\q. Las 9 fallas del sistema tienen el ramo equivocado.
+baja de 6 a 3. La respuesta correcta de los 12 es \q condicional\q, que el baseline da con
+frecuencia, y así acierta 6. Las 9 fallas del sistema tienen el ramo equivocado.
 
 \textbf{Atajo en el conjunto.} Los 9 casos de \cod{R-EXCEPCION-PRERREQ} tienen cero créditos
 inscritos y los otros 51 entre 12 y 24, con el umbral en 8, así que el conjunto no prueba la
 frontera de esa regla.
 
-\textbf{Desviación declarada.} El Deliverable~1 planeaba atacar E1 con el prompt y reservaba el
-grafo y el validador para el Deliverable~3. Se adelantaron porque la ablación mostró que el
-modelo no aplica las reglas, y el Deliverable~3 pasa a atacar la extracción. El dominio y los
-60 casos son los mismos del Deliverable~1.\par}
+\textbf{Desviación declarada.} En el Deliverable~1 el modelo leía la pregunta y el
+expediente y decidía. En este sistema el modelo solo identifica el ramo y el período, y la
+ficha y la decisión las calcula el código con la lógica del verificador que etiqueta los casos.
+E1, E3 y E4 los resuelve el código, y el 58,3\,\% mide la extracción que hace el modelo. El
+Deliverable~1 planeaba atacar E1 con el prompt y dejaba el grafo y un validador de la salida
+para el Deliverable~3. Se cambió porque la ablación mostró que el modelo no aplica las reglas,
+y el Deliverable~3 pasa a atacar la extracción.\par}
 
 \end{multicols}
 \end{document}
