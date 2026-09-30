@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-Genera `corrida_d2_colab.ipynb`, el notebook de Google Colab del Deliverable 2.
+Genera los dos notebooks de Google Colab del Deliverable 2: `corrida_d2_colab.ipynb`, que
+mide todo, y `demo_colab.ipynb`, que clona el repositorio y corre solo la demostración.
 
 El notebook es un artefacto derivado y se versiona igual, porque es lo que se abre en Colab.
 Este script existe para poder regenerarlo sin editar JSON a mano.
@@ -17,6 +18,8 @@ from pathlib import Path
 
 BASE = Path(__file__).resolve().parent.parent
 SALIDA = BASE / "corrida_d2_colab.ipynb"
+SALIDA_DEMO = BASE / "demo_colab.ipynb"
+REPO = "https://github.com/Luquitas02/genai-inscripcion-ramos"
 
 
 def md(texto):
@@ -49,10 +52,18 @@ acelerador **T4 GPU**.
 """),
     code("""!nvidia-smi -L
 !pip -q install -U transformers accelerate bitsandbytes
-import torch; print('cuda:', torch.cuda.is_available())"""),
+import torch; print('cuda:', torch.cuda.is_available())
+# Las versiones quedan impresas para poder fijarlas en requirements-colab.txt.
+from importlib.metadata import version
+for paquete in ('torch', 'transformers', 'accelerate', 'bitsandbytes'):
+    print(f'{paquete}=={version(paquete)}')"""),
 
     md("""## 2 · Subir el paquete
-Sube `paquete_colab.zip` desde `C:\\\\Lucas\\\\Claude\\\\2026-2\\\\GenAI\\\\deliverable-1\\\\`.
+Sube `paquete_colab.zip`. Se arma en la raíz del repositorio con
+`python scripts/empaquetar.py`.
+
+Para ver solo la demostración del video no hace falta este notebook: `demo_colab.ipynb`
+clona el repositorio y corre la demo en unos cinco minutos.
 
 **Ojo:** si ya subiste un archivo con ese nombre en esta sesión, Colab no lo reemplaza, lo
 guarda como `paquete_colab (1).zip`. La celda siguiente toma el más reciente, así que no
@@ -254,12 +265,11 @@ for f in sorted(glob.glob('/content/proyecto/resultados/pipeline__*.raw.jsonl'))
     print('  CONJUNTO %5.1f%%' % (100 * sum(x['acierto_conjunto'] for x in r) / n))
     print()"""),
 
-    md("""## 10 · Demostración de un caso
-Los dos casos del video, con el baseline y el sistema lado a lado.
-
-El **caso 40** salió de una regla escrita antes de mirar resultados: el primero de nivel 3
-cuyo baseline falla. El sistema también falla ahí, y ése es el caso de falla que la guía
-exige. El **caso 42** está elegido para mostrar el sistema funcionando, y se declara así.
+    md("""## 10 · Demostración
+Lo que muestra el video: los diez primeros casos de nivel 3, del 40 al 49, sin saltarse
+ninguno. El **caso 40** se muestra completo, con los tres pasos. Salió de una regla escrita
+antes de correr el sistema, el primer caso de nivel 3, y el sistema falla ahí: es el caso de
+falla que la guía exige. Los otros nueve van en una línea cada uno, con el conteo al final.
 
 Son **dos celdas**. La primera carga el modelo y tarda minutos. La segunda corre la
 demostración en segundos, y **ésa es la que se graba**.
@@ -275,19 +285,17 @@ from runner import ModeloHF
 import demo
 
 modelo = ModeloHF(MODELO, max_new_tokens=256)
-v, malla, casos = demo.cargar_contexto()
-print('modelo cargado y', len(casos), 'casos listos')"""),
+print('modelo cargado')"""),
 
     md("""### Celda B: la demostración
-**Ésta es la que se graba.** Con el modelo ya en memoria, los dos casos corren en segundos y
-la salida aparece en vivo.
+**Ésta es la que se graba.** Con el modelo ya en memoria, los diez casos corren en menos de un
+minuto y la salida aparece en vivo.
 """),
     code("""# --- CELDA B: la demostracion. ESTO es lo que se graba. ---
 import importlib
 importlib.reload(demo)
 
-for caso in [40, 42]:
-    demo.correr(caso, modelo, v, malla, casos)"""),
+demo.video(modelo)"""),
 
     md("""## 11 · Descargar
 Baja todo lo medido para comitearlo al repositorio.
@@ -299,19 +307,69 @@ files.download('/content/resultados_d2.zip')"""),
 ]
 
 
-def main():
-    nb = {"cells": CELDAS,
+# El notebook corto: solo lo que muestra el video, desde un clon del repositorio. Trae las
+# corridas guardadas en resultados/, así que la demo compara cada salida en vivo con ellas.
+CELDAS_DEMO = [
+    md("""# Demostración del Deliverable 2 — Phi-3.5-mini
+
+Reproduce lo que muestra el video, en una T4 de Colab y en unos cinco minutos. Ejecuta las
+celdas en orden. No hay que subir nada: la primera celda clona el repositorio.
+
+Si no aparece la T4: menú *Entorno de ejecución* → *Cambiar tipo de entorno de ejecución* →
+acelerador **T4 GPU**.
+"""),
+    code("""!nvidia-smi -L
+!pip -q install -U transformers accelerate bitsandbytes
+!rm -rf /content/proyecto && git clone -q """ + REPO + """ /content/proyecto
+import torch; print('cuda:', torch.cuda.is_available())
+# Las versiones quedan impresas para poder fijarlas en requirements-colab.txt.
+from importlib.metadata import version
+for paquete in ('torch', 'transformers', 'accelerate', 'bitsandbytes'):
+    print(f'{paquete}=={version(paquete)}')"""),
+
+    md("""## Autopruebas, sin GPU
+Deben pasar las cuatro antes de cargar el modelo.
+"""),
+    code("""import subprocess, sys, os
+os.chdir('/content/proyecto/scripts')
+for args in (['verificador.py'], ['ficha.py'], ['pipeline.py'], ['runner_d2.py', '--pruebas']):
+    r = subprocess.run([sys.executable] + args, capture_output=True, text=True)
+    ultima = (r.stdout.strip().splitlines() or ['(sin salida)'])[-1]
+    print(f'[{"OK  " if r.returncode == 0 else "FALLA"}] {args[0]:16} {ultima[:60]}')"""),
+
+    md("""## Cargar el modelo
+Tarda unos minutos. No hace falta grabar esta celda.
+"""),
+    code("""import sys
+sys.path.insert(0, '/content/proyecto/scripts')
+from runner import ModeloHF
+import demo
+
+modelo = ModeloHF('microsoft/Phi-3.5-mini-instruct', max_new_tokens=256)
+print('modelo cargado')"""),
+
+    md("""## La demostración
+**Ésta es la que se graba.** Los diez primeros casos de nivel 3, del 40 al 49, sin saltarse
+ninguno. El caso 40 se muestra completo y es el caso de falla. Cada salida del modelo se
+compara con la corrida guardada en `resultados/`.
+"""),
+    code("""demo.video(modelo)"""),
+]
+
+
+def escribir(salida, celdas):
+    nb = {"cells": celdas,
           "metadata": {"accelerator": "GPU",
                        "colab": {"provenance": [], "gpuType": "T4"},
                        "kernelspec": {"display_name": "Python 3", "name": "python3"},
                        "language_info": {"name": "python"}},
           "nbformat": 4, "nbformat_minor": 0}
-    with open(SALIDA, "w", encoding="utf-8") as fh:
+    with open(salida, "w", encoding="utf-8") as fh:
         json.dump(nb, fh, ensure_ascii=False, indent=1)
 
     # toda celda de codigo tiene que compilar; las lineas de shell (! o %) no son Python
     errores = []
-    for i, c in enumerate(CELDAS):
+    for i, c in enumerate(celdas):
         if c["cell_type"] != "code":
             continue
         src = "\n".join(l for l in "".join(c["source"]).splitlines()
@@ -321,13 +379,23 @@ def main():
         except SyntaxError as e:
             errores.append((i, str(e)))
 
-    n_code = sum(1 for c in CELDAS if c["cell_type"] == "code")
-    print(f"{len(CELDAS)} celdas, {n_code} de codigo")
+    n_code = sum(1 for c in celdas if c["cell_type"] == "code")
+    print(f"{salida.name}: {len(celdas)} celdas, {n_code} de codigo")
     for i, e in errores:
         print(f"  [SINTAXIS] celda {i}: {e}")
     print("sintaxis OK" if not errores else "*** hay celdas que no compilan ***")
-    return 0 if not errores else 1
+    return not errores
+
+
+def main():
+    ok = escribir(SALIDA, CELDAS)
+    ok = escribir(SALIDA_DEMO, CELDAS_DEMO) and ok
+    return 0 if ok else 1
 
 
 if __name__ == "__main__":
+    # La consola de Windows no escribe en UTF-8 por defecto y rompe los acentos.
+    import sys
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     raise SystemExit(main())

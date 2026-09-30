@@ -1,31 +1,37 @@
 # -*- coding: utf-8 -*-
 """
-Demostración de un caso — Deliverable 2.
+Demostración — Deliverable 2.
 
-Corre el baseline y el sistema sobre el MISMO caso y muestra los dos lado a lado, con los
-pasos intermedios a la vista. Es lo que se graba para el video.
+Corre el baseline y el sistema sobre los MISMOS casos, en vivo, y los muestra lado a lado.
+Es lo que se graba para el video.
 
-La rúbrica pide que el input no esté elegido para favorecer al sistema, así que los dos
-casos que usa el video se eligieron con reglas escritas antes de mirar los resultados:
+La rúbrica pide que el input no esté elegido para favorecer al sistema. El video corre los
+diez primeros casos de nivel 3, del 40 al 49, sin saltarse ninguno:
 
-  caso 40   el primer caso de nivel 3 cuyo baseline falla.
-            El sistema TAMBIÉN falla acá, y es el caso de falla que la guía exige.
+  caso 40   el primer caso de nivel 3. Se muestra completo, con los tres pasos a la vista.
+            La regla que lo elige quedó escrita en PLAN_D2_TAREAS.md (commit c8e0cca, 17 de
+            septiembre) antes de correr el sistema. El sistema falla acá, y es el caso de
+            falla que la guía exige.
 
-  caso 42   el siguiente caso de nivel 3 con baseline fallado donde el sistema acierta.
-            Está elegido para mostrar el sistema funcionando, y eso se declara sin
-            disfrazarlo: la honestidad está en decirlo, no en fingir que salió al azar.
+  41 a 49   los nueve siguientes, una línea por caso, con el conteo de aciertos al final.
+            Según la corrida guardada, el baseline acierta 1 de 10 y el sistema 4 de 10.
 
-El modelo se carga UNA vez y sirve para todos los casos. Eso importa para el video: cargar
-Phi en 4 bits toma minutos y la ejecucion real toma segundos, asi que conviene tener el modelo
-ya en memoria antes de empezar a grabar.
+Cada salida del modelo se compara con la que quedó guardada en resultados/, así que lo que se
+ve en el video se puede rastrear hasta el repositorio. La demo aplica la misma lógica que
+runner_d2.py con la variante `codigo`: si el paso 1 no devuelve un código de la malla, el caso
+se pierde, igual que en la corrida medida.
+
+El modelo se carga UNA vez y sirve para todos los casos. Cargar Phi en 4 bits toma minutos y
+la ejecución real toma segundos, así que conviene tenerlo en memoria antes de grabar.
 
 Uso:
-    python demo.py --casos 40 42              # los dos casos del video
-    python demo.py --casos 40 --modelo-falso  # sin GPU, para probar el formato
+    python demo.py                            # caso 40 completo y 41-49 en una línea
+    python demo.py --detalle 40 --casos 40 41 42
+    python demo.py --modelo-falso             # sin GPU: prueba de formato, respuestas fijas
 
 Desde un notebook, con el modelo ya cargado en una celda anterior:
     import demo
-    demo.correr(40, modelo, v, malla, casos)
+    demo.video(modelo)
 """
 
 import argparse
@@ -38,8 +44,19 @@ from ficha import construir_ficha, decidir_desde_ficha, render_ficha, RUTA_CASOS
 import prompt as P
 import pipeline as PL
 
+BASE = Path(__file__).resolve().parent.parent
+RESULTADOS = BASE / "resultados"
+
 MODELO_POR_DEFECTO = "microsoft/Phi-3.5-mini-instruct"
-CASO_DECLARADO = 40
+CASOS_VIDEO = list(range(40, 50))
+CASO_DETALLE = 40
+
+# El baseline del Deliverable 1 corrió con 64 tokens de salida (runner.py). Se usa el mismo
+# tope para que la salida en vivo sea comparable con la guardada.
+TOKENS_BASELINE = 64
+
+ARCHIVO_BASELINE = "Phi-3.5-mini-instruct__few_shot__prosa.raw.jsonl"
+ARCHIVO_SISTEMA = "pipeline__Phi-3.5-mini-instruct__codigo__encadenado.raw.jsonl"
 
 ANCHO = 78
 
@@ -51,10 +68,13 @@ def titulo(texto, car="="):
     print(car * ANCHO)
 
 
-def veredicto(obtenido, esperado):
-    ok = (obtenido.get("decision") == esperado["decision"]
-          and obtenido.get("regla") == esperado["regla"])
-    return "CORRECTO" if ok else "INCORRECTO", ok
+def acierta(pred, esperado):
+    return (pred.get("decision") == esperado["decision"]
+            and pred.get("regla") == esperado["regla"])
+
+
+def veredicto(ok):
+    return "CORRECTO" if ok else "INCORRECTO"
 
 
 def cargar_contexto():
@@ -65,19 +85,79 @@ def cargar_contexto():
     return v, malla, casos
 
 
-def correr(n_caso, modelo, v=None, malla=None, casos=None):
-    """Corre el baseline y el sistema sobre un caso y los imprime lado a lado.
+def cargar_guardado(nombre):
+    """Lee una corrida guardada en resultados/, indexada por id. Vacío si no está."""
+    ruta = RESULTADOS / nombre
+    if not ruta.exists():
+        return {}
+    filas = [json.loads(l) for l in open(ruta, encoding="utf-8") if l.strip()]
+    return {str(f["id"]): f for f in filas}
 
-    Recibe el modelo ya cargado. Cargar Phi en 4 bits toma minutos y esto toma segundos,
-    asi que separarlos es lo que hace grabable el video.
+
+def _generar(modelo, mensajes, max_tokens=None):
+    """Llama al modelo con un tope de salida opcional y devuelve (texto, tokens, segundos)."""
+    previo = getattr(modelo, "max_new_tokens", None)
+    if max_tokens is not None and previo is not None:
+        modelo.max_new_tokens = max_tokens
+    try:
+        t0 = time.perf_counter()
+        crudo, tok = modelo.generar(mensajes)
+        return crudo, tok, time.perf_counter() - t0
+    finally:
+        if previo is not None:
+            modelo.max_new_tokens = previo
+
+
+def _coincide(vivo, guardado):
+    if guardado is None:
+        return "sin corrida guardada para comparar"
+    return ("igual a la corrida guardada" if vivo.strip() == guardado.strip()
+            else "DISTINTA de la corrida guardada")
+
+
+def ejecutar(n_caso, modelo, v, malla, casos):
+    """Corre baseline y sistema sobre un caso. No imprime nada; devuelve lo que pasó.
+
+    El sistema sigue a runner_d2.py con variante `codigo` y modo `encadenado`.
     """
-    if v is None:
-        v, malla, casos = cargar_contexto()
     caso = casos[n_caso]
-    args_caso = n_caso
+    ramo_real = caso["consulta"]["ramos"][0]
 
-    # ------------------------------------------------------------------ el caso
-    titulo(f"CASO {args_caso}   ·   nivel {caso['nivel']}   ·   {', '.join(caso['rasgos'])}")
+    # baseline: una llamada con el prompt del Deliverable 1
+    mensajes = P.construir(caso, malla, condicion="few_shot", usar_prosa=True)
+    crudo_b, tok_b, seg_b = _generar(modelo, mensajes, TOKENS_BASELINE)
+    pred_b = P.parsear_respuesta(crudo_b)
+
+    # paso 1: el modelo extrae ramo y período de la pregunta
+    crudo1, tok1, seg1 = _generar(modelo, PL.prompt_paso1(caso, malla))
+    p1 = PL.parsear_paso1(crudo1, set(v.asig))
+    ramo, per = p1["ramo"], p1["periodo"]
+    if ramo is not None and per is None:
+        per = "actual"      # mismo valor por defecto que runner_d2.py
+
+    f, d = None, {"decision": None, "regla": None}
+    if ramo is not None:
+        # paso 2 y paso 3: el código arma la ficha y aplica las reglas
+        f = construir_ficha(v, caso["historial"], ramo, per,
+                            caso["consulta"]["creditos_ya_inscritos"])
+        d = decidir_desde_ficha(v, f)
+
+    return {
+        "caso": caso, "ramo_real": ramo_real,
+        "crudo_b": crudo_b, "tok_b": tok_b, "seg_b": seg_b, "pred_b": pred_b,
+        "ok_b": acierta(pred_b, caso["respuesta"]),
+        "crudo1": crudo1, "tok1": tok1, "seg1": seg1, "p1": p1, "ramo": ramo, "per": per,
+        "ficha": f, "pred_s": d, "ok_s": acierta(d, caso["respuesta"]),
+    }
+
+
+def mostrar_detalle(n_caso, r, v, malla, guard_b, guard_s):
+    caso = r["caso"]
+    ramo_real = r["ramo_real"]
+    gb = guard_b.get(str(n_caso))
+    gs = guard_s.get(str(n_caso))
+
+    titulo(f"CASO {n_caso}   ·   nivel {caso['nivel']}   ·   {', '.join(caso['rasgos'])}")
     print()
     print("  PREGUNTA DEL ESTUDIANTE")
     print(f'    "{caso["pregunta_prosa"]}"')
@@ -89,98 +169,134 @@ def correr(n_caso, modelo, v=None, malla=None, casos=None):
           f"regla {caso['respuesta']['regla']}")
     print(f"    {caso['detalle']}")
 
-    # ------------------------------------------------------------------ baseline
     titulo("BASELINE DEL DELIVERABLE 1   ·   una llamada, prompt directo")
-    mensajes = P.construir(caso, malla, condicion="few_shot", usar_prosa=True)
-    t0 = time.perf_counter()
-    crudo_b, tok_b = modelo.generar(mensajes)
-    seg_b = time.perf_counter() - t0
-    pred_b = P.parsear_respuesta(crudo_b)
     print()
-    print(f"  entra:  {tok_b:,} tokens   (malla completa + reglas + historial + 3 ejemplos)")
-    print(f"  sale:   {crudo_b.strip()[:120]}")
-    print(f"  tiempo: {seg_b:.1f} s")
-    ver_b, ok_b = veredicto(pred_b, caso["respuesta"])
+    print(f"  entra:  {r['tok_b']:,} tokens   (malla completa + reglas + historial + 3 ejemplos)")
+    print(f"  sale:   {r['crudo_b'].strip()[:120]}")
+    print(f"          [{_coincide(r['crudo_b'], gb and gb.get('crudo'))}]")
+    print(f"  tiempo: {r['seg_b']:.1f} s")
     print()
-    print(f"  >>> {pred_b['decision']} · {pred_b['regla']}   ->   {ver_b}")
+    print(f"  >>> {r['pred_b']['decision']} · {r['pred_b']['regla']}   ->   "
+          f"{veredicto(r['ok_b'])}")
 
-    # ------------------------------------------------------------------ sistema
     titulo("SISTEMA DEL DELIVERABLE 2   ·   tres pasos, contexto enfocado")
-
     print()
     print("  PASO 1 · EXTRACCIÓN   (el modelo)")
     print("    ve: la pregunta y los 61 pares de código y nombre")
     print("    no ve: el historial, la malla con prerrequisitos, las reglas")
-    m1 = PL.prompt_paso1(caso, malla)
-    t0 = time.perf_counter()
-    crudo1, tok1 = modelo.generar(m1)
-    seg1 = time.perf_counter() - t0
-    p1 = PL.parsear_paso1(crudo1, set(v.asig))
-    ramo_real = caso["consulta"]["ramos"][0]
-    print(f"    entra: {tok1:,} tokens   sale: {crudo1.strip()[:80]}")
+    print(f"    entra: {r['tok1']:,} tokens   sale: {r['crudo1'].strip()[:80]}")
+    print(f"           [{_coincide(r['crudo1'], gs and gs['paso1']['crudo'])}]")
+    p1 = r["p1"]
     marca = "ok" if p1["ramo"] == ramo_real else f"ERROR, el ramo era {ramo_real}"
     print(f"    ramo {p1['ramo']} · período {p1['periodo']}   [{marca}]")
 
-    ramo = p1["ramo"] or ramo_real
-    per = p1["periodo"] or "actual"
+    if r["ramo"] is None:
+        print()
+        print("    el paso 1 no devolvió un código de la malla: el caso se pierde,")
+        print("    igual que en la corrida medida")
+    else:
+        print()
+        print("  PASO 2 · FICHA DEL CASO   (el código, determinista)")
+        f = r["ficha"]
+        descartadas = len(caso["historial"]) - len(f["prerrequisitos"])
+        print(f"    descarta {descartadas} asignaturas del historial que no tocan este ramo")
+        print()
+        for linea in render_ficha(f).splitlines():
+            print("      " + linea)
+        print()
+        print("  PASO 3 · DECISIÓN   (el código, determinista)")
+        print("    aplica las reglas del reglamento sobre la ficha")
+        print(f"    regla que dispara: {r['pred_s']['regla']}")
+        print(f"    decisión derivada: {r['pred_s']['decision']}")
 
     print()
-    print("  PASO 2 · FICHA DEL CASO   (el código, determinista)")
-    f = construir_ficha(v, caso["historial"], ramo, per,
-                        caso["consulta"]["creditos_ya_inscritos"])
-    descartadas = len(caso["historial"]) - len(f["prerrequisitos"])
-    print(f"    descarta {descartadas} asignaturas del historial que no tocan este ramo")
-    print()
-    for linea in render_ficha(f).splitlines():
-        print("      " + linea)
+    print(f"  >>> {r['pred_s']['decision']} · {r['pred_s']['regla']}   ->   "
+          f"{veredicto(r['ok_s'])}")
 
-    print()
-    print("  PASO 3 · DECISIÓN   (el código, determinista)")
-    print("    la ablación midió que el modelo aplica las reglas al 31,7 % con esta ficha")
-    print("    delante, y que el código hace lo mismo al 100 %")
-    d = decidir_desde_ficha(v, f)
-    print(f"    regla que dispara: {d['regla']}")
-    print(f"    decisión derivada: {d['decision']}")
-
-    ver_s, ok_s = veredicto(d, caso["respuesta"])
-    tok_s, seg_s = tok1, seg1
-    print()
-    print(f"  >>> {d['decision']} · {d['regla']}   ->   {ver_s}")
-
-    # ------------------------------------------------------------------ cierre
     titulo("LADO A LADO")
     print()
     print(f"  {'':10} {'decisión':14} {'regla':26} {'tokens':>8} {'seg':>6}")
     print("  " + "-" * (ANCHO - 4))
-    print(f"  {'baseline':10} {str(pred_b['decision']):14} {str(pred_b['regla']):26} "
-          f"{tok_b:8,} {seg_b:6.1f}   {ver_b}")
-    print(f"  {'sistema':10} {str(d['decision']):14} {str(d['regla']):26} "
-          f"{tok_s:8,} {seg_s:6.1f}   {ver_s}")
+    print(f"  {'baseline':10} {str(r['pred_b']['decision']):14} {str(r['pred_b']['regla']):26} "
+          f"{r['tok_b']:8,} {r['seg_b']:6.1f}   {veredicto(r['ok_b'])}")
+    print(f"  {'sistema':10} {str(r['pred_s']['decision']):14} {str(r['pred_s']['regla']):26} "
+          f"{r['tok1']:8,} {r['seg1']:6.1f}   {veredicto(r['ok_s'])}")
     print(f"  {'correcto':10} {caso['respuesta']['decision']:14} "
           f"{caso['respuesta']['regla']:26}")
-    print()
-    if not ok_s and p1["ramo"] != ramo_real:
+
+    if not r["ok_s"] and r["ramo"] is not None and r["ramo"] != ramo_real:
+        print()
         print("  POR QUÉ FALLA EL SISTEMA")
-        print(f"    El paso 1 devolvió {p1['ramo']} ({v.asig[p1['ramo']]['nombre']}), que la")
-        print(f"    pregunta menciona como contexto, en vez de {ramo_real} "
-              f"({v.asig[ramo_real]['nombre']}),")
-        print("    que es por lo que realmente pregunta. Los pasos 2 y 3 evaluaron ese")
-        print("    ramo y respondieron bien sobre él, y no era el ramo consultado.")
+        print(f"    El paso 1 devolvió {r['ramo']} ({v.asig[r['ramo']]['nombre']}) en vez de "
+              f"{ramo_real} ({v.asig[ramo_real]['nombre']}).")
+        print(f"    Los pasos 2 y 3 evaluaron {r['ramo']}, así que la respuesta vale para ese")
+        print("    ramo y no para el que se consultó.")
+
+
+def mostrar_linea(n_caso, r, guard_b, guard_s):
+    gb = guard_b.get(str(n_caso))
+    gs = guard_s.get(str(n_caso))
+    iguales = (gb is not None and gs is not None
+               and r["crudo_b"].strip() == gb["crudo"].strip()
+               and r["crudo1"].strip() == gs["paso1"]["crudo"].strip())
+    marca_ramo = "ok " if r["ramo"] == r["ramo_real"] else "mal"
+    print(f"  {n_caso:>4}   {veredicto(r['ok_b']):10}   {veredicto(r['ok_s']):10}   "
+          f"ramo {marca_ramo}   {'= guardada' if iguales else '≠ guardada'}")
+
+
+def resumen_guardado(guard_b, guard_s):
+    """Cifras sobre los 60 casos, leídas de la corrida guardada, no escritas a mano."""
+    if not guard_b or not guard_s:
+        return
+    n = len(guard_s)
+    ab = sum(bool(f["acierto_conjunto"]) for f in guard_b.values())
+    as_ = sum(bool(f["acierto_conjunto"]) for f in guard_s.values())
+    pct = lambda k: f"{100 * k / n:.1f}".replace(".", ",")
     print()
-    print("  Sobre los 60 casos: baseline 16,7 % · sistema 58,3 % de acierto conjunto.")
-    print("  El sistema acierta 28 de 28 cuando el paso 1 identifica bien el ramo.")
-    return ok_s
+    print(f"  Sobre los {n} casos (leído de resultados/):  baseline {ab}/{n} ({pct(ab)} %)"
+          f"  ·  sistema {as_}/{n} ({pct(as_)} %)")
+
+
+def video(modelo, casos_video=CASOS_VIDEO, caso_detalle=CASO_DETALLE):
+    """Lo que se graba: un caso completo y el resto en una línea cada uno."""
+    v, malla, casos = cargar_contexto()
+    guard_b = cargar_guardado(ARCHIVO_BASELINE)
+    guard_s = cargar_guardado(ARCHIVO_SISTEMA)
+
+    filas = []
+    for n in casos_video:
+        r = ejecutar(n, modelo, v, malla, casos)
+        filas.append((n, r))
+        if n == caso_detalle:
+            mostrar_detalle(n, r, v, malla, guard_b, guard_s)
+            titulo(f"CASOS {casos_video[0]} A {casos_video[-1]}, SIN SALTARSE NINGUNO")
+            print()
+            print(f"  {'caso':>4}   {'baseline':10}   {'sistema':10}   paso 1     en vivo vs repo")
+            print("  " + "-" * (ANCHO - 4))
+        mostrar_linea(n, r, guard_b, guard_s)
+
+    k = len(filas)
+    ab = sum(r["ok_b"] for _, r in filas)
+    as_ = sum(r["ok_s"] for _, r in filas)
+    print("  " + "-" * (ANCHO - 4))
+    print(f"  total  baseline {ab}/{k}   sistema {as_}/{k}")
+    resumen_guardado(guard_b, guard_s)
+    return filas
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--casos", type=int, nargs="+", default=[CASO_DECLARADO])
+    ap.add_argument("--casos", type=int, nargs="+", default=CASOS_VIDEO)
+    ap.add_argument("--detalle", type=int, default=CASO_DETALLE,
+                    help="caso que se muestra completo, con los tres pasos")
     ap.add_argument("--modelo", default=MODELO_POR_DEFECTO)
-    ap.add_argument("--modelo-falso", action="store_true")
+    ap.add_argument("--modelo-falso", action="store_true",
+                    help="sin GPU: respuestas fijas, solo para probar el formato")
     args = ap.parse_args()
 
     if args.modelo_falso:
         from runner_d2 import ModeloFalso
+        print("*** MODELO FALSO: respuestas fijas, no es una ejecución del modelo ***")
         modelo = ModeloFalso(['{"decision": "condicional", "regla": "R-DEPENDE-APROBACION"}',
                               '{"ramo": "503203", "periodo": "actual"}'])
     else:
@@ -188,11 +304,13 @@ def main():
         print(f"cargando {args.modelo} en 4 bits, una sola vez...")
         modelo = ModeloHF(args.modelo, max_new_tokens=256)
 
-    v, malla, casos = cargar_contexto()
-    for n in args.casos:
-        correr(n, modelo, v, malla, casos)
+    video(modelo, args.casos, args.detalle)
     return 0
 
 
 if __name__ == "__main__":
+    # La consola de Windows no escribe en UTF-8 por defecto y rompe los acentos.
+    import sys
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     raise SystemExit(main())
