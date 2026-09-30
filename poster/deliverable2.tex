@@ -181,6 +181,13 @@ salidas sin JSON legible & \textbf{0} \\
 {\footnotesize En el baseline, Phi inventaba identificadores en 18 de 60 casos en zero-shot y en 3 en
 few-shot, sin contar \cod{R-TOPE-MIN}, que el prompt ofrecía. El Deliverable~1 lo contaba.\par}
 
+\seccion{Lo que muestra el video}
+
+{\footnotesize
+Corre en vivo en la T4 los casos 40 a 49, los diez primeros de nivel 3, sin saltarse ninguno.
+El 40 es el caso de falla y se ve completo. Cada salida del modelo se compara con la corrida
+guardada en el repositorio, y \cod{demo\_colab.ipynb} lo reproduce.\par}
+
 % El corte va antes de los resultados para que cada seccion quede entera en una
 % columna. Mas arriba dejaba 6 cm en blanco al pie de la columna 1, y sin corte
 % multicols separaba la tabla de E3 y E4 de su frase.
@@ -216,8 +223,26 @@ Usa \textbf{1.153 tokens por caso contra 3.862}, y 1,6 segundos contra 4,2.}
 \vspace{1mm}
 {\footnotesize
 El techo sale 100\,\% por construcción, porque el código es el verificador. Por familia de
-casos (ocho, según la regla que decide) el sistema mejora en siete. La que empeora va en los
-límites.\par}
+casos, según la regla que decide, el sistema mejora en siete de ocho:\par}
+
+\vspace{0.5mm}
+{\footnotesize
+\begin{tabular}{@{}llrrr@{}}
+\toprule
+familia & correcta & n & baseline & sistema \\
+\midrule
+sin impedimento                  & sí          & 18 & 2 & \textbf{13} \\
+excepción de prerrequisito       & condicional &  9 & 0 & \textbf{8} \\
+prerrequisito en curso, próximo  & condicional & 12 & \textbf{6} & 3 \\
+prerrequisito reprobado          & no          &  6 & 2 & \textbf{3} \\
+prerrequisito en curso, actual   & no          &  6 & 0 & \textbf{1} \\
+créditos mínimos                 & no          &  3 & 0 & \textbf{3} \\
+requisito especial               & no          &  3 & 0 & \textbf{2} \\
+tope de créditos                 & no          &  3 & 0 & \textbf{2} \\
+\midrule
+total                            &             & 60 & 10 & \textbf{35} \\
+\bottomrule
+\end{tabular}}
 
 \seccion{Estrategias alternativas evaluadas}
 
