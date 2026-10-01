@@ -39,7 +39,7 @@
 \pagestyle{empty}
 \setlength{\columnsep}{5mm}
 \setlength{\parindent}{0pt}
-\setlength{\parskip}{0.7mm}
+\setlength{\parskip}{0.7mm plus 1mm}
 \renewcommand{\arraystretch}{0.93}
 
 \newcommand{\seccion}[1]{\vspace{0.9mm}{\bfseries\footnotesize\color{acento}\MakeUppercase{#1}}\par\nobreak\vspace{0.4mm}\nobreak}
@@ -67,7 +67,8 @@
 {\color{linea}\rule{\textwidth}{0.4pt}}
 \vspace{1mm}
 
-\raggedcolumns
+% Sin raggedcolumns, la columna 1 estira el espacio entre parrafos (parskip) hasta
+% terminar a la misma altura que la columna 2.
 \begin{multicols}{2}
 
 % ================================================================ COLUMNA 1
