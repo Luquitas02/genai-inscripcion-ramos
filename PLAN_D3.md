@@ -389,6 +389,12 @@ se apoya en una propiedad del generador. Ver "Decisiones tomadas en esta revisi�
 **19 oct 2026 — El Intérprete puede detenerse.** Sin la acción `sin_ramo`, en la primera
 pasada siempre entregaría y no tomaría ninguna decisión, que es lo que el enunciado excluye.
 
+**20 oct 2026 — El chequeo de robustez sale 20/21 y se congela la v4 sin cambios.** Commit
+`3ba2528`. Período 21/21, incluidos "pal primer semestre del 2027", "el que parte en marzo" y
+"altiro" junto a 2027. El Resolvedor resolvió la sigla "DHG" buscando de nuevo dos veces. La
+única falla es "la práctica", que sirve para Práctica Laboral y Práctica Profesional: un caso
+aislado y ambiguo, así que por la regla no se toca nada. La regla fija saca 11/21.
+
 **20 oct 2026 — Chequeo de robustez antes de congelar.** Todo el ajuste se hizo sobre preguntas
 de plantilla, y uno de los tres conjuntos de prueba son preguntas redactadas fuera de ellas.
 Para no descubrir en la corrida final que el sistema se rompe con ese estilo, se redactan 21
