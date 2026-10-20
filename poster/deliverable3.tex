@@ -117,8 +117,8 @@ ramo de contexto se cursa \q ahora\q.\par}
 % bucle del Resolvedor con T1
 \draw[fl] (b.east) -- ++(4.5mm,0) |- node[pos=0.25,right,et]{busca de nuevo,\\ nueva consulta\\ (máx. 2)} (t1.east);
 % rechazo del Verificador al Intérprete
-\draw[fl] (c.west) -- ++(-5mm,0) |- node[pos=0.3,left,et,align=right]{rechaza:\\ problema\\ y motivo\\ (máx. 2)} (a.west);
-\draw[fl] (b.west) -- ++(-2.5mm,0) node[left,et,align=right,yshift=-2.4mm]{ninguno\ y motivo} |- ($(a.west)+(0,-1.2mm)$);
+\draw[fl] (c.west) -- ++(-15mm,0) |- node[pos=0.3,left,et,align=right]{rechaza:\\ problema\\ y motivo\\ (máx. 2)} (a.west);
+\draw[fl] (b.west) -- ++(-3mm,0) |- node[pos=0.25,left,et,align=right]{ninguno:\\ motivo} ($(a.west)+(0,-1.2mm)$);
 \end{tikzpicture}
 \end{center}
 
@@ -217,13 +217,14 @@ B reemplazado por el top-1   & B & M1      & 133 & $+1$ \\
 \vspace{0.6mm}
 {\footnotesize
 Cada fila es el sistema completo (132) con una sola pieza menos, sobre los mismos 150 casos.
-Todos los agentes usan además un rol y salida JSON. El Intérprete y el Verificador citan la
+Todos los agentes usan además un rol y salida JSON, y el Verificador lleva 2 ejemplos que no
+se ablacionaron. El Intérprete y el Verificador citan la
 pregunta antes de decidir (\cod{frase\_periodo}, \cod{cita\_ramo}). Esa técnica subió el período
 de 41 a 48 de 52 en desarrollo y no se ablacionó en la corrida final.
 
 La mejora la explican dos piezas. Sin T1 el modelo vuelve a copiar códigos y el sistema cae a
 75 (McNemar $p<0{,}001$). Sin los ejemplos cae a 123 ($p=0{,}004$), y M2 baja de 34 a 26. Pedir
-la lista de los otros ramos no aporta: sin esa instrucción M2 queda en 34. El Resolvedor y el
+la lista de los otros ramos no aporta. Sin esa instrucción, M2 queda en 34. El Resolvedor y el
 Verificador deciden poco. Hubo búsquedas extra en 4 casos de 150 y rechazos en 5, y su efecto
 neto es nulo. Ninguna búsqueda extra arregló un ramo. Con \q opti I\q\ confirmó lo que T1 ya
 ponía primero, con \q PCP\q\ buscó \q Ingeniería Civil Industrial\q\ y con \q evapro\q\ descartó
