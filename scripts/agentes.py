@@ -47,7 +47,9 @@ class Prompt:
 
     def __init__(self, relativo, con_ejemplos=True):
         ruta = PROMPTS / relativo
-        crudo = ruta.read_text(encoding="utf-8")
+        # Saltos de línea normalizados: git deja CRLF en Windows y LF en Colab, y el hash
+        # tiene que ser el mismo en las dos máquinas para que la traza identifique el prompt.
+        crudo = ruta.read_text(encoding="utf-8").replace("\r\n", "\n")
         self.archivo = relativo
         self.hash = hashlib.sha256(crudo.encode("utf-8")).hexdigest()[:10]
         self.con_ejemplos = con_ejemplos
