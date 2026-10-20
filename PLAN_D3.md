@@ -389,6 +389,15 @@ se apoya en una propiedad del generador. Ver "Decisiones tomadas en esta revisi�
 **19 oct 2026 — El Intérprete puede detenerse.** Sin la acción `sin_ramo`, en la primera
 pasada siempre entregaría y no tomaría ninguna decisión, que es lo que el enunciado excluye.
 
+**20 oct 2026 — Corrección: el Resolvedor nunca arregló una sigla.** Al revisar las trazas para
+el documento apareció que tres afirmaciones de este registro se apoyaban en el acierto
+conjunto y no en el ramo elegido. En "PCP" (desarrollo y prueba) el Resolvedor buscó
+"Ingeniería Civil Industrial" y eligió Ingeniería Económica, y la decisión coincidió por azar.
+En "DHG" la sigla era el ramo de contexto y no hubo nada que resolver. Las entradas
+correspondientes quedan corregidas. Por lo mismo, el 44/52 de desarrollo incluye un acierto
+por azar (PCP): con el ramo correcto son 43 de los 45 casos con solución. Lección: un caso se
+cuenta como resuelto por un agente solo si el ramo que eligió es el correcto.
+
 **20 oct 2026 — Resultados de la corrida final (commit `9158550`, `scripts/analisis_d3.py`).**
 Las 540 filas llevan el commit y los hashes del protocolo.
 - **H1 se cumple.** Agentes 132/150 (88,0 %) contra D2 96/150 (64,0 %): ganan 39 casos y
@@ -404,9 +413,12 @@ Las 540 filas llevan el commit y los hashes del protocolo.
 - **Lo que significa.** La mejora la explican la herramienta T1 (sacar al modelo de copiar
   códigos) y los ejemplos del Intérprete. Listar las demás asignaturas no aporta: sin esa
   instrucción, M2 queda igual (34/35). El Resolvedor y el Verificador deciden en pocos casos
-  (búsqueda extra en 4, rechazo en 5 de 150) y su efecto neto es nulo: el Resolvedor resolvió
-  "PCP" y perdió "evapro"; el Verificador detectó un período mal leído ("ahora en el segundo
-  semestre") sin lograr que el Intérprete lo corrigiera, y causó la falla de Marketing.
+  (búsqueda extra en 4, rechazo en 5 de 150) y su efecto neto es nulo. Ninguna búsqueda extra
+  arregló un ramo: con "opti I" confirmó "Optimización I", que T1 ya ponía primero; con "PCP"
+  buscó "Ingeniería Civil Industrial" y eligió Ingeniería Económica (en el original la decisión
+  coincidió por azar, en el nuevo falló); con "evapro" descartó el candidato correcto y buscó
+  "Evaporation". El Verificador detectó un período mal leído ("ahora en el segundo semestre")
+  sin lograr que el Intérprete lo corrigiera, y causó la falla de Marketing.
 - **Caso de falla** (regla del protocolo): redactado 16, "...quería tomar marketing el otro
   semestre, en marzo". El Intérprete leyó bien ("en marzo" → próximo); el Verificador rechazó
   diciendo que "el otro semestre" es el actual, el Intérprete cambió a actual y el caso falló.
@@ -414,7 +426,9 @@ Las 540 filas llevan el commit y los hashes del protocolo.
 
 **20 oct 2026 — El chequeo de robustez sale 20/21 y se congela la v4 sin cambios.** Commit
 `3ba2528`. Período 21/21, incluidos "pal primer semestre del 2027", "el que parte en marzo" y
-"altiro" junto a 2027. El Resolvedor resolvió la sigla "DHG" buscando de nuevo dos veces. La
+"altiro" junto a 2027. "DHG" era el ramo de contexto y el Intérprete lo separó bien; la
+búsqueda extra del Resolvedor en ese caso solo confirmó Liderazgo (ver la corrección del 20 de
+octubre más arriba). La
 única falla es "la práctica", que sirve para Práctica Laboral y Práctica Profesional: un caso
 aislado y ambiguo, así que por la regla no se toca nada. La regla fija saca 11/21.
 
@@ -451,7 +465,8 @@ ninguno de sus rechazos convierte un acierto en error. Si no, se congela la v3. 
 casos no hay más iteraciones de desarrollo.
 
 **20 oct 2026 — Prompts v3: citar antes de decidir.** La v2 sacó 40/52 (commit `8cd44ab`):
-ganó "PCP" (el Resolvedor buscó de nuevo por primera vez) e "ingeniería", y perdió dos casos
+ganó el caso "PCP" (el Resolvedor buscó de nuevo por primera vez, pero eligió un ramo
+equivocado y la decisión coincidió por azar) e "ingeniería", y perdió dos casos
 porque el Verificador rechazó períodos correctos con un motivo de reglamento ("ya está tomando
 Modelación, no puede inscribirse"): juzgó si el estudiante podía inscribir en vez de comprobar
 la interpretación. De sus 7 rechazos ninguno corrigió un error. Los 3 casos de período no
