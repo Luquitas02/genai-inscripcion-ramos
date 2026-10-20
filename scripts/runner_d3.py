@@ -21,10 +21,12 @@ Uso:
 import argparse
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 
 from verificador import Verificador
+import agentes as A
 import orquestador as O
 
 BASE = Path(__file__).resolve().parent.parent
@@ -83,24 +85,37 @@ class PromptsCambiados(Exception):
     pass
 
 
+def commit_actual():
+    """El commit del repositorio con que se corre. Queda en cada fila."""
+    try:
+        r = subprocess.run(["git", "-C", str(BASE), "rev-parse", "--short=10", "HEAD"],
+                           capture_output=True, text=True, check=True)
+        return r.stdout.strip()
+    except (OSError, subprocess.CalledProcessError):
+        return "desconocido"
+
+
 def correr(modelo, casos, v, config, salida, traza):
-    """Retoma solo si los prompts son los mismos con que se corrió lo que ya está guardado.
+    """Retoma solo si los prompts y el código son los mismos de lo que ya está guardado.
 
     En el D2 una corrida retomó resultados viejos y no midió nada. Acá los prompts cambian
-    mientras se ajustan en el conjunto de desarrollo, así que retomar con otro prompt
-    mezclaría dos versiones en un mismo archivo sin que nadie lo note.
+    mientras se ajustan en el conjunto de desarrollo, y el código también: en la primera
+    corrida de desarrollo el lector de JSON tuvo que corregirse sin tocar ningún prompt.
+    Retomar mezclaría dos versiones en un mismo archivo sin que nadie lo note.
     """
     prompts = O.cargar_prompts(config)
     actuales = {k: p.ref() for k, p in prompts.items()}
+    commit = commit_actual()
     hechos = set()
     if salida.exists():
         with open(salida, encoding="utf-8") as f:
             filas = [json.loads(l) for l in f if l.strip()]
-        distintas = [x["id"] for x in filas if x["prompts"] != actuales]
+        distintas = [x["id"] for x in filas
+                     if x["prompts"] != actuales or x.get("commit") != commit]
         if distintas:
             raise PromptsCambiados(
-                f"{salida.name} tiene {len(distintas)} casos corridos con otros prompts. "
-                f"Bórralo (y su traza) antes de volver a correr.")
+                f"{salida.name} tiene {len(distintas)} casos corridos con otros prompts u "
+                f"otro commit. Bórralo (y su traza) antes de volver a correr.")
         hechos = {x["id"] for x in filas}
         if hechos:
             print(f"retomando: {len(hechos)} casos ya corridos con los mismos prompts")
@@ -110,6 +125,7 @@ def correr(modelo, casos, v, config, salida, traza):
                 continue
             caso = dict(caso, id=str(i))
             fila, mensajes = O.correr_caso(modelo, caso, v, config, prompts)
+            fila["commit"] = commit
             for m in mensajes:
                 ft.write(json.dumps({"caso": str(i), **m}, ensure_ascii=False) + "\n")
             fs.write(json.dumps(fila, ensure_ascii=False) + "\n")
@@ -251,6 +267,26 @@ def _pruebas():
     m, _, _ = corre([A_OK, B_OK, C_OK], "sin_descomposicion")
     chequea("sin descomposición: el Intérprete no pide las otras asignaturas",
             '"otros"' in m.llamadas[0][0]["content"], False)
+
+    # Salidas reales de Phi en la primera corrida de desarrollo (casos 0 y 13): el JSON,
+    # una explicación y el JSON repetido o cambiado. Vale el primero.
+    A_REAL = ('{"accion": "entregar", "consultado": "Programación", "otros": [], '
+              '"periodo": "actual"}\n\nExplicación: el estudiante pregunta por "Programación".'
+              '\n\nJSON:\n\n{"accion": "entregar", "consultado": "Programación", "otros": [], '
+              '"periodo": "actual"}')
+    C_REAL = ('{"accion": "aceptar", "problema": "error de contexto", "motivo": "..."}\n\n'
+              '```json\n{\n  "accion": "rechazar",\n  "problema": "contexto",\n'
+              '  "motivo": "otra cosa"\n}\n```')
+    m, f, t = corre([A_REAL, B_OK, C_REAL])
+    chequea("JSON repetido con explicación: se lee el primero",
+            (f["ramas"]["ilegibles"], f["ramas"]["sin_ramo"], f["acierto_conjunto"],
+             f["ramas"]["rechazos_verificador"]), (0, False, True, 0))
+    chequea("JSON dentro de un bloque de código: se lee",
+            A._extraer_json('Claro:\n```json\n{"accion": "aceptar"}\n```')[0],
+            {"accion": "aceptar"})
+    chequea("llaves sueltas antes del JSON: se saltan",
+            A._extraer_json('uso {llaves} sueltas {"accion": "ninguno"}')[0],
+            {"accion": "ninguno"})
 
     chequea("los prompts no dejan marcas sin reemplazar",
             any("{{" in msg["content"] for msg in sum(m2.llamadas, [])), False)

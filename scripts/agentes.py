@@ -23,15 +23,15 @@ queda marcada con `legible: False` para contarla aparte:
   Verificador   aceptar     rechazar por ruido crearía bucles que no corrigen nada
 
 Lo que se tolera es la forma, no el contenido: texto alrededor del JSON, mayúsculas, la tilde
-de "próximo". Un código que no está entre los candidatos no se corrige: cuenta como `ninguno`.
+de "próximo". Si el modelo escribe más de un JSON, vale el primero. Un código que no está entre
+los candidatos no se corrige: cuenta como `ninguno`.
 """
 
 import hashlib
+import json
 import re
 import time
 from pathlib import Path
-
-from pipeline import _extraer_json
 
 PROMPTS = Path(__file__).resolve().parent.parent / "prompts"
 
@@ -75,6 +75,30 @@ class Prompt:
 
     def ref(self):
         return {"archivo": self.archivo, "hash": self.hash, "ejemplos": self.con_ejemplos}
+
+
+_DECODIFICADOR = json.JSONDecoder()
+
+
+def _extraer_json(texto):
+    """El PRIMER objeto JSON válido del texto. Devuelve (dict, estado).
+
+    El lector del D2 tomaba desde la primera llave hasta la última. En el D3 Phi escribe el
+    JSON, después una explicación y muchas veces repite el JSON al final, así que ese tramo
+    no se puede leer: en la primera corrida de desarrollo dejó 15 de 52 respuestas ilegibles
+    que traían el JSON correcto. Se toma el primero porque es la respuesta que el modelo dio
+    antes de explicarse. Si el segundo dice otra cosa, cuenta el primero.
+    """
+    if not texto:
+        return None, "vacio"
+    for m in re.finditer(r"\{", texto):
+        try:
+            obj, _ = _DECODIFICADOR.raw_decode(texto, m.start())
+        except json.JSONDecodeError:
+            continue
+        if isinstance(obj, dict):
+            return obj, "ok"
+    return None, "sin_json"
 
 
 def llamar(modelo, mensajes):

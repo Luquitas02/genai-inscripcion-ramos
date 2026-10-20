@@ -389,6 +389,12 @@ se apoya en una propiedad del generador. Ver "Decisiones tomadas en esta revisi�
 **19 oct 2026 — El Intérprete puede detenerse.** Sin la acción `sin_ramo`, en la primera
 pasada siempre entregaría y no tomaría ninguna decisión, que es lo que el enunciado excluye.
 
+**19 oct 2026 — Se lee el primer JSON de cada respuesta.** En la primera corrida de desarrollo
+Phi escribió el JSON, una explicación y el JSON repetido, y el lector del D2 (de la primera
+llave a la última) dejó 15 de 52 respuestas ilegibles que traían el JSON correcto: 12 casos
+terminaron en `sin_ramo`. Se cambió el lector, no los prompts. Desde ahí cada fila guarda el
+commit, y el runner no retoma un archivo corrido con otro código. Esa corrida (30/52) no cuenta.
+
 **19 oct 2026 — Fila de referencia de regla fija.** La prueba del flujo con el modelo falso
 acertó 42/60 en los originales. Se reporta como piso, en los tres conjuntos.
 

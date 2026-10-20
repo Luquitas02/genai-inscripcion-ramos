@@ -130,7 +130,14 @@ respaldar(salida, traza)
 import json
 filas = [json.loads(l) for l in open(salida, encoding='utf-8')]
 fallas = [x for x in filas if not x['acierto_conjunto']]
-print(f'\\n{len(fallas)} fallas. Las primeras cinco:\\n')
+print(f'\\n{len(fallas)} fallas, una por línea (esperado → extraído):\\n')
+for x in fallas:
+    ext = x['extraccion']
+    marcas = ' '.join(k for k, v in x['ramas'].items() if v)
+    print(f"{x['id']:>3} | {x['pregunta'][:90]}\\n"
+          f"    {x['ramo_objetivo']['codigo']} {x['esperado']['decision']:11} → "
+          f"{ext['ramo']} {ext['periodo']} · {x['prediccion']['decision']} · {marcas}")
+print('\\nLas primeras cinco con su traza completa:\\n')
 for x in fallas[:5]:
     print(f"caso {x['id']} · esperado {x['ramo_objetivo']['nombre']} · {x['esperado']}")
     ver_traza.mostrar(traza, int(x['id']), crudo=True)
