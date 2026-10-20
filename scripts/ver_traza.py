@@ -35,17 +35,28 @@ def resumen_contenido(m):
     return f"{accion.upper()}  " + json.dumps(resto, ensure_ascii=False)
 
 
+def leer(ruta, caso):
+    return [json.loads(l) for l in open(ruta, encoding="utf-8")
+            if l.strip() and json.loads(l)["caso"] == str(caso)]
+
+
+def imprimir(mensajes, crudo=False, marcas=None):
+    """Una línea por mensaje. `marcas` agrega al final una marca por mensaje (la demo la usa
+    para decir si la salida del modelo coincide con la traza guardada)."""
+    for k, m in enumerate(mensajes):
+        de, para = NOMBRES.get(m["de"], m["de"]), NOMBRES.get(m["para"], m["para"])
+        extra = f"  {marcas[k]}" if marcas and marcas[k] else ""
+        print(f"{m['n']:2}  {de:18} → {para:18} {resumen_contenido(m)}{extra}")
+        if crudo and m.get("crudo"):
+            print(f"{'':42}modelo: {m['crudo'].strip()}")
+
+
 def mostrar(ruta, caso, crudo=False):
-    mensajes = [json.loads(l) for l in open(ruta, encoding="utf-8")
-                if l.strip() and json.loads(l)["caso"] == str(caso)]
+    mensajes = leer(ruta, caso)
     if not mensajes:
         print(f"no hay mensajes del caso {caso} en {ruta}")
         return 1
-    for m in mensajes:
-        de, para = NOMBRES.get(m["de"], m["de"]), NOMBRES.get(m["para"], m["para"])
-        print(f"{m['n']:2}  {de:18} → {para:18} {resumen_contenido(m)}")
-        if crudo and m.get("crudo"):
-            print(f"{'':42}modelo: {m['crudo'].strip()}")
+    imprimir(mensajes, crudo)
     return 0
 
 

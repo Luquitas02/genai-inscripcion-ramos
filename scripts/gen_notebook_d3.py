@@ -200,13 +200,60 @@ files.download('/content/resultados_d3.zip')"""),
 ]
 
 
-def main():
-    nb = {"cells": CELDAS, "metadata": {"accelerator": "GPU", "colab": {"gpuType": "T4"},
+SALIDA_DEMO = BASE / "demo_d3_colab.ipynb"
+
+# El notebook del video. Las celdas 1 a 3 se corren antes de grabar: cargar Phi toma minutos
+# y el video sería una barra de progreso. Se graba solo la celda 4, que tarda menos de un minuto.
+CELDAS_DEMO = [
+    md("""# Demostración del Deliverable 3 · sistema de agentes con Phi-3.5-mini
+
+Corre en vivo los tres casos que eligió la regla de `PROTOCOLO_D3.md` y muestra cada mensaje
+entre agentes y herramientas. Cada salida del modelo se compara con la corrida final guardada
+en `trazas/`: con generación greedy tiene que decir `= guardada`.
+
+**Antes de grabar:** T4 GPU, y correr las celdas 1, 2 y 3. **Se graba solo la celda 4.**
+Grabar a 1920x1080 para que el texto monoespaciado se lea.
+"""),
+    code(f"""# 1 · repositorio y dependencias
+COMMIT = ''
+
+%cd /content
+!pip -q install transformers==5.17.0 accelerate==1.14.0 bitsandbytes==0.50.2
+!rm -rf /content/proyecto && git clone -q {REPO} /content/proyecto
+import subprocess
+if COMMIT:
+    subprocess.run(['git', '-C', '/content/proyecto', 'checkout', '-q', COMMIT], check=True)
+!git -C /content/proyecto log -1 --format='commit %h  %ad  %s'
+import torch; print('cuda:', torch.cuda.is_available())"""),
+    code("""# 2 · autopruebas: la demo reproduce las trazas guardadas sin usar la GPU
+import sys, os
+os.chdir('/content/proyecto/scripts')
+sys.path.insert(0, '/content/proyecto/scripts')
+r = subprocess.run([sys.executable, 'demo_d3.py', '--pruebas'], capture_output=True, text=True)
+print(r.stdout.strip().splitlines()[-1])
+r = subprocess.run([sys.executable, 'runner_d3.py', '--pruebas'], capture_output=True, text=True)
+print(r.stdout.strip().splitlines()[-1])"""),
+    code("""# 3 · carga de Phi-3.5-mini (tres a cinco minutos)
+import runner_d3, demo_d3
+modelo = runner_d3.cargar_modelo('microsoft/Phi-3.5-mini-instruct')
+print('modelo cargado · revisión', getattr(modelo.modelo.config, '_commit_hash', '?'))"""),
+    code("""# 4 · DEMOSTRACIÓN: grabar esta celda
+demo_d3.video(modelo)"""),
+]
+
+
+def _escribir(celdas, salida):
+    nb = {"cells": celdas, "metadata": {"accelerator": "GPU", "colab": {"gpuType": "T4"},
                                         "kernelspec": {"name": "python3",
                                                        "display_name": "Python 3"}},
           "nbformat": 4, "nbformat_minor": 5}
-    SALIDA.write_text(json.dumps(nb, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
-    print(f"{len(CELDAS)} celdas -> {SALIDA.name}")
+    salida.write_text(json.dumps(nb, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    print(f"{len(celdas)} celdas -> {salida.name}")
+
+
+def main():
+    _escribir(CELDAS, SALIDA)
+    _escribir(CELDAS_DEMO, SALIDA_DEMO)
     return 0
 
 

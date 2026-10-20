@@ -14,6 +14,11 @@ Prof. Carlos Navarrete, PhD
 
 ## Estado
 
+**Deliverable 3** (31 de octubre de 2026). El sistema del D2 reconstruido como tres agentes
+sobre el mismo Phi-3.5-mini sube el acierto conjunto de **64,0 % a 88,0 %** en 150 casos. Detalle
+en [la sección del D3](#deliverable-3--tres-agentes-sobre-el-mismo-modelo). Documento técnico:
+[`poster/Deliverable_3.pdf`](poster/Deliverable_3.pdf). Video: [`demo_d3_colab.ipynb`](demo_d3_colab.ipynb).
+
 **Deliverable 2 completo** (30 de septiembre de 2026). Sistema de tres pasos funcionando
 sobre los mismos 60 casos, con el acierto conjunto subiendo de **16,7 % a 58,3 %** y usando
 **un tercio de los tokens** del baseline. Detalle en [la sección del D2](#deliverable-2--el-sistema-de-tres-pasos).
@@ -474,16 +479,115 @@ leerse como efectos firmes. Por eso el sistema se midió además en 60 casos nue
 
 ---
 
+# Deliverable 3 · Tres agentes sobre el mismo modelo
+
+## Qué hace
+
+El sistema del D2 se reconstruye como tres agentes que usan el mismo Phi-3.5-mini y dos
+herramientas sin modelo. Cada agente escribe su decisión en el campo `accion` de un JSON y un
+orquestador en código la ejecuta ([`scripts/orquestador.py`](scripts/orquestador.py)).
+
+| | recibe | devuelve | decide |
+|---|---|---|---|
+| **A · Intérprete** | la pregunta | ramo consultado con las palabras del estudiante, otros ramos, frase de período, período | entregar o `sin_ramo`; ante un rechazo, revisa |
+| **T1 · buscar_ramo** | un texto | los 5 ramos más parecidos, con puntaje | (herramienta, sin modelo) |
+| **B · Resolvedor** | la mención y los 5 candidatos | un código | elegir, buscar de nuevo (máx. 2) o `ninguno` |
+| **C · Verificador** | la pregunta y la elección | citas de la pregunta y veredicto | aceptar y llamar a T2, o rechazar (máx. 2) |
+| **T2 · motor de reglas** | código y período | decisión y regla | (herramienta: la ficha y el reglamento del D2) |
+
+Los prompts están en [`prompts/`](prompts/), uno por agente, con su versión en la cabecera;
+las versiones de las ablaciones están en `prompts/ablaciones/`. Cada mensaje de la traza guarda
+el hash del prompt que lo produjo. Tope de 12 llamadas por caso.
+
+## Resultados
+
+Corrida final del 20 de octubre, con el protocolo [`PROTOCOLO_D3.md`](PROTOCOLO_D3.md) subido
+antes de correr (commit `9158550`). Acierto conjunto, decisión y regla, el criterio del D1:
+
+| | originales (60) | nuevos (60) | redactados (30) | **150** |
+|---|---|---|---|---|
+| baseline few-shot (D1) | 10 | 18 | 7 | 35 |
+| sistema del D2 | 35 | 37 | 24 | 96 |
+| regla fija, sin modelo | 42 | 41 | 7 | 90 |
+| **tres agentes** | **52** | **51** | **29** | **132** |
+
+Contra el D2, en los casos donde difieren, los agentes ganan 39 y pierden 3 (McNemar exacto,
+p = 5,6·10⁻⁹). En los 30 redactados la diferencia es 6 a 1 (p = 0,125). La regla fija toma el
+texto que sigue a "inscribir", "tomar" o "meter" y lo busca con T1: supera al D2 en las
+preguntas de plantilla y cae a 7 de 30 en las redactadas.
+
+## Qué explica la mejora
+
+| sin... | acierto (150) | Δ |
+|---|---|---|
+| la búsqueda T1 (el Resolvedor recibe el catálogo completo) | 75 | −57 |
+| los 4 ejemplos del Intérprete | 123 | −9 |
+| la lista de los otros ramos (descomposición) | 136 | +4 |
+| el Verificador | 133 | +1 |
+| el Resolvedor (se toma el primer candidato de T1) | 133 | +1 |
+
+La mejora la explican T1, que saca al modelo de copiar códigos, y los ejemplos. El Resolvedor y
+el Verificador deciden en pocos casos (4 búsquedas extra y 5 rechazos en 150) y su efecto neto
+es nulo. Ninguna búsqueda extra arregló un ramo. El detalle por mecanismo y caso está en
+[`PLAN_D3.md`](PLAN_D3.md), en el registro del 20 de octubre.
+
+**Caso de falla.** "...ando cursando administración y quería tomar marketing el otro
+semestre, en marzo". El Intérprete leyó bien el período; el Verificador lo rechazó diciendo que
+"el otro semestre" es el actual, el Intérprete cambió y el caso falló.
+
+## Lo que muestra el video
+
+[`demo_d3_colab.ipynb`](demo_d3_colab.ipynb)
+([abrir en Colab](https://colab.research.google.com/github/Luquitas02/genai-inscripcion-ramos/blob/main/demo_d3_colab.ipynb))
+corre en vivo tres preguntas redactadas, elegidas por la regla del protocolo: "progra" (sin
+bucles), "inglés básico 1" (el Verificador rechaza tres veces y el tope cierra el caso) y el caso
+de falla. Cada salida del modelo se marca `= guardada` si coincide con la traza de la corrida
+final en [`trazas/`](trazas/). Las celdas 1 a 3 se corren antes de grabar; se graba la 4.
+
+## Reproducir
+
+Sin GPU, en cualquier máquina con Python 3:
+
+```bash
+python scripts/herramientas.py          # 8/8: T1 y T2 (T2 reproduce las 60 etiquetas)
+python scripts/runner_d3.py --pruebas   # 29/29: cada rama del grafo con un modelo de guion
+python scripts/demo_d3.py --pruebas     # la demo reproduce las trazas guardadas
+python scripts/analisis_d3.py           # todas las cifras de esta sección y del PDF
+python scripts/diagnostico_d3.py        # el diagnóstico del paso 1 del D2 por mecanismo
+python scripts/runner_d3.py --modelo-falso --casos datos/casos_redactados.jsonl   # regla fija
+python scripts/ver_traza.py trazas/agentes__Phi-3.5-mini-instruct__completo__casos_redactados.jsonl 16
+```
+
+Con Phi, en una T4 de Colab: [`corrida_d3_colab.ipynb`](corrida_d3_colab.ipynb) clona el
+repositorio en el commit que se le indica y corre el desarrollo (sección 5) o la etapa final
+(sección 6, unas dos horas). El runner no retoma un archivo corrido con otros prompts u otro
+commit. Las salidas quedan en `resultados/agentes__*.raw.jsonl` y `trazas/agentes__*.jsonl`.
+
+## Cómo se midió
+
+Los prompts se ajustaron solo en el conjunto de desarrollo
+([`datos/casos_desarrollo.jsonl`](datos/casos_desarrollo.jsonl), 52 casos sin preguntas de
+prueba), en cuatro versiones, y en 21 preguntas de desarrollo redactadas fuera de las
+plantillas. La regla para aceptar cada versión se escribió en `PLAN_D3.md` antes de correrla.
+Las 30 preguntas de [`datos/casos_redactados.jsonl`](datos/casos_redactados.jsonl) las redactó
+un modelo de lenguaje sin acceso al sistema, a partir del ramo, el período y el ramo de contexto
+de 30 casos originales ([`scripts/preparar_redactados.py`](scripts/preparar_redactados.py)); el
+CSV registra autor y revisión de cada una. La etiqueta de esos casos es la del caso original,
+porque depende del historial y no de la redacción.
+
+---
+
 ## El proyecto completo
 
 | Entregable | Fecha | Contenido | Estado |
 |---|---|---|---|
 | **D1** | 31 ago | Tarea, modelo y baseline | ✅ |
 | **D2** | 30 sep | Sistema de tres pasos — 16,7 % → 58,3 % | ✅ |
-| D3 | 31 oct | La extracción: emparejar prosa con códigos, y el validador | ⏳ |
-| D4 | 30 nov | Resultados contra este baseline | ⏳ |
+| **D3** | 31 oct | Tres agentes sobre el mismo modelo — 64,0 % → 88,0 % | ✅ |
+| D4 | 30 nov | Resultados y defensa | ⏳ |
 
 El D1 reservaba la consulta al grafo para el D3. Se adelantó al D2 porque la ablación mostró
-que el modelo no aplica las reglas, y la desviación queda declarada. El D3 pasa a atacar el
-cuello de botella medido, que es el paso 1: emparejar *"me falta cálculo 2"* con el código
-`527150`. Es el problema de los embeddings del Workshop 1.
+que el modelo no aplica las reglas, y la desviación queda declarada. El D3 atacó el cuello de
+botella medido, el paso 1. La búsqueda se hizo léxica y no con embeddings, porque un modelo de
+embeddings sería un segundo modelo en el sistema y la búsqueda léxica pone el ramo correcto
+primero en 50 de 51 menciones no ambiguas.
