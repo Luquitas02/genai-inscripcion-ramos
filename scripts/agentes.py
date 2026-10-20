@@ -140,6 +140,7 @@ def interprete(modelo, prompt, pregunta, revision=None):
         if _texto(d.get("accion")).lower() != "sin_ramo" and consultado:
             otros = [_texto(o) for o in (d.get("otros") or []) if _texto(o)]
             accion = {"accion": "entregar", "consultado": consultado, "otros": otros,
+                      "frase_periodo": _texto(d.get("frase_periodo")),
                       "periodo": norm_periodo(d.get("periodo")), "legible": True}
     return accion, {"mensajes": mensajes, "crudo": crudo, "tokens": tokens,
                     "segundos": segundos, "prompt": prompt.ref()}
@@ -209,5 +210,9 @@ def verificador(modelo, prompt, pregunta, codigo, nombre, periodo, otros):
         problema = "periodo" if problema.startswith("periodo") else "ramo"
         accion = {"accion": "rechazar", "problema": problema,
                   "motivo": _texto(d.get("motivo")) or "sin motivo", "legible": True}
+    # La evidencia que copió antes de decidir queda en la traza, que es lo que muestra el video.
+    if d is not None:
+        accion["cita_ramo"] = _texto(d.get("cita_ramo"))
+        accion["cita_periodo"] = _texto(d.get("cita_periodo"))
     return accion, {"mensajes": mensajes, "crudo": crudo, "tokens": tokens,
                     "segundos": segundos, "prompt": prompt.ref()}

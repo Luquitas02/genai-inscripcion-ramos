@@ -389,6 +389,18 @@ se apoya en una propiedad del generador. Ver "Decisiones tomadas en esta revisi�
 **19 oct 2026 — El Intérprete puede detenerse.** Sin la acción `sin_ramo`, en la primera
 pasada siempre entregaría y no tomaría ninguna decisión, que es lo que el enunciado excluye.
 
+**20 oct 2026 — Prompts v3: citar antes de decidir.** La v2 sacó 40/52 (commit `8cd44ab`):
+ganó "PCP" (el Resolvedor buscó de nuevo por primera vez) e "ingeniería", y perdió dos casos
+porque el Verificador rechazó períodos correctos con un motivo de reglamento ("ya está tomando
+Modelación, no puede inscribirse"): juzgó si el estudiante podía inscribir en vez de comprobar
+la interpretación. De sus 7 rechazos ninguno corrigió un error. Los 3 casos de período no
+cambiaron. Cambios: el Verificador pierde la regla de la v2, se le dice que no decide si puede
+inscribir, y copia `cita_ramo` y `cita_periodo` antes de comparar; el Intérprete copia
+`frase_periodo` antes de decidir el período. Es la misma técnica en los dos agentes (extraer la
+evidencia textual y decidir sobre ella) y no se ablaciona por separado. Las 6 a 10 s por caso
+bajaron a 6,3 con el corte. Regla para cerrar: como mucho una iteración más después de esta,
+y los 7 ambiguos no se persiguen.
+
 **20 oct 2026 — Prompts v2, desde las fallas de desarrollo.** Con el lector corregido, la v1
 sacó 40/52 en desarrollo (commit `2cbdfc8`). De las 12 fallas, 7 son preguntas ambiguas por
 construcción ("gestión" cuatro veces, "la I", "práctica", "cálculo"), 3 son el período cuando
