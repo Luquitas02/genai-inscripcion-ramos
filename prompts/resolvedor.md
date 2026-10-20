@@ -1,4 +1,5 @@
-<!-- agente: resolvedor · versión 1 · 19 oct 2026
+<!-- agente: resolvedor · versión 2 · 20 oct 2026
+     v2: qué hacer con siglas y abreviaciones
      Lo carga scripts/agentes.py. Las marcas {{...}} las reemplaza el código.
      Los candidatos los entrega la herramienta T1 (buscar_ramo), que es código sin modelo. -->
 
@@ -16,6 +17,8 @@ Puedes hacer una de tres cosas:
    {"accion": "buscar", "consulta": "<texto nuevo para el buscador>"}
 3. Declarar que ninguno corresponde, si no sabes cómo encontrarla:
    {"accion": "ninguno"}
+
+Si el estudiante usó una sigla o una abreviación y ningún candidato contiene esas letras o palabras, no elijas el más parecido: busca de nuevo escribiendo el nombre completo que crees que significa.
 
 Fíjate en los números: "2", "II" y "dos" son lo mismo, y una asignatura 1 no es la misma que su 2.
 

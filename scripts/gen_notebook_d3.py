@@ -107,13 +107,14 @@ def respaldar(*rutas):
 print('Drive listo:', RESPALDO)"""),
 
     md("""## 4 · Carga del modelo
-Phi-3.5-mini en 4 bits, 256 tokens de salida, generación greedy: lo mismo que el D2. Tarda
-entre tres y cinco minutos. Imprime la revisión descargada para registrarla.
+Phi-3.5-mini en 4 bits, 256 tokens de salida, generación greedy: lo mismo que el D2, con la
+generación cortada al cerrar el primer JSON (no cambia la respuesta que lee el agente, solo
+evita generar la explicación que se descartaba). Tarda entre tres y cinco minutos. Imprime la
+revisión descargada para registrarla.
 """),
     code("""sys.path.insert(0, '/content/proyecto/scripts')
-from runner import ModeloHF
 import runner_d3, ver_traza
-modelo = ModeloHF('microsoft/Phi-3.5-mini-instruct', max_new_tokens=256)
+modelo = runner_d3.cargar_modelo('microsoft/Phi-3.5-mini-instruct')
 print('modelo cargado · revisión', getattr(modelo.modelo.config, '_commit_hash', '?'))"""),
 
     md("""## 5 · Desarrollo
@@ -124,7 +125,21 @@ Si cambiaste un prompt, el runner se niega a retomar el archivo anterior y pide 
 propósito. Corre la celda de borrado y vuelve a correr esta.
 """),
     code("""DESARROLLO = '/content/proyecto/datos/casos_desarrollo.jsonl'
+# La corrida anterior que está en Drive, para compararla con esta antes de pisarla.
+import json
+anterior = RESPALDO / 'resultados' / 'agentes__Phi-3.5-mini-instruct__completo__casos_desarrollo.raw.jsonl'
+previas = {}
+if anterior.exists():
+    previas = {x['id']: x for x in map(json.loads, open(anterior, encoding='utf-8'))}
 salida, traza = runner_d3.ejecutar(modelo, 'completo', DESARROLLO)
+if previas:
+    ahora = {x['id']: x for x in map(json.loads, open(salida, encoding='utf-8'))}
+    p = previas[next(iter(previas))]
+    print(f"\\nContra la corrida anterior (commit {p.get('commit', '?')}, "
+          f"{sum(x['acierto_conjunto'] for x in previas.values())}/{len(previas)}):")
+    for i in sorted(ahora, key=int):
+        if i in previas and ahora[i]['acierto_conjunto'] != previas[i]['acierto_conjunto']:
+            print(f"  caso {i:>3}: {'ganó' if ahora[i]['acierto_conjunto'] else 'perdió'}")
 respaldar(salida, traza)
 
 import json

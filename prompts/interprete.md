@@ -1,4 +1,5 @@
-<!-- agente: intérprete · versión 1 · 19 oct 2026
+<!-- agente: intérprete · versión 2 · 20 oct 2026
+     v2: regla del período del ramo consultado y un ejemplo con el ramo de contexto en curso
      Lo carga scripts/agentes.py. Las marcas {{...}} las reemplaza el código.
      El bloque entre las marcas de ejemplos se quita en la ablación sin few-shot.
      Los ejemplos usan ramos que no son objetivo de ningún caso de prueba. -->
@@ -14,6 +15,8 @@ Lees la consulta de un estudiante, escrita de manera informal, y devuelves tres 
 3. "periodo": "actual" si quiere inscribirla en el semestre en curso, que es 2026-2. "proximo" si habla de un semestre que todavía no empieza, que es 2027-1.
 
 Una consulta puede nombrar varias asignaturas. La que quiere inscribir es la que acompaña al verbo de inscribir, tomar o meter. Las demás son contexto, aunque aparezcan antes.
+
+El período es el de la asignatura que quiere inscribir. Si la consulta dice que otra asignatura la está cursando ahora o este semestre, eso describe a esa otra asignatura, no cuándo quiere inscribir. Fíjate en las palabras que acompañan a la asignatura que quiere inscribir.
 
 Copia la asignatura con las palabras que usó el estudiante. No la cambies por un código. Si la nombra solo con un número, como "la II", y la consulta deja claro de qué asignatura se trata, escribe ese nombre con el número.
 
@@ -33,6 +36,9 @@ Consulta: "oye, química general 1 la reprobé, ¿igual puedo meter química 2 e
 
 Consulta: "¿me puedo inscribir física 2 en marzo? todavía voy en física 1"
 {"accion": "entregar", "consultado": "física 2", "otros": ["física 1"], "periodo": "proximo"}
+
+Consulta: "estoy con cálculo 1 ahora, ¿podré tomar cálculo 2 después del verano?"
+{"accion": "entregar", "consultado": "cálculo 2", "otros": ["cálculo 1"], "periodo": "proximo"}
 
 Consulta: "una consulta, quiero tomar dibujo industrial ya, ¿se puede?"
 {"accion": "entregar", "consultado": "dibujo industrial", "otros": [], "periodo": "actual"}

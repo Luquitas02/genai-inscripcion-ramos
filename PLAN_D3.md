@@ -389,6 +389,18 @@ se apoya en una propiedad del generador. Ver "Decisiones tomadas en esta revisi�
 **19 oct 2026 — El Intérprete puede detenerse.** Sin la acción `sin_ramo`, en la primera
 pasada siempre entregaría y no tomaría ninguna decisión, que es lo que el enunciado excluye.
 
+**20 oct 2026 — Prompts v2, desde las fallas de desarrollo.** Con el lector corregido, la v1
+sacó 40/52 en desarrollo (commit `2cbdfc8`). De las 12 fallas, 7 son preguntas ambiguas por
+construcción ("gestión" cuatro veces, "la I", "práctica", "cálculo"), 3 son el período cuando
+el ramo de contexto se está cursando "ahora" y la pregunta es por el próximo (el modelo toma el
+"ahora" del otro ramo), 1 es la sigla "PCP" y 1 es "ingeniería". El Resolvedor no volvió a
+buscar en ningún caso y el Verificador rechazó en uno. Cambios: regla del período del ramo
+consultado en Intérprete y Verificador, un ejemplo con el ramo de contexto en curso, y en el
+Resolvedor qué hacer con una sigla que ningún candidato contiene. Las versiones de ablación
+llevan los mismos cambios. Además la generación se corta al cerrar el primer JSON (8,9 s por
+caso en la v1, casi todo explicación descartada); con greedy y lectura del primer JSON la
+respuesta usada es la misma.
+
 **19 oct 2026 — Se lee el primer JSON de cada respuesta.** En la primera corrida de desarrollo
 Phi escribió el JSON, una explicación y el JSON repetido, y el lector del D2 (de la primera
 llave a la última) dejó 15 de 52 respuestas ilegibles que traían el JSON correcto: 12 casos

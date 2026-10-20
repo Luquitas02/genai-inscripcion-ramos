@@ -1,4 +1,5 @@
-<!-- agente: resolvedor, ABLACIÓN sin herramienta · versión 1 · 19 oct 2026
+<!-- agente: resolvedor, ABLACIÓN sin herramienta · versión 2 · 20 oct 2026
+     v2: qué hacer con siglas y abreviaciones
      Igual a prompts/resolvedor.md salvo la técnica que se quita: no hay buscador. Recibe el
      catálogo completo de 61 asignaturas, como el paso 1 del D2, y no puede volver a buscar. -->
 
@@ -14,6 +15,8 @@ Puedes hacer una de dos cosas:
    {"accion": "elegir", "codigo": "<código del catálogo>"}
 2. Declarar que ninguna corresponde:
    {"accion": "ninguno"}
+
+Si el estudiante usó una sigla o una abreviación, piensa qué nombre completo significa antes de buscarlo en el catálogo.
 
 Fíjate en los números: "2", "II" y "dos" son lo mismo, y una asignatura 1 no es la misma que su 2.
 

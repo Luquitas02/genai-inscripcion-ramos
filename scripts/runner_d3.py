@@ -37,6 +37,60 @@ CASOS_ORIGINALES = BASE / "datos" / "casos.jsonl"
 MODELO_POR_DEFECTO = "microsoft/Phi-3.5-mini-instruct"
 
 
+def json_completo(texto):
+    """True si el texto ya trae un objeto JSON cerrado que empieza en su primera llave."""
+    i = texto.find("{")
+    if i < 0:
+        return False
+    try:
+        obj, _ = A._DECODIFICADOR.raw_decode(texto, i)
+    except ValueError:
+        return False
+    return isinstance(obj, dict)
+
+
+def cargar_modelo(nombre=MODELO_POR_DEFECTO, max_new_tokens=256):
+    """`ModeloHF` del D1 y el D2, con la generación cortada al cerrar el primer JSON.
+
+    En la corrida de desarrollo Phi escribía el JSON y después hasta 200 tokens de
+    explicación: 8,9 s por caso contra 1,6 del D2. Como la generación es greedy y el agente
+    lee el primer JSON (`agentes._extraer_json`), cortar ahí no cambia la respuesta que se
+    usa, solo deja de generar lo que se descartaba. El baseline y el D2 siguen con `ModeloHF`
+    sin corte, como se midieron.
+    """
+    import torch
+    from transformers import StoppingCriteria, StoppingCriteriaList
+    from runner import ModeloHF
+
+    class _HastaPrimerJSON(StoppingCriteria):
+        def __init__(self, tok, n_in):
+            self.tok, self.n_in = tok, n_in
+
+        def __call__(self, input_ids, scores, **kwargs):
+            texto = self.tok.decode(input_ids[0][self.n_in:], skip_special_tokens=True)
+            listo = "}" in texto and json_completo(texto)
+            return torch.full((input_ids.shape[0],), listo, dtype=torch.bool,
+                              device=input_ids.device)
+
+    class ModeloAgentes(ModeloHF):
+        def generar(self, mensajes):
+            texto = self.tok.apply_chat_template(
+                mensajes, tokenize=False, add_generation_prompt=True)
+            ent = self.tok(texto, return_tensors="pt").to(self.modelo.device)
+            n_in = ent["input_ids"].shape[1]
+            with torch.no_grad():
+                out = self.modelo.generate(
+                    **ent,
+                    max_new_tokens=self.max_new_tokens,
+                    do_sample=False,
+                    pad_token_id=self.tok.eos_token_id,
+                    stopping_criteria=StoppingCriteriaList([_HastaPrimerJSON(self.tok, n_in)]),
+                )
+            return self.tok.decode(out[0][n_in:], skip_special_tokens=True), n_in
+
+    return ModeloAgentes(nombre, max_new_tokens=max_new_tokens)
+
+
 class ModeloGuion:
     """Devuelve respuestas fijas en orden. Para probar cada rama del grafo sin GPU."""
 
@@ -288,6 +342,13 @@ def _pruebas():
             A._extraer_json('uso {llaves} sueltas {"accion": "ninguno"}')[0],
             {"accion": "ninguno"})
 
+    # El corte de generación: se detiene solo cuando el primer JSON está cerrado.
+    chequea("corte: JSON a medias no corta", json_completo('{"accion": "entre'), False)
+    chequea("corte: JSON cerrado corta", json_completo('{"accion": "aceptar"} y más'), True)
+    chequea("corte: lo que lee el agente es lo mismo con y sin corte",
+            A._extraer_json(A_REAL)[0] == A._extraer_json(A_REAL[:A_REAL.index("}") + 1])[0],
+            True)
+
     chequea("los prompts no dejan marcas sin reemplazar",
             any("{{" in msg["content"] for msg in sum(m2.llamadas, [])), False)
 
@@ -316,9 +377,8 @@ def main():
     if args.modelo_falso:
         modelo = ModeloFalso()
     else:
-        from runner import ModeloHF
         # 256 tokens de salida, como el D2. Los JSON de los agentes miden menos de 80.
-        modelo = ModeloHF(args.modelo, max_new_tokens=256)
+        modelo = cargar_modelo(args.modelo)
     ejecutar(modelo, args.config, args.casos, args.limite)
     return 0
 
