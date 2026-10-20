@@ -106,13 +106,15 @@ class ModeloGuion:
 
 
 class ModeloFalso:
-    """Responde según el rol del prompt, sin pesos. Sirve para recorrer el flujo completo.
+    """La regla fija sin modelo, que también sirve para recorrer el flujo sin GPU.
 
-    El Intérprete devuelve el texto entre el verbo y el signo de interrogación, el Resolvedor
-    elige el primer candidato y el Verificador acepta. No mide nada.
+    El Intérprete devuelve el texto entre el verbo (inscribir, tomar, meter) y el signo de
+    interrogación, con período actual; el Resolvedor elige el primer candidato de T1 y el
+    Verificador acepta. Es la fila de referencia del protocolo: el piso que saca una regla
+    escrita mirando las plantillas, sin ningún modelo de lenguaje.
     """
 
-    nombre = "falso"
+    nombre = "regla_fija"
 
     def generar(self, mensajes):
         sistema, usuario = mensajes[0]["content"], mensajes[1]["content"]

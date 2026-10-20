@@ -21,6 +21,11 @@ período, créditos ya inscritos), no de la redacción. Lo único que cambia es 
     python preparar_redactados.py llenar <json> <autor>  -> completa las preguntas vacías
     python preparar_redactados.py unir                   -> datos/casos_redactados.jsonl
 
+Lo mismo con `--desarrollo` arma 21 redactados del conjunto de DESARROLLO
+(`desarrollo_redactados.csv` -> `casos_desarrollo_redactados.jsonl`), para comprobar antes
+de congelar los prompts que el sistema no se rompe con preguntas fuera de las plantillas. Se
+redactan igual, a ciegas, y no requieren revisión porque no son de prueba.
+
 La selección es determinista (semilla 20261019): 10 casos por nivel, estratificados por
 decisión y por si la pregunta original menciona otro ramo.
 """
@@ -46,8 +51,15 @@ PERIODO_TXT = {"actual": "este semestre (2026-2)", "proximo": "el próximo semes
 ESTADO_TXT = {INSCRITA: "la está cursando ahora", REPROBADA: "la reprobó"}
 
 
+# (origen, csv, salida, casos por nivel, semilla, exige revisión)
+PRUEBA = ("casos.jsonl", CSV_RUTA, JSONL_SALIDA, 10, SEMILLA, True)
+DESARROLLO = ("casos_desarrollo.jsonl", DATOS / "desarrollo_redactados.csv",
+              DATOS / "casos_desarrollo_redactados.jsonl", 7, 20261021, False)
+CONF = PRUEBA
+
+
 def cargar_originales():
-    return [json.loads(l) for l in open(DATOS / "casos.jsonl", encoding="utf-8")]
+    return [json.loads(l) for l in open(DATOS / CONF[0], encoding="utf-8")]
 
 
 def ramo_de_contexto(caso, asig):
@@ -64,20 +76,24 @@ def ramo_de_contexto(caso, asig):
 
 
 def leer_csv():
-    return list(csv.DictReader(open(CSV_RUTA, encoding="utf-8-sig")))
+    return list(csv.DictReader(open(CONF[1], encoding="utf-8-sig")))
 
 
 def escribir_csv(filas):
-    with open(CSV_RUTA, "w", encoding="utf-8-sig", newline="") as f:
+    with open(CONF[1], "w", encoding="utf-8-sig", newline="") as f:
         w = csv.DictWriter(f, fieldnames=COLUMNAS)
         w.writeheader()
         w.writerows(filas)
 
 
 def elegir():
+    # Volver a elegir reescribe el CSV desde cero. Si ya tiene preguntas, las borraría.
+    if CONF[1].exists() and any(f["pregunta"].strip() for f in leer_csv()):
+        print(f"{CONF[1].name} ya tiene preguntas escritas; no se sobrescribe.")
+        return 1
     casos = cargar_originales()
     asig = G.Generador().asig
-    rnd = random.Random(SEMILLA)
+    rnd = random.Random(CONF[4])
     elegidos = []
     for nivel in (1, 2, 3):
         # Se estratifica por decisión y por si la pregunta menciona otro ramo, que es uno
@@ -87,10 +103,13 @@ def elegir():
             if c["nivel"] == nivel:
                 clave = (c["respuesta"]["decision"], bool(ramo_de_contexto(c, asig)[0]))
                 grupos.setdefault(clave, []).append(i)
-        # mitad de cada grupo, redondeando hacia los grupos más grandes hasta sumar 10
-        cupos = {k: len(ids) // 2 for k, ids in grupos.items()}
-        for k in sorted(grupos, key=lambda k: (-(len(grupos[k]) % 2), -len(grupos[k]), k)):
-            if sum(cupos.values()) < 10:
+        # una parte proporcional de cada grupo, redondeando hacia los grupos más grandes
+        por_nivel = CONF[3]
+        total = sum(len(ids) for ids in grupos.values())
+        cupos = {k: len(ids) * por_nivel // total for k, ids in grupos.items()}
+        for k in sorted(grupos, key=lambda k: (-(len(grupos[k]) * por_nivel % total),
+                                               -len(grupos[k]), k)):
+            if sum(cupos.values()) < por_nivel:
                 cupos[k] += 1
         for k in sorted(grupos):
             ids = sorted(grupos[k])
@@ -107,7 +126,7 @@ def elegir():
                       "menciona_tambien": otro, "estado_de_ese_ramo": estado,
                       "pregunta": "", "autor": "", "revisado_por": ""})
     escribir_csv(filas)
-    print(f"{len(filas)} casos -> {CSV_RUTA.name}")
+    print(f"{len(filas)} casos -> {CONF[1].name}")
     return 0
 
 
@@ -130,14 +149,14 @@ def unir():
     casos = cargar_originales()
     filas = leer_csv()
     faltan = [f["id_original"] for f in filas if not f["pregunta"].strip()]
-    sin_rev = [f["id_original"] for f in filas if not f["revisado_por"].strip()]
+    sin_rev = [f["id_original"] for f in filas if not f["revisado_por"].strip()] if CONF[5] else []
     if faltan or sin_rev:
         if faltan:
             print(f"Faltan {len(faltan)} preguntas: ids {', '.join(faltan)}")
         if sin_rev:
             print(f"Faltan {len(sin_rev)} revisiones: ids {', '.join(sin_rev)}")
         return 1
-    with open(JSONL_SALIDA, "w", encoding="utf-8") as f:
+    with open(CONF[2], "w", encoding="utf-8") as f:
         for fila in filas:
             c = dict(casos[int(fila["id_original"])])
             c["id_original"] = int(fila["id_original"])
@@ -146,13 +165,16 @@ def unir():
             c["autor_pregunta"] = fila["autor"]
             c["revisado_por"] = fila["revisado_por"]
             f.write(json.dumps(c, ensure_ascii=False) + "\n")
-    print(f"{len(filas)} casos -> {JSONL_SALIDA.name}")
+    print(f"{len(filas)} casos -> {CONF[2].name}")
     return 0
 
 
 if __name__ == "__main__":
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
+    if "--desarrollo" in sys.argv:
+        sys.argv.remove("--desarrollo")
+        CONF = DESARROLLO
     accion = sys.argv[1] if len(sys.argv) > 1 else ""
     if accion == "elegir":
         raise SystemExit(elegir())

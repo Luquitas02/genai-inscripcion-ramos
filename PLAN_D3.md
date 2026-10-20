@@ -389,6 +389,26 @@ se apoya en una propiedad del generador. Ver "Decisiones tomadas en esta revisi�
 **19 oct 2026 — El Intérprete puede detenerse.** Sin la acción `sin_ramo`, en la primera
 pasada siempre entregaría y no tomaría ninguna decisión, que es lo que el enunciado excluye.
 
+**20 oct 2026 — Chequeo de robustez antes de congelar.** Todo el ajuste se hizo sobre preguntas
+de plantilla, y uno de los tres conjuntos de prueba son preguntas redactadas fuera de ellas.
+Para no descubrir en la corrida final que el sistema se rompe con ese estilo, se redactan 21
+preguntas a partir de casos de DESARROLLO (`preparar_redactados.py --desarrollo`, semilla
+20261021, mismo agente a ciegas y mismas instrucciones) y se corre la v4 una vez. **Regla
+escrita antes de correr:** solo se cambia un prompt si aparece un tipo de falla general que se
+repita en 3 casos o más; una falla aislada no se toca. Haya cambio o no, después de esta
+corrida se congela. Si hay cambio, se vuelve a correr el desarrollo de plantillas para
+comprobar que no baja de 44/52, y el protocolo se actualiza con los hashes nuevos antes de
+subirlo.
+
+**20 oct 2026 — Se congela la v4.** La v4 (commit `1db45fc`) sacó 44/52, con los mismos casos
+que la v3, y no rechazó nada: cumple la regla y se queda. Sus citas ahora salen de la consulta
+en 37 de 52 casos (`citas_fuera` 15). No rechaza porque en desarrollo no le queda nada que
+pueda detectar: las 7 fallas restantes son preguntas ambiguas, donde la lectura elegida es
+válida, y el resto ya lo resuelven el Intérprete y el Resolvedor (44 de 45 con solución). Su
+aporte se mide en la corrida final, sobre todo en los redactados y en la ablación sin
+descomposición. La fila de referencia sin modelo pasa a llamarse `regla_fija`. Siguiente:
+`PROTOCOLO_D3.md`, subido antes de la corrida final.
+
 **20 oct 2026 — v3 sacó 44/52; v4 es la última iteración, solo del Verificador.** La v3
 (commit `781ba32`) ganó 4 casos y no perdió ninguno: período 48/52 contra 41/52. De las 8
 fallas, 7 son las preguntas ambiguas y 1 es de período (caso 24): acierta 44 de los 45 casos

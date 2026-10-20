@@ -118,16 +118,19 @@ modelo = runner_d3.cargar_modelo('microsoft/Phi-3.5-mini-instruct')
 print('modelo cargado · revisión', getattr(modelo.modelo.config, '_commit_hash', '?'))"""),
 
     md("""## 5 · Desarrollo
-El sistema completo sobre los 52 casos de desarrollo. Después muestra la traza de los primeros
-casos donde falla, que es lo que se mira para ajustar los prompts.
+El sistema completo sobre un conjunto de desarrollo: los 52 casos de plantilla
+(`casos_desarrollo.jsonl`) o los 21 redactados fuera de las plantillas
+(`casos_desarrollo_redactados.jsonl`). Se elige en `CONJUNTO`. Después muestra todas las
+fallas y la traza de las cinco primeras, que es lo que se mira para ajustar los prompts.
 
 Si cambiaste un prompt, el runner se niega a retomar el archivo anterior y pide borrarlo: es a
 propósito. Corre la celda de borrado y vuelve a correr esta.
 """),
-    code("""DESARROLLO = '/content/proyecto/datos/casos_desarrollo.jsonl'
+    code("""CONJUNTO = 'casos_desarrollo_redactados.jsonl'   # o 'casos_desarrollo.jsonl'
+DESARROLLO = f'/content/proyecto/datos/{CONJUNTO}'
 # La corrida anterior que está en Drive, para compararla con esta antes de pisarla.
 import json
-anterior = RESPALDO / 'resultados' / 'agentes__Phi-3.5-mini-instruct__completo__casos_desarrollo.raw.jsonl'
+anterior = RESPALDO / 'resultados' / f'agentes__Phi-3.5-mini-instruct__completo__{Path(CONJUNTO).stem}.raw.jsonl'
 previas = {}
 if anterior.exists():
     previas = {x['id']: x for x in map(json.loads, open(anterior, encoding='utf-8'))}
