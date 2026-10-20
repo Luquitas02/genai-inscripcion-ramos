@@ -389,6 +389,29 @@ se apoya en una propiedad del generador. Ver "Decisiones tomadas en esta revisi�
 **19 oct 2026 — El Intérprete puede detenerse.** Sin la acción `sin_ramo`, en la primera
 pasada siempre entregaría y no tomaría ninguna decisión, que es lo que el enunciado excluye.
 
+**20 oct 2026 — Resultados de la corrida final (commit `9158550`, `scripts/analisis_d3.py`).**
+Las 540 filas llevan el commit y los hashes del protocolo.
+- **H1 se cumple.** Agentes 132/150 (88,0 %) contra D2 96/150 (64,0 %): ganan 39 casos y
+  pierden 3, McNemar p = 5,6·10⁻⁹. Por conjunto: originales 52 contra 35, nuevos 51 contra 37,
+  redactados 29 contra 24 (p = 0,125, n chico). Baseline 35/150. Regla fija 90/150, que cae a
+  7/30 en los redactados.
+- **Sin los ambiguos:** 48/51 en originales y 50/54 en nuevos.
+- **Por mecanismo** (originales y nuevos sin ambiguos, acierto de ramo): nombre exacto D2 44/69,
+  agentes 67/69; menciona otro ramo D2 7/35, agentes 34/35; abreviado 19/36 contra 33/36.
+- **Ablaciones** (150): sin herramienta 75 (−57, p ≈ 10⁻¹⁵); sin ejemplos 123 (−9, p = 0,004);
+  sin descomposición 136 (+4, p = 0,125, a favor de quitarla); sin verificador 133 (+1, ruido);
+  top1 en vez del Resolvedor 133 (+1, ruido).
+- **Lo que significa.** La mejora la explican la herramienta T1 (sacar al modelo de copiar
+  códigos) y los ejemplos del Intérprete. Listar las demás asignaturas no aporta: sin esa
+  instrucción, M2 queda igual (34/35). El Resolvedor y el Verificador deciden en pocos casos
+  (búsqueda extra en 4, rechazo en 5 de 150) y su efecto neto es nulo: el Resolvedor resolvió
+  "PCP" y perdió "evapro"; el Verificador detectó un período mal leído ("ahora en el segundo
+  semestre") sin lograr que el Intérprete lo corrigiera, y causó la falla de Marketing.
+- **Caso de falla** (regla del protocolo): redactado 16, "...quería tomar marketing el otro
+  semestre, en marzo". El Intérprete leyó bien ("en marzo" → próximo); el Verificador rechazó
+  diciendo que "el otro semestre" es el actual, el Intérprete cambió a actual y el caso falló.
+- **Costo:** 3,2 llamadas, 2.797 tokens y 7,2 s por caso, contra 1.155 tokens y 1,7 s del D2.
+
 **20 oct 2026 — El chequeo de robustez sale 20/21 y se congela la v4 sin cambios.** Commit
 `3ba2528`. Período 21/21, incluidos "pal primer semestre del 2027", "el que parte en marzo" y
 "altiro" junto a 2027. El Resolvedor resolvió la sigla "DHG" buscando de nuevo dos veces. La
