@@ -70,7 +70,7 @@ class Corrida:
         self.segundos = 0.0
         self.ramas = {"rechazos_verificador": 0, "ninguno_resolvedor": 0, "busquedas_extra": 0,
                       "sin_ramo": False, "tope_rechazos": False, "tope_llamadas": False,
-                      "ilegibles": 0, "codigo_fuera": 0}
+                      "ilegibles": 0, "codigo_fuera": 0, "citas_fuera": 0}
         self.ultima = None          # {"codigo", "nombre", "periodo", "otros"}
 
     def anotar(self, de, para, tipo, contenido, llamada=None):
@@ -184,6 +184,7 @@ def correr_caso(modelo, caso, v, config, prompts=None):
                 break
             cv, ll = r.agente(A.verificador, prompts["verificador"], pregunta, elegido, nombre,
                               periodo, otros)
+            r.ramas["citas_fuera"] += cv["legible"] and not cv.get("cita_ramo_en_consulta")
             if cv["accion"] == "aceptar":
                 r.anotar("verificador", "T2", "agente", _publica(cv), ll)
                 aceptada = True

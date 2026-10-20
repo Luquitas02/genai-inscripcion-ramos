@@ -107,6 +107,13 @@ def llamar(modelo, mensajes):
     return texto, tokens, time.perf_counter() - t0
 
 
+def cita_en(cita, texto):
+    """True si la cita aparece en el texto, sin distinguir tildes, mayúsculas ni romanos."""
+    from herramientas import normalizar
+    c = normalizar(cita)
+    return bool(c) and c in normalizar(texto)
+
+
 def _lista(nombres):
     return "\n".join(f"- {n}" for n in nombres) if nombres else "(ninguna)"
 
@@ -211,8 +218,11 @@ def verificador(modelo, prompt, pregunta, codigo, nombre, periodo, otros):
         accion = {"accion": "rechazar", "problema": problema,
                   "motivo": _texto(d.get("motivo")) or "sin motivo", "legible": True}
     # La evidencia que copió antes de decidir queda en la traza, que es lo que muestra el video.
+    # Si la cita no está en la consulta, el Verificador copió la interpretación que revisaba
+    # (pasó en la v3). Se marca para medirlo; no cambia la acción.
     if d is not None:
         accion["cita_ramo"] = _texto(d.get("cita_ramo"))
         accion["cita_periodo"] = _texto(d.get("cita_periodo"))
+        accion["cita_ramo_en_consulta"] = cita_en(accion["cita_ramo"], pregunta)
     return accion, {"mensajes": mensajes, "crudo": crudo, "tokens": tokens,
                     "segundos": segundos, "prompt": prompt.ref()}

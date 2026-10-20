@@ -389,6 +389,18 @@ se apoya en una propiedad del generador. Ver "Decisiones tomadas en esta revisi�
 **19 oct 2026 — El Intérprete puede detenerse.** Sin la acción `sin_ramo`, en la primera
 pasada siempre entregaría y no tomaría ninguna decisión, que es lo que el enunciado excluye.
 
+**20 oct 2026 — v3 sacó 44/52; v4 es la última iteración, solo del Verificador.** La v3
+(commit `781ba32`) ganó 4 casos y no perdió ninguno: período 48/52 contra 41/52. De las 8
+fallas, 7 son las preguntas ambiguas y 1 es de período (caso 24): acierta 44 de los 45 casos
+con solución. El Verificador no rechazó ningún caso, y la traza muestra por qué: sus citas
+copiaban la interpretación que revisaba ("Gestión y Control de la Calidad", "proximo") en vez
+de la consulta ("gestión", "el que viene"). v4: las citas salen de la consulta con sus
+palabras exactas, y dos ejemplos (uno acepta, otro rechaza un ramo de contexto). El código
+marca `citas_fuera` cuando la cita no aparece en la consulta, sin cambiar la acción.
+**Regla escrita antes de correr la v4:** se queda la v4 solo si saca 44 o más en desarrollo y
+ninguno de sus rechazos convierte un acierto en error. Si no, se congela la v3. En los dos
+casos no hay más iteraciones de desarrollo.
+
 **20 oct 2026 — Prompts v3: citar antes de decidir.** La v2 sacó 40/52 (commit `8cd44ab`):
 ganó "PCP" (el Resolvedor buscó de nuevo por primera vez) e "ingeniería", y perdió dos casos
 porque el Verificador rechazó períodos correctos con un motivo de reglamento ("ya está tomando

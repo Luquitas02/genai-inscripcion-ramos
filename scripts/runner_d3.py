@@ -212,7 +212,8 @@ def resumen(salida):
     print(f"CONJUNTO {cuenta(lambda x: x['acierto_conjunto'])}/{n}")
     print("ramas activadas (casos):")
     for clave in ("rechazos_verificador", "busquedas_extra", "ninguno_resolvedor",
-                  "sin_ramo", "tope_rechazos", "tope_llamadas", "ilegibles", "codigo_fuera"):
+                  "sin_ramo", "tope_rechazos", "tope_llamadas", "ilegibles", "codigo_fuera",
+                  "citas_fuera"):
         print(f"  {clave:22} {cuenta(lambda x: x['ramas'][clave]):3}")
     print(f"llamadas por caso {sum(x['llamadas'] for x in filas) / n:.1f}   "
           f"tokens por caso {sum(x['tokens_total'] for x in filas) / n:,.0f}   "
@@ -341,6 +342,17 @@ def _pruebas():
     chequea("llaves sueltas antes del JSON: se saltan",
             A._extraer_json('uso {llaves} sueltas {"accion": "ninguno"}')[0],
             {"accion": "ninguno"})
+
+    # Citas del Verificador: se mide si salen de la consulta o de la interpretación (v3).
+    m, f, t = corre([A_OK, B_OK,
+                     '{"cita_ramo": "Programación", "cita_periodo": "este semestre", '
+                     '"accion": "aceptar"}'])
+    chequea("cita tomada de la consulta: no se marca", f["ramas"]["citas_fuera"], 0)
+    m, f, t = corre([A_OK, B_OK,
+                     '{"cita_ramo": "503203 Programación", "cita_periodo": "actual (2026-2)", '
+                     '"accion": "aceptar"}'])
+    chequea("cita copiada de la interpretación: se marca y no cambia la acción",
+            (f["ramas"]["citas_fuera"], f["aceptada"]), (1, True))
 
     # El corte de generación: se detiene solo cuando el primer JSON está cerrado.
     chequea("corte: JSON a medias no corta", json_completo('{"accion": "entre'), False)
