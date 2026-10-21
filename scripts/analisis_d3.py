@@ -11,6 +11,7 @@ Lee los `.raw.jsonl` de `resultados/` y no llama a ningún modelo. Imprime:
   5. extracción: ramo, período y recall@5 de T1
   6. ramas activadas, llamadas, tokens y segundos
   7. caso de falla y casos del video, con las reglas del protocolo
+  8. acierto de ramo y período por mecanismo, D2 contra agentes (originales y nuevos sin ambiguos)
 
     python analisis_d3.py
 """
@@ -226,6 +227,35 @@ def main():
         print(f"  {nombre:20} {conj} caso {i}{extra}: \"{x['pregunta']}\"")
         print(f"  {'':20} esperado {x['ramo_objetivo']['nombre']} {x['esperado']} → "
               f"{x['extraccion']} {x['prediccion']['decision']}/{x['prediccion']['regla']}")
+
+    print()
+    print("=" * 96)
+    print("8 · POR MECANISMO (originales y nuevos sin ambiguos, misma clasificación que diagnostico_d3)")
+    print("=" * 96)
+    # "nombre exacto" y "abreviado o coloquial" reparten los casos. "nombra otro ramo antes"
+    # (M2) es un subconjunto que cruza a ambas.
+    t = {}
+    for _, conj in CONJUNTOS[:2]:
+        casos = [json.loads(l) for l in open(RAIZ / "datos" / f"{conj}.jsonl", encoding="utf-8")]
+        d2, ag = cargar("d2", conj), cargar("completo", conj)
+        for i, c in enumerate(casos):
+            ref = D.mencion_consultada(c["pregunta_prosa"]) or ""
+            if D.es_ambigua(ref):
+                continue
+            obj = c["ramo_objetivo"]["codigo"]
+            clases = ["exacto (M1)" if D.norm(ref) == D.NOMBRES_NORM[obj] else "abreviado o coloquial"]
+            if any(m in c["pregunta_prosa"].lower() for m in D.MARCAS_MENCION):
+                clases.append("de ellos, otro ramo antes (M2)")
+            p1 = d2[str(i)]["paso1"]
+            for clase in clases:
+                n, a, b = t.get(clase, (0, 0, 0))
+                t[clase] = (n + 1, a + p1["acierto_ramo"], b + ag[str(i)]["acierto_ramo"])
+            n, a, b = t.get("período (M3)", (0, 0, 0))
+            t["período (M3)"] = (n + 1, a + p1["acierto_periodo"], b + ag[str(i)]["acierto_periodo"])
+    print(f"  {'':32}{'casos':>6}{'D2':>6}{'agentes':>9}")
+    for clase in ("exacto (M1)", "abreviado o coloquial", "de ellos, otro ramo antes (M2)", "período (M3)"):
+        n, a, b = t[clase]
+        print(f"  {clase:32}{n:6}{a:6}{b:9}")
     return 0
 
 

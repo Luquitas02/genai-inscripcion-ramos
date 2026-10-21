@@ -100,30 +100,33 @@ ramo de contexto se cursa \q ahora\q.\par}
 
 \node[caja,fill=fondo] (q) {pregunta en prosa};
 \node[agente,below=of q] (a) {\textbf{A · Intérprete}\\ lee la pregunta, no ve catálogo};
-\node[herr,below=of a] (t1) {\textbf{T1 · buscar\_ramo}\\ código, sin modelo};
+\node[herr,below=7mm of a] (t1) {\textbf{T1 · buscar\_ramo}\\ código, sin modelo};
 \node[agente,below=of t1] (b) {\textbf{B · Resolvedor}\\ elige entre 5 candidatos};
 \node[agente,below=of b] (c) {\textbf{C · Verificador}\\ contrasta con la pregunta};
 \node[herr,below=of c] (t2) {\textbf{T2 · motor de reglas}\\ el código del D2};
-\node[caja,fill=fondo,below=of t2] (out) {\textbf{fin} · decisión y regla};
-\node[caja,draw=gris,dashed,text width=12mm,right=7mm of a] (fin) {\textbf{fin} sin ramo};
+\node[caja,fill=fondo,below=of t2] (out) {\textbf{fin} · respuesta};
+\node[caja,draw=gris,dashed,text width=12mm,right=9mm of a] (fin) {\textbf{fin} sin ramo};
 
-\draw[fl] (q) -- (a);
-\draw[fl] (a) -- node[right,et]{consultado, otros,\\ frase y período} (t1);
+\draw[fl] (q) -- node[right,et]{texto} (a);
+\draw[fl] (a) -- node[right,et]{busca: consultado (otros y\\ período siguen a B, C y T2)} (t1);
 \draw[fl] (t1) -- node[right,et]{5 candidatos\\ con puntaje} (b);
 \draw[fl] (b) -- node[right,et]{elige: código} (c);
 \draw[fl] (c) -- node[right,et]{acepta: código, período} (t2);
-\draw[fl] (t2) -- (out);
+\draw[fl] (t2) -- node[right,et]{decisión y regla} (out);
 \draw[fl,dashed] (a) -- node[above,et]{sin\_ramo} (fin);
 % bucle del Resolvedor con T1
 \draw[fl] (b.east) -- ++(4.5mm,0) |- node[pos=0.25,right,et]{busca de nuevo,\\ nueva consulta\\ (máx. 2)} (t1.east);
+% tope: el caso sigue con la última elección
+\draw[fl,dashed] (c.east) -- ++(4.5mm,0) |- node[pos=0.25,right,et]{tope (3.er rechazo\\ o 12 llamadas):\\ última elección} (t2.east);
 % rechazo del Verificador al Intérprete
-\draw[fl] (c.west) -- ++(-15mm,0) |- node[pos=0.3,left,et,align=right]{rechaza:\\ problema\\ y motivo\\ (máx. 2)} (a.west);
+\draw[fl] (c.west) -- ++(-15mm,0) |- node[pos=0.3,left,et,align=right]{rechaza:\\ problema\\ y motivo;\\ vuelve\\ máx. 2} (a.west);
 \draw[fl] (b.west) -- ++(-3mm,0) |- node[pos=0.25,left,et,align=right]{ninguno:\\ motivo} ($(a.west)+(0,-1.2mm)$);
 \end{tikzpicture}
 \end{center}
 
 {\footnotesize\color{gris} Borde naranjo, agentes, cada uno con su archivo en \cod{prompts/}.
-Borde verde, herramientas. Tope de 12 llamadas por caso. Al llegar a un tope se usa la última elección.\par}
+Borde verde, herramientas. Las vueltas al Intérprete, por rechazo o por \cod{ninguno}, suman
+máx. 2. Tope de 12 llamadas por caso. Al llegar a un tope se usa la última elección.\par}
 
 \vspace{0.6mm}
 {\footnotesize Una traza real (nuevos, caso 49), con las salidas de cada agente:\par}
@@ -145,8 +148,8 @@ T2 condicional · R-DEPENDE-APROBACION (correcta)}}\par}
 \toprule
 agente & recibe y devuelve & decide \\
 \midrule
-Intérprete & la pregunta $\to$ ramo consultado con las palabras del estudiante, los otros ramos, la frase que dice cuándo y el período & entregar o \cod{sin\_ramo}. Ante un rechazo, revisa su respuesta \\
-Resolvedor & la mención y 5 candidatos de T1 $\to$ un código & elegir, buscar de nuevo con otra consulta o \cod{ninguno} \\
+Intérprete & la pregunta $\to$ ramo consultado con las palabras del estudiante, los otros ramos, la frase que dice cuándo y el período & entregar o \cod{sin\_ramo}. Ante un rechazo, revisa su respuesta. No usa herramientas \\
+Resolvedor & la mención y 5 candidatos de T1 $\to$ un código & elegir, llamar a T1 con otra consulta o \cod{ninguno} \\
 Verificador & la pregunta y la elección $\to$ citas de la pregunta y su veredicto & aceptar y llamar a T2, o rechazar con motivo \\
 \bottomrule
 \end{tabular}\par}
@@ -192,8 +195,8 @@ no dependen de la plantilla. Por mecanismo, en originales y nuevos sin ambiguos:
 acierta el ramo, cuando la pregunta... & casos & D2 & agentes \\
 \midrule
 trae el nombre exacto (M1)            & 69 & 44 & \textbf{67} \\
-nombra otro ramo antes (M2)           & 35 &  7 & \textbf{34} \\
 lo abrevia o dice coloquial           & 36 & 19 & \textbf{33} \\
+\quad de ambos, nombra otro ramo antes (M2) & 35 &  7 & \textbf{34} \\
 \midrule
 acierta el período (M3)               & 105 & 90 & \textbf{98} \\
 \bottomrule
@@ -267,8 +270,8 @@ Tres casos elegidos por la regla del protocolo, corridos en vivo en la T4 con
 \cod{demo\_d3\_colab.ipynb}, que compara cada mensaje con la traza guardada en \cod{trazas/}.
 \q ¿todavía se puede meter progra este semestre?\q\ pasa por los tres agentes sin bucles. En
 \q ¿me dejan inscribir inglés básico 1 ahora en el segundo semestre?\q\ el Verificador rechaza
-el período tres veces, con razón, pero el Intérprete no lo corrige y el tope cierra el caso.
-La decisión coincide igual. El tercero es el caso de falla. El README explica cómo reproducir cada corrida.\par}
+el período tres veces, con razón. El Intérprete no lo corrige en sus dos vueltas y el tercer
+rechazo activa el tope. La decisión y la regla salen correctas igual. El tercero es el caso de falla. El README explica cómo reproducir cada corrida.\par}
 
 \end{multicols}
 \end{document}
