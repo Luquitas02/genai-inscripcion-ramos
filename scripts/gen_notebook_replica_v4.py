@@ -18,7 +18,7 @@ BASE = Path(__file__).resolve().parent.parent
 SALIDA = BASE / "replica_v4_colab.ipynb"
 REPO = "https://github.com/Luquitas02/genai-inscripcion-ramos"
 # El commit que sube PROTOCOLO_REPLICA_V4.md. Se escribe acá en un commit aparte, después.
-COMMIT = ""
+COMMIT = "5b5c5d5"
 
 
 def md(texto):
