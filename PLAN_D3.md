@@ -560,8 +560,8 @@ Borrador del correo:
 
 **22 oct 2026 — La v5 no se acepta; diseño de la v5b, regla ajustada y respaldo, antes de
 correrla.** La v5 (commit `f966d79`) sacó en los 223 de desarrollo 186 conjunto y 178
-estricto, contra 196 y 180 de la v4 (`aceptacion_v5.py`; resultados en `resultados/v5/` y
-`trazas/v5/`). La regla no se cumple. Diagnóstico caso por caso, comparando con las trazas de
+estricto, contra 196 y 180 de la v4 (`aceptacion_v5.py`; resultados en `resultados/v5/v5_desarrollo/` y
+`trazas/v5/v5_desarrollo/`). La regla no se cumple. Diagnóstico caso por caso, comparando con las trazas de
 la v4:
 
 | Pieza de la v5 | Arregló | Rompió | Casos |

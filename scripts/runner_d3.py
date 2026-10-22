@@ -272,7 +272,7 @@ def _pruebas():
             all(x.get("prompt", {}).get("hash") and x.get("crudo") for x in t
                 if x["tipo"] == "agente"), True)
     chequea("la fila dice la versión y el primer candidato de T1",
-            (f["version"], f["t1_top1_inicial"], f["t1_recall5"]), ("v5", "503203", True))
+            (f["version"], f["t1_top1_inicial"], f["t1_recall5"]), ("v5b", "503203", True))
     chequea("T1 marca la coincidencia exacta en lo que ve el Resolvedor",
             "503203  Programación  (1.50)  COINCIDENCIA EXACTA" in m.llamadas[1][1]["content"], True)
     chequea("el Verificador ve el semestre en palabras, no la etiqueta",
@@ -343,35 +343,23 @@ def _pruebas():
     chequea("corregir_periodo sin período legible cuenta como aceptar",
             (f["ramas"]["correcciones_periodo"], f["aceptada"]), (0, True))
 
-    # --- revisión de citas
-    m, f, t = corre([A_OK, B_OK, C_FUERA, C_OK])
-    chequea("cita fuera de la consulta: el Verificador revisa su salida una vez",
-            (len(m.llamadas), f["ramas"]["revision_citas"], f["ramas"]["cita_periodo_fuera"],
-             f["ramas"]["citas_fuera_tras_revision"]), (4, 1, 1, 0))
-    chequea("la revisión le muestra su respuesta y qué cita no está",
-            ("REVISIÓN DE TU RESPUESTA ANTERIOR" in m.llamadas[3][1]["content"],
-             "cita_periodo no aparece" in m.llamadas[3][1]["content"]), (True, True))
-    chequea("la revisión queda en la traza como mensaje del Verificador a sí mismo",
-            ("verificador", "verificador") in recorrido(t), True)
-    m, f, t = corre([A_OK, B_OK, C_FUERA, C_FUERA])
-    chequea("la revisión es una sola: si la cita sigue fuera, sigue con esa salida",
-            (len(m.llamadas), f["ramas"]["citas_fuera_tras_revision"], f["aceptada"]), (4, 1, True))
+    # --- citas: se miden y no se revisan (v5b)
+    m, f, t = corre([A_OK, B_OK, C_FUERA])
+    chequea("cita fuera de la consulta: se cuenta y no hay revisión (v5b)",
+            (len(m.llamadas), f["ramas"]["cita_periodo_fuera"], f["aceptada"],
+             ("verificador", "verificador") in recorrido(t)), (3, 1, True, False))
+    chequea("las ramas ya no tienen contadores de revisión",
+            any("revision" in k for k in f["ramas"]), False)
     m, f, t = corre([A_OK, B_OK, '{"cita_ramo": "Programación", "cita_periodo": "", '
                      '"accion": "aceptar"}'])
-    chequea("cita de período vacía: no se revisa", (len(m.llamadas), f["ramas"]["revision_citas"]),
-            (3, 0))
+    chequea("cita de período vacía: no se cuenta como fuera",
+            (len(m.llamadas), f["ramas"]["cita_periodo_fuera"]), (3, 0))
 
     # --- fallas que encontró la revisión del código del 22 de octubre
-    C_CORR_FUERA = ('{"cita_ramo": "Programación", "cita_periodo": "2027-1", '
-                    '"accion": "corregir_periodo", "periodo": "proximo", "motivo": "x"}')
-    REV_CLAVE_INTERNA = ('{"cita_ramo": "Programación", "cita_periodo": "este semestre", '
-                         '"accion": "corregir_periodo", "periodo_corregido": "proximo", "motivo": "x"}')
-    m, f, t = corre([A_OK, B_OK, C_CORR_FUERA, REV_CLAVE_INTERNA])
-    chequea("revisión de citas: la corrección de período no se pierde si copia la clave interna",
+    m, f, t = corre([A_OK, B_OK, '{' + CITAS + '"accion": "corregir_periodo", '
+                     '"periodo_corregido": "proximo", "motivo": "x"}'])
+    chequea("corregir_periodo con la clave interna 'periodo_corregido' también se lee",
             (f["extraccion"]["periodo"], f["ramas"]["correcciones_periodo"]), ("proximo", 1))
-    chequea("revisión de citas: le muestra la clave 'periodo' del esquema, no la interna",
-            ('"periodo": "proximo"' in m.llamadas[3][1]["content"],
-             "periodo_corregido" in m.llamadas[3][1]["content"]), (True, False))
     m, f, t = corre([A_OK, B_OTRO, '{' + CITAS + '"accion": "rechazar", "problema": "código", '
                      '"motivo": "No es Simulación."}', B_OK, C_OK])
     chequea("'código' con tilde va al Resolvedor",
@@ -382,20 +370,17 @@ def _pruebas():
     chequea("sin lista de otros: el Resolvedor y el Verificador reciben 'ninguna' aunque el modelo la escriba",
             ("Álgebra I" in m.llamadas[1][1]["content"], "Álgebra I" in m.llamadas[2][1]["content"]),
             (False, False))
-    m, f, t = corre([A_OK, B_OK, C_CORR_FUERA, "no sé"])
-    chequea("revisión ilegible: vale la primera salida",
-            (f["extraccion"]["periodo"], f["ramas"]["correcciones_periodo"], f["ramas"]["ilegibles"]),
-            ("proximo", 1, 1))
     m, f, t = corre([A_MAL, B_MAL, '{"cita_ramo": "x", "accion": "rechazar", "problema": "mencion", '
-                     '"motivo": "otro"}', C_MEN, A_OK, B_OK, C_FUERA, C_OK])
-    chequea("la revisión de citas es una sola por caso, aunque haya dos vueltas",
-            (f["ramas"]["revision_citas"], len(m.llamadas)), (1, 7))
+                     '"motivo": "otro"}', A_OK, B_OK, C_OK])
     chequea("la fila guarda lo que vio el Verificador la primera vez",
             f["primera_verificada"], {"codigo": "525140", "periodo": "actual"})
-    m, f, t = corre([A_OK, B_BUSCA, B_BUSCA, B_OK, C_MEN, A_OK, B_BUSCA, B_OK, C_MEN,
-                     A_OK, B_OK, C_FUERA])     # el Verificador cita fuera en la llamada 12
-    chequea("sin llamadas disponibles no se revisa: vale la primera salida",
-            (len(m.llamadas), f["ramas"]["revision_citas"], f["aceptada"]), (12, 0, True))
+
+    # --- los prompts de la v5b
+    chequea("el Intérprete volvió a los ejemplos de la v4",
+            "oye, química general 1 la reprobé" in m.llamadas[0][0]["content"], True)
+    chequea("el Verificador corrige solo por las palabras de esa asignatura y sabe que 2 es II",
+            ("no corrijas ni rechaces por eso" in m.llamadas[2][0]["content"],
+             '"2", "II" y "dos" son lo mismo' in m.llamadas[2][0]["content"]), (True, True))
     from agentes import cita_en
     chequea("las citas se comparan por palabras completas",
             (cita_en("actual", "actualmente estoy"), cita_en("ya", "en la playa"),
@@ -435,10 +420,9 @@ def _pruebas():
     chequea("sin herramienta: el rechazo por código también le llega al Resolvedor",
             ("RECHAZO DEL VERIFICADOR" in m.llamadas[3][1]["content"], f["acierto_conjunto"]),
             (True, True))
-    m, f, t = corre([A_OK, B_OK, C_FUERA], "sin_citas_verificador")
-    chequea("sin citas del Verificador: no pide citas ni revisa",
-            ("cita_ramo" in m.llamadas[2][0]["content"], len(m.llamadas), f["ramas"]["revision_citas"]),
-            (False, 3, 0))
+    m, f, t = corre([A_OK, B_OK, '{"accion": "aceptar"}'], "sin_citas_verificador")
+    chequea("sin citas del Verificador: no pide citas",
+            ("cita_ramo" in m.llamadas[2][0]["content"], len(m.llamadas)), (False, 3))
 
     sistemas = {}
     for config in O.CONFIGURACIONES:

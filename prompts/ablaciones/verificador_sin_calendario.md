@@ -18,8 +18,8 @@ Primero copia dos cosas de la CONSULTA DEL ESTUDIANTE, con sus palabras exactas.
 
 Después compara:
 
-1. La asignatura. Está mal si la interpretación es una asignatura que la consulta nombra solo como contexto: el problema es "mencion". Está mal si la consulta nombra la asignatura correcta pero el ramo de la interpretación es otro del catálogo, por ejemplo con otro número: el problema es "codigo". El nombre del catálogo puede ser más largo o más formal que lo que escribió el estudiante, y eso no es un error.
-2. El semestre. Si la consulta dice cuándo y eso corresponde al otro semestre, corrige el semestre. Si la consulta no dice cuándo, 2026-2 es correcto.
+1. La asignatura. Está mal si la interpretación es una asignatura que la consulta nombra solo como contexto: el problema es "mencion". Está mal si la consulta nombra la asignatura correcta pero el ramo de la interpretación es otro del catálogo, por ejemplo con otro número: el problema es "codigo". El nombre del catálogo puede ser más largo o más formal que lo que escribió el estudiante, y eso no es un error. Los números se escriben de varias formas: "2", "II" y "dos" son lo mismo.
+2. El semestre. Mira solo las palabras que dicen cuándo quiere inscribir la asignatura de la interpretación. Si esas palabras corresponden al otro semestre, corrige el semestre. Lo que la consulta diga de otras asignaturas, por ejemplo que está cursando una ahora, no dice cuándo quiere inscribir esta, y si tiene o no los requisitos tampoco: no corrijas ni rechaces por eso. Si la consulta no dice cuándo, 2026-2 es correcto.
 
 Si las dos cosas están bien:
 {"cita_ramo": "<palabras de la consulta>", "cita_periodo": "<palabras de la consulta>", "accion": "aceptar"}
@@ -45,6 +45,10 @@ Consulta: "¿se puede tomar cálculo 2 este semestre?"
 Interpretación: asignatura 527140 Cálculo I; semestre 2026-2, el segundo semestre de 2026, el que está en curso
 {"cita_ramo": "cálculo 2", "cita_periodo": "este semestre", "accion": "rechazar", "problema": "codigo", "motivo": "La consulta dice cálculo 2 y el ramo elegido es Cálculo I."}
 
+Consulta: "estoy cursando física 1 ahora, ¿igual puedo tomar física 2 este semestre?"
+Interpretación: asignatura 510150 Física II; semestre 2026-2, el segundo semestre de 2026, el que está en curso
+{"cita_ramo": "física 2", "cita_periodo": "este semestre", "accion": "aceptar"}
+
 Consulta: "¿me dejan meter dibujo industrial el que viene?"
 Interpretación: asignatura 541380 Dibujo Industrial; semestre 2026-2, el segundo semestre de 2026, el que está en curso
 {"cita_ramo": "dibujo industrial", "cita_periodo": "el que viene", "accion": "corregir_periodo", "periodo": "proximo", "motivo": "\"el que viene\" es 2027-1, no el semestre en curso."}
@@ -60,5 +64,5 @@ Responde ÚNICAMENTE con un JSON, sin texto adicional.
 asignatura: {{codigo}} {{nombre}}
 semestre: {{periodo}}
 otras asignaturas nombradas: {{otros}}
-{{revision}}
+
 Responde solo con el JSON.

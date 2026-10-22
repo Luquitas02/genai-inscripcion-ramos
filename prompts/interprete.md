@@ -1,9 +1,10 @@
-<!-- agente: intérprete · versión 4 · 22 oct 2026 (sistema v5)
+<!-- agente: intérprete · versión 5 · 22 oct 2026 (sistema v5b)
      v2: regla del período del ramo consultado y un ejemplo con el ramo de contexto en curso
      v3: copia la frase que dice cuándo (frase_periodo) antes de decidir el período
-     v4: los ejemplos se reescriben fuera de la estructura de las plantillas del generador,
-         con los mismos ramos, períodos y salidas. El calendario no está acá: lo tiene el
-         Verificador.
+     v4: ejemplos reescritos fuera de la estructura de las plantillas (sistema v5)
+     v5: vuelve a los ejemplos de la v3. En desarrollo la reescritura empeoró la lectura del
+         período en 5 casos y de la mención en 1, y mejoró 2 (PLAN_D3.md, 22 oct). El primer
+         ejemplo se parece a las plantillas del generador; se declara.
      Lo carga scripts/agentes.py. Las marcas {{...}} las reemplaza el código.
      El bloque entre las marcas de ejemplos se quita en la ablación sin few-shot.
      Las ablaciones sin_lista_otros, sin_regla_verbo y sin_citas_interprete son copias de
@@ -38,16 +39,16 @@ Responde ÚNICAMENTE con un JSON, sin texto adicional:
 <!-- ejemplos -->
 Ejemplos:
 
-Consulta: "me fue mal en química general 1 y la tengo que repetir, pero quería ver si química 2 la puedo tomar este semestre igual"
+Consulta: "oye, química general 1 la reprobé, ¿igual puedo meter química 2 este semestre?"
 {"accion": "entregar", "consultado": "química 2", "otros": ["química general 1"], "frase_periodo": "este semestre", "periodo": "actual"}
 
-Consulta: "todavía voy en física 1, ¿me deja el sistema inscribir física 2 en marzo?"
+Consulta: "¿me puedo inscribir física 2 en marzo? todavía voy en física 1"
 {"accion": "entregar", "consultado": "física 2", "otros": ["física 1"], "frase_periodo": "en marzo", "periodo": "proximo"}
 
-Consulta: "ahora estoy con cálculo 1 y después del verano quiero cálculo 2, ¿hay problema?"
+Consulta: "estoy con cálculo 1 ahora, ¿podré tomar cálculo 2 después del verano?"
 {"accion": "entregar", "consultado": "cálculo 2", "otros": ["cálculo 1"], "frase_periodo": "después del verano", "periodo": "proximo"}
 
-Consulta: "necesito dibujo industrial ya, ¿todavía se puede inscribir?"
+Consulta: "una consulta, quiero tomar dibujo industrial ya, ¿se puede?"
 {"accion": "entregar", "consultado": "dibujo industrial", "otros": [], "frase_periodo": "ya", "periodo": "actual"}
 <!-- /ejemplos -->
 

@@ -81,11 +81,12 @@ ABLACIONES = {
         ('"otros": ["<asignatura>"], "frase_periodo": "<palabras>", ', '"otros": ["<asignatura>"], '),
     ] + SIN_CITAS_EJEMPLOS),
     "verificador_sin_citas.md": ("verificador.md", "sin_citas_verificador",
-        "no copia citas de la consulta antes de comparar, y no hay revisión de citas", [
+        "no copia citas de la consulta antes de comparar", [
         (_bloque("citas"), ""),
         ("Después compara:", "Compara:"),
         ('{"cita_ramo": "<palabras de la consulta>", "cita_periodo": "<palabras de la consulta>", ', "{"),
         ('{"cita_ramo": "física 2", "cita_periodo": "en marzo", ', "{"),
+        ('{"cita_ramo": "física 2", "cita_periodo": "este semestre", ', "{"),
         ('{"cita_ramo": "química 2", "cita_periodo": "este semestre", ', "{"),
         ('{"cita_ramo": "cálculo 2", "cita_periodo": "este semestre", ', "{"),
         ('{"cita_ramo": "dibujo industrial", "cita_periodo": "el que viene", ', "{"),
@@ -94,6 +95,17 @@ ABLACIONES = {
         "no trae el calendario académico; todo lo demás igual, incluida la acción corregir_periodo", [
         (_bloque("calendario"), ""),
     ]),
+}
+
+
+# Lo que no puede quedar en el cuerpo de cada ablación. Si un ejemplo nuevo del prompt completo
+# trae algo que los reemplazos no cubren, el script falla en vez de generar una ablación a medias.
+NO_DEBE_QUEDAR = {
+    "interprete_sin_lista_otros.md": ['"otros"'],
+    "interprete_sin_regla_verbo.md": ["acompaña al verbo"],
+    "interprete_sin_citas.md": ["frase_periodo"],
+    "verificador_sin_citas.md": ["cita_ramo", "cita_periodo"],
+    "verificador_sin_calendario.md": ["Calendario académico"],
 }
 
 
@@ -116,6 +128,9 @@ def generar(nombre):
             if n > 1 and viejo.count('"<asignatura>"') + viejo.count("cita_ramo") == 0:
                 raise ValueError(f"{nombre}: {viejo[:60]!r} aparece {n} veces")
             cuerpo = cuerpo.replace(viejo, nuevo)
+    for resto in NO_DEBE_QUEDAR[nombre]:
+        if resto in cuerpo:
+            raise ValueError(f"{nombre}: todavía aparece {resto!r}; falta un reemplazo")
     cabecera = (f"<!-- ABLACIÓN {config} · generada por scripts/gen_ablaciones_v5.py desde "
                 f"prompts/{origen}\n     Igual al prompt completo salvo lo que se quita: {que}. "
                 f"No editar a mano. -->\n")

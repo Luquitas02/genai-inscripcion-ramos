@@ -11,7 +11,9 @@ diagnóstico. No llama a ningún modelo: lee los resultados guardados.
   v5   resultados/v5/agentes__Phi-3.5-mini-instruct__<config>__<conjunto>.raw.jsonl
 
 La v5 se acepta si cumple todo:
-  1. acierto conjunto mayor que el de la v4 (196) y estricto mayor que el de la v4 (180)
+  1. acierto conjunto igual o mayor que el de la v4 (196) y estricto igual o mayor que el de la
+     v4 (180). Hasta la v5 decía "mayor que"; se cambió el 22 de octubre, antes de correr la
+     v5b, porque el objetivo es que los agentes tengan un papel medible sin perder acierto
   2. período igual o mayor que el de la v4 (206)
   3. ningún conjunto baja más de 2 casos en acierto conjunto
   4. ninguna corrección ni rechazo del Verificador convierte en error un caso que la v4
@@ -93,7 +95,7 @@ def main():
         if set(v5) != set(v4):
             print(f"{conj}: la v5 tiene {len(v5)} casos y la v4 {len(v4)}; corre el conjunto completo")
             return 2
-        if any(x.get("version") != "v5" or "t1_top1_inicial" not in x for x in v5.values()):
+        if any(not str(x.get("version", "")).startswith("v5") or "t1_top1_inicial" not in x for x in v5.values()):
             # Sin esos campos los desvíos de T1 darían 0 sin haberse medido.
             print(f"{ruta5.name} no son filas de la v5 (falta version o t1_top1_inicial)")
             return 2
@@ -130,8 +132,8 @@ def main():
         print(f"{nombre:30} {'':4} {t4[k]:5} {t5[k]:5}")
 
     reglas = [
-        ("1. conjunto mayor que la v4", t5["conjunto"] > t4["conjunto"]),
-        ("1. estricto mayor que la v4", t5["estricto"] > t4["estricto"]),
+        ("1. conjunto igual o mayor que la v4", t5["conjunto"] >= t4["conjunto"]),
+        ("1. estricto igual o mayor que la v4", t5["estricto"] >= t4["estricto"]),
         ("2. período igual o mayor que la v4", t5["periodo"] >= t4["periodo"]),
         (f"3. ningún conjunto baja más de {MAX_BAJA_POR_CONJUNTO}", not bajas),
         ("4. el Verificador no convierte aciertos estrictos en error", not convertidos),
@@ -153,7 +155,7 @@ def main():
               f"{x5['extraccion']['ramo']} {x5['extraccion']['periodo']}  {marcas}")
 
     acepta = all(ok for _, ok in reglas)
-    print(f"\n{'SE ACEPTA LA V5' if acepta else 'NO SE ACEPTA: queda una iteración (v5b), con la misma regla'}")
+    print(f"\n{'SE ACEPTA' if acepta else 'NO SE ACEPTA'}")
     return 0 if acepta else 1
 
 

@@ -228,25 +228,7 @@ def resolvedor(modelo, prompt, consultado, otros, candidatos, busquedas_hechas, 
 
 # --------------------------------------------------------------- C. Verificador
 
-def bloque_revision_citas(salida, fuera):
-    """La observación con que el Verificador revisa su propia salida (v5): sus citas tienen que
-    salir de la consulta. `fuera` son los nombres de las citas que no aparecen en ella."""
-    # Con las claves del esquema del prompt: "periodo", no la clave interna "periodo_corregido".
-    # Si el modelo copia su respuesta anterior, tiene que poder leerse igual.
-    previa = {k: salida[k] for k in ("cita_ramo", "cita_periodo", "accion", "problema")
-              if salida.get(k)}
-    if salida.get("periodo_corregido"):
-        previa["periodo"] = salida["periodo_corregido"]
-    if salida.get("motivo"):
-        previa["motivo"] = salida["motivo"]
-    return ("\n=== REVISIÓN DE TU RESPUESTA ANTERIOR ===\n"
-            f"Tu respuesta: {json.dumps(previa, ensure_ascii=False)}\n"
-            f"{' y '.join(fuera)} no aparece en la consulta. Las citas tienen que ser palabras "
-            "copiadas de la CONSULTA DEL ESTUDIANTE, no de la interpretación. Vuelve a "
-            "copiarlas de la consulta y decide de nuevo.\n")
-
-
-def verificador(modelo, prompt, pregunta, codigo, nombre, periodo, otros, revision=""):
+def verificador(modelo, prompt, pregunta, codigo, nombre, periodo, otros):
     """Devuelve (accion, llamada).
 
     Acciones: `aceptar`, `corregir_periodo` (con `periodo_corregido`) o `rechazar` (con
@@ -255,8 +237,7 @@ def verificador(modelo, prompt, pregunta, codigo, nombre, periodo, otros, revisi
     legible, o con el mismo período, cuenta como `aceptar`.
     """
     mensajes = prompt.mensajes(pregunta=pregunta, codigo=codigo, nombre=nombre,
-                               periodo=PERIODO_TXT[periodo], otros=", ".join(otros) or "ninguna",
-                               revision=revision)
+                               periodo=PERIODO_TXT[periodo], otros=", ".join(otros) or "ninguna")
     crudo, tokens, segundos = llamar(modelo, mensajes)
     d, _ = _extraer_json(crudo)
 
@@ -275,7 +256,7 @@ def verificador(modelo, prompt, pregunta, codigo, nombre, periodo, otros, revisi
                       "motivo": _texto(d.get("motivo")) or "sin motivo", "legible": True}
     # La evidencia que copió antes de decidir queda en la traza, que es lo que muestra el video.
     # Si una cita no está en la consulta, el Verificador copió la interpretación que revisaba.
-    # El orquestador le devuelve la salida una vez para que la revise (v5).
+    # Se mide; no cambia la acción (en la v5 se le pedía revisarla, y la v5b lo quita).
     if d is not None and ("cita_ramo" in d or "cita_periodo" in d):
         accion["cita_ramo"] = _texto(d.get("cita_ramo"))
         accion["cita_periodo"] = _texto(d.get("cita_periodo"))

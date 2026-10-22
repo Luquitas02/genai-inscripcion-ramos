@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-El orquestador del sistema de agentes — Deliverable 3, versión 5.
+El orquestador del sistema de agentes — Deliverable 3, versión 5b.
 
 Es código y no decide nada: ejecuta la acción que escribió cada agente y aplica los topes.
 
@@ -12,10 +12,6 @@ Es código y no decide nada: ejecuta la acción que escribió cada agente y apli
                         +-------- rechazar: mencion | <---- rechazar: codigo ---+
                                   (vuelve al Intérprete)   (vuelve al Resolvedor)
 
-    Si una cita del Verificador no aparece en la consulta, el Verificador recibe su propia
-    salida y la revisa, una sola vez por caso. Si esa revisión no se puede hacer (tope de
-    llamadas) o sale ilegible, vale su primera salida.
-
 Topes, para que ningún bucle sea infinito:
   MAX_RECHAZOS    vueltas por rechazo del Verificador (al Intérprete o al Resolvedor) o por
                   `ninguno` del Resolvedor. Al pasarlo se usa la última elección.
@@ -24,7 +20,9 @@ Topes, para que ningún bucle sea infinito:
 
 Qué cambió respecto de la v4 (diseño en PLAN_D3.md, "Versión 5"): el rechazo por el código va
 al Resolvedor y no al Intérprete, el Resolvedor puede mantener su elección, el Verificador
-puede corregir el período y revisa sus citas, y las ablaciones quitan una sola cosa.
+puede corregir el período, y las ablaciones quitan una sola cosa. La v5 además hacía que el
+Verificador revisara sus citas cuando no salían de la consulta; en desarrollo eso arregló 4
+casos y rompió 9, y la v5b lo quita (PLAN_D3.md, 22 oct). Las citas se siguen midiendo.
 
 Cada mensaje entre agentes y herramientas queda en la traza, en orden. La traza de un caso es
 lo que muestra el video.
@@ -33,14 +31,14 @@ lo que muestra el video.
 import agentes as A
 from herramientas import buscar_ramo, motor_de_reglas, CATALOGO
 
-VERSION = "v5"
+VERSION = "v5b"
 MAX_RECHAZOS = 2
 MAX_BUSQUEDAS = 2
 MAX_LLAMADAS = 12
 
 # Cada configuración es el sistema completo con una sola cosa quitada (ver PLAN_D3.md).
 _COMPLETO = {"interprete": "interprete.md", "ejemplos": True, "resolvedor": "agente",
-             "verificador": "verificador.md", "revisar_citas": True, "otros": True}
+             "verificador": "verificador.md", "otros": True}
 CONFIGURACIONES = {
     "completo":              dict(_COMPLETO),
     "sin_herramienta":       dict(_COMPLETO, resolvedor="catalogo"),
@@ -50,10 +48,9 @@ CONFIGURACIONES = {
                                   otros=False),
     "sin_regla_verbo":       dict(_COMPLETO, interprete="ablaciones/interprete_sin_regla_verbo.md"),
     "sin_citas_interprete":  dict(_COMPLETO, interprete="ablaciones/interprete_sin_citas.md"),
-    "sin_citas_verificador": dict(_COMPLETO, verificador="ablaciones/verificador_sin_citas.md",
-                                  revisar_citas=False),
+    "sin_citas_verificador": dict(_COMPLETO, verificador="ablaciones/verificador_sin_citas.md"),
     "sin_calendario":        dict(_COMPLETO, verificador="ablaciones/verificador_sin_calendario.md"),
-    "sin_verificador":       dict(_COMPLETO, verificador=None, revisar_citas=False),
+    "sin_verificador":       dict(_COMPLETO, verificador=None),
     "top1":                  dict(_COMPLETO, resolvedor="top1"),
 }
 
@@ -84,10 +81,10 @@ class Corrida:
         self.tokens = 0
         self.segundos = 0.0
         self.ramas = {"rechazos_mencion": 0, "rechazos_codigo": 0, "correcciones_periodo": 0,
-                      "mantener": 0, "revision_citas": 0, "ninguno_resolvedor": 0,
+                      "mantener": 0, "ninguno_resolvedor": 0,
                       "busquedas_extra": 0, "sin_ramo": False, "tope_rechazos": False,
                       "tope_llamadas": False, "ilegibles": 0, "codigo_fuera": 0,
-                      "citas_fuera": 0, "cita_periodo_fuera": 0, "citas_fuera_tras_revision": 0}
+                      "citas_fuera": 0, "cita_periodo_fuera": 0}
         self.ultima = None          # {"codigo", "nombre", "periodo", "otros"}
         self.primera_verificada = None   # lo que vio el Verificador la primera vez
 
@@ -174,7 +171,7 @@ def correr_caso(modelo, caso, v, config, prompts=None):
     pregunta = caso["pregunta_prosa"]
     r.anotar("estudiante", "interprete", "entrada", {"pregunta": pregunta})
 
-    revision, rechazo, rechazos, aceptada, citas_revisadas = None, None, 0, False, False
+    revision, rechazo, rechazos, aceptada = None, None, 0, False
     t1_inicial, a, periodo, otros = None, None, None, []
     try:
         while True:
@@ -223,22 +220,6 @@ def correr_caso(modelo, caso, v, config, prompts=None):
             fuera = _citas_fuera(cv)
             r.ramas["citas_fuera"] += "cita_ramo" in fuera
             r.ramas["cita_periodo_fuera"] += "cita_periodo" in fuera
-            if fuera and c["revisar_citas"] and not citas_revisadas and r.llamadas < MAX_LLAMADAS:
-                # Revisa su propia salida una vez por caso: sus citas tienen que salir de la
-                # consulta. Si la revisión sale ilegible, vale la primera salida.
-                citas_revisadas = True
-                r.anotar("verificador", "verificador", "agente", _publica(cv), ll)
-                r.ramas["revision_citas"] += 1
-                cv2, ll2 = r.agente(A.verificador, prompts["verificador"], pregunta, elegido,
-                                    nombre, periodo, otros,
-                                    revision=A.bloque_revision_citas(cv, fuera))
-                if cv2["legible"]:
-                    cv, ll = cv2, ll2
-                    r.ramas["citas_fuera_tras_revision"] += bool(_citas_fuera(cv))
-                else:
-                    r.anotar("verificador", "verificador", "agente",
-                             dict(_publica(cv2), nota="revisión ilegible: vale la primera salida"),
-                             ll2)
 
             if cv["accion"] == "aceptar":
                 r.anotar("verificador", "T2", "agente", _publica(cv), ll)
