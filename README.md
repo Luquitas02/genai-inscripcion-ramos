@@ -15,7 +15,8 @@ Prof. Carlos Navarrete, PhD
 ## Estado
 
 **Deliverable 3** (31 de octubre de 2026). El sistema del D2 reconstruido como tres agentes
-sobre el mismo Phi-3.5-mini sube el acierto conjunto de **64,0 % a 88,0 %** en 150 casos. Detalle
+sobre el mismo Phi-3.5-mini sube el acierto conjunto de **64,0 % a 88,0 %** en 150 casos, y de
+**65,6 % a 91,1 %** en una réplica sobre 180 casos sellados que nadie había usado. Detalle
 en [la sección del D3](#deliverable-3--tres-agentes-sobre-el-mismo-modelo). Documento técnico:
 [`poster/Deliverable_3.pdf`](poster/Deliverable_3.pdf). Video: [`demo_d3_colab.ipynb`](demo_d3_colab.ipynb).
 
@@ -547,8 +548,30 @@ antes de correr (commit `9158550`). Acierto conjunto, decisión y regla, el crit
 
 Contra el D2, en los casos donde difieren, los agentes ganan 39 y pierden 3 (McNemar exacto,
 p = 5,6·10⁻⁹). En los 30 redactados la diferencia es 6 a 1 (p = 0,125). La regla fija toma el
-texto que sigue a "inscribir", "tomar" o "meter" y lo busca con T1: supera al D2 en las
+texto que sigue a "inscribir", "tomar" o "meter" y lo busca con T1. Supera al D2 en las
 preguntas de plantilla y cae a 7 de 30 en las redactadas.
+
+### Réplica sobre 180 casos sellados
+
+Después de la corrida del 20 de octubre, los 150 casos se usaron para diagnosticar y diseñar la
+versión 5, así que ya no servían para medir. El 22 de octubre se corrió el mismo sistema, sin
+cambiar código ni prompts, sobre los 180 casos de [`datos/prueba_v5/`](datos/prueba_v5/),
+sellados el 21 de octubre (sha256 en `SELLO.txt`) y nunca usados para ajustar nada. El protocolo
+[`PROTOCOLO_REPLICA_V4.md`](PROTOCOLO_REPLICA_V4.md) se subió antes de correr (commit `5b5c5d5`)
+y fijaba que estos resultados irían al documento cualquiera fuera el resultado.
+
+| | plantilla A (60) | plantilla B (60) | redactados a ciegas (60) | **180** | con ramo y período bien |
+|---|---|---|---|---|---|
+| baseline few-shot (D1) | 18 | 12 | 13 | 43 | — |
+| sistema del D2 | 39 | 37 | 42 | 118 | 94 |
+| regla fija, sin modelo | 37 | 40 | 25 | 102 | 57 |
+| **tres agentes** | **54** | **55** | **55** | **164** | **158** |
+
+Contra el D2 los agentes ganan 50 y pierden 4 (p = 3,8·10⁻¹¹). Cada conjunto por separado da
+p < 0,001, incluidas las redactadas (14 a 1). Con el criterio estricto ganan 66 a 2. Sin los 8
+casos de plantilla cuya pregunta repite una anterior, 50 a 4. Fuera del protocolo, sin los 38
+casos que repiten el problema o la pregunta de un caso anterior, 34 a 4. Las cifras salen de
+`python scripts/analisis_replica_v4.py`.
 
 ## Qué explica la mejora
 
@@ -556,18 +579,43 @@ preguntas de plantilla y cae a 7 de 30 en las redactadas.
 |---|---|---|
 | la búsqueda T1 (el Resolvedor recibe el catálogo completo) | 75 | −57 |
 | los 4 ejemplos del Intérprete | 123 | −9 |
-| la lista de los otros ramos (descomposición) | 136 | +4 |
+| la lista de los otros ramos y la regla del verbo (descomposición) | 136 | +4 |
 | el Verificador | 133 | +1 |
 | el Resolvedor (se toma el primer candidato de T1) | 133 | +1 |
 
-La mejora la explican T1, que saca al modelo de copiar códigos, y los ejemplos. El Resolvedor y
-el Verificador deciden en pocos casos (4 búsquedas extra y 5 rechazos en 150) y su efecto neto
-es nulo. Ninguna búsqueda extra arregló un ramo. El detalle por mecanismo y caso está en
-[`PLAN_D3.md`](PLAN_D3.md), en el registro del 20 de octubre.
+Las ablaciones son de la corrida de los 150 y no se repitieron en la réplica. La fila de
+descomposición quita dos instrucciones a la vez. Copiar la frase de la pregunta antes de decidir
+(`frase_periodo`, `cita_ramo`) y los 2 ejemplos del Verificador no se ablacionaron.
+
+La mejora la explican T1, que saca al modelo de copiar códigos, y los ejemplos, que atacan M2
+(sin ellos M2 baja de 34 a 26 y el período sube de 137 a 141). El Resolvedor y el Verificador
+no aportan, y las trazas muestran por qué. El Resolvedor se apartó del primer candidato de T1 en
+8 casos de los 150 y en 8 de los 180, y acertó en 1 de esos 16; en 8 el primero era el correcto.
+Un rechazo del Verificador vuelve al Intérprete: si su mención estaba bien la repite, T1 devuelve
+lo mismo y el Resolvedor elige lo mismo. Por eso 4 de los 5 rechazos de cada corrida terminan en
+tope. El detalle por mecanismo y caso está en [`PLAN_D3.md`](PLAN_D3.md), en los registros del
+20 y 21 de octubre.
 
 **Caso de falla.** "...ando cursando administración y quería tomar marketing el otro
 semestre, en marzo". El Intérprete leyó bien el período; el Verificador lo rechazó diciendo que
 "el otro semestre" es el actual, el Intérprete cambió y el caso falló.
+
+### La versión 5, que no se aceptó
+
+Para corregir el bucle se probó una v5: el Verificador revisa el período contra el calendario y
+un rechazo del ramo vuelve al Resolvedor. Se midió en 223 casos de desarrollo (los 52 + 21 de
+desarrollo y los 150 de la corrida, que para la v5 eran desarrollo), con una regla de aceptación
+escrita antes de correrla. Son cifras de desarrollo, no de prueba:
+
+| | conjunto | estricto | período |
+|---|---|---|---|
+| v4 (la que se entrega) | 196 | 180 | 206 |
+| v5 | 186 | 178 | — |
+| v5b | 194 | 183 | 211 |
+
+La v5b lee mejor el período, pero su Verificador convierte 4 aciertos en error y el acierto
+conjunto no llega al de la v4. Ninguna de las dos se aceptó. El código quedó en la rama
+`v5-desarrollo` y el diagnóstico en `PLAN_D3.md` (22 de octubre).
 
 ## Lo que muestra el video
 
@@ -586,7 +634,8 @@ Sin GPU, en cualquier máquina con Python 3:
 python scripts/herramientas.py          # 8/8: T1 y T2 (T2 reproduce las 60 etiquetas)
 python scripts/runner_d3.py --pruebas   # 29/29: cada rama del grafo con un modelo de guion
 python scripts/demo_d3.py --pruebas     # la demo reproduce las trazas guardadas
-python scripts/analisis_d3.py           # todas las cifras de esta sección y del PDF
+python scripts/analisis_d3.py           # las cifras de los 150 casos
+python scripts/analisis_replica_v4.py   # las cifras de la réplica sobre los 180
 python scripts/diagnostico_d3.py        # el diagnóstico del paso 1 del D2 por mecanismo
 python scripts/runner_d3.py --modelo-falso --casos datos/casos_redactados.jsonl --dir-salida /tmp/regla_fija
                                         # regla fija, idéntica a la guardada fila por fila
@@ -601,6 +650,11 @@ El clon ya trae esos archivos, y con el mismo commit el runner los retoma sin vo
 para repetir la medición desde cero hay que borrarlos antes en el clon de Colab, junto con
 los `*__casos_redactados.raw.jsonl` del baseline y del D2.
 
+La réplica se corre con [`replica_v4_colab.ipynb`](replica_v4_colab.ipynb)
+([abrir en Colab](https://colab.research.google.com/github/Luquitas02/genai-inscripcion-ramos/blob/main/replica_v4_colab.ipynb)),
+que clona el commit del protocolo de la réplica (`5b5c5d5`) y corre la v4, el baseline y el D2
+sobre los 180 casos, entre una y dos horas.
+
 ## Cómo se midió
 
 Los prompts se ajustaron solo en el conjunto de desarrollo
@@ -611,7 +665,21 @@ Las 30 preguntas de [`datos/casos_redactados.jsonl`](datos/casos_redactados.json
 un modelo de lenguaje sin acceso al sistema, a partir del ramo, el período y el ramo de contexto
 de 30 casos originales ([`scripts/preparar_redactados.py`](scripts/preparar_redactados.py)); el
 CSV registra autor y revisión de cada una. La etiqueta de esos casos es la del caso original,
-porque depende del historial y no de la redacción.
+porque depende del historial y no de la redacción. El equipo las leyó, y Claude, que conocía el
+sistema, corrigió la redacción de 3 (filas 4, 18 y 20). Las 60 redactadas de la réplica se
+hicieron igual, las leyó Lucas antes de sellarlas y Claude no las ha leído.
+
+Límites que encontró la auditoría del 21 de octubre:
+
+- El puntaje de T1 se ajustó mirando las menciones de originales y nuevos. Las redactadas y los
+  180 de la réplica no los vio.
+- 6 casos de desarrollo y 3 de desarrollo redactado comparten historial y consulta con 7 de los
+  150. En los 180, 24 repiten el historial y la consulta de un caso anterior con otra pregunta,
+  8 de plantilla repiten la pregunta de uno anterior, y 6 redactados salen de un caso base
+  cuya pregunta de plantilla ya existía (la redactada es nueva). Son los 38 del cálculo
+  exploratorio.
+- 11 de los 132 aciertos de los 150 tienen el ramo o el período mal (6 de 164 en la réplica).
+  Por eso se reporta también el criterio estricto.
 
 ---
 
@@ -621,7 +689,7 @@ porque depende del historial y no de la redacción.
 |---|---|---|---|
 | **D1** | 31 ago | Tarea, modelo y baseline | ✅ |
 | **D2** | 30 sep | Sistema de tres pasos — 16,7 % → 58,3 % | ✅ |
-| **D3** | 31 oct | Tres agentes sobre el mismo modelo — 64,0 % → 88,0 % | ✅ |
+| **D3** | 31 oct | Tres agentes sobre el mismo modelo — 64,0 % → 88,0 % (91,1 % en la réplica) | ✅ |
 | D4 | 30 nov | Resultados y defensa | ⏳ |
 
 El D1 reservaba la consulta al grafo para el D3. Se adelantó al D2 porque la ablación mostró
