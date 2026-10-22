@@ -1,14 +1,8 @@
-<!-- agente: intérprete · versión 5 · 22 oct 2026 (sistema v5b)
+<!-- agente: intérprete · versión 3 · 20 oct 2026
      v2: regla del período del ramo consultado y un ejemplo con el ramo de contexto en curso
      v3: copia la frase que dice cuándo (frase_periodo) antes de decidir el período
-     v4: ejemplos reescritos fuera de la estructura de las plantillas (sistema v5)
-     v5: vuelve a los ejemplos de la v3. En desarrollo la reescritura empeoró la lectura del
-         período en 5 casos y de la mención en 1, y mejoró 2 (PLAN_D3.md, 22 oct). El primer
-         ejemplo se parece a las plantillas del generador; se declara.
      Lo carga scripts/agentes.py. Las marcas {{...}} las reemplaza el código.
      El bloque entre las marcas de ejemplos se quita en la ablación sin few-shot.
-     Las ablaciones sin_lista_otros, sin_regla_verbo y sin_citas_interprete son copias de
-     este archivo con una sola parte quitada (prompts/ablaciones/).
      Los ejemplos usan ramos que no son objetivo de ningún caso de prueba. -->
 
 # sistema
