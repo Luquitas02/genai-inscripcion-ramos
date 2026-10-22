@@ -57,7 +57,7 @@
 \raggedright
 
 % ---------------------------------------------------------------- cabecera
-{\Large\bfseries Tres agentes sobre el mismo modelo de 3,8B suben la validación de inscripción de ramos de 64,0\,\% a 88,0\,\%, y de 65,6\,\% a 91,1\,\% en 180 casos nuevos}\\[0.8mm]
+{\Large\bfseries Un sistema de tres agentes sobre Phi-3.5-mini (3,8B) acierta 88,0\,\% contra 64,0\,\% del D2 en 150 casos, y 91,1\,\% contra 65,6\,\% en 180 casos sellados}\\[0.8mm]
 {\footnotesize\color{gris}%
 \textbf{Deliverable 3} · Generative Artificial Intelligence (580694) · Universidad de Concepción · 31 de octubre de 2026\\
 \textbf{Equipo:} Joaquín Sepúlveda · Renato Saavedra · Lucas Saldivia \quad\textbullet\quad
@@ -77,15 +77,18 @@
 {\footnotesize
 La tarea y el criterio son los del D1 y el D2. Dado el historial de un estudiante y una
 pregunta en prosa, el sistema decide si puede inscribir el ramo y cita la regla. Un caso es
-correcto si acierta decisión y regla. En el sistema del D2 el modelo solo leía la pregunta y
-el código aplicaba el reglamento. Con el ramo y el período correctos acertaba 28 de 28, así que
-todo su error venía de esa lectura. El D3 ataca esa falla con Phi, como se comprometió en el D2.
+correcto si acierta decisión y regla (acierto conjunto). El D2 acertaba 35 de los 60 casos del
+D1. Su modelo solo leía la pregunta, y el código armaba la ficha del estudiante y aplicaba el
+reglamento. Con el ramo y el período correctos el código acierta siempre, porque las etiquetas
+salen de ese mismo código. Todo el error estaba en la lectura, y el D3 la reconstruye con el
+mismo Phi.
 
-Separando los errores del D2 por mecanismo aparecen tres. \textbf{M1}, copiar el código: con el
-nombre exacto del ramo en la pregunta, Phi acertaba 18 de 34, porque copiaba mal un código de
-seis dígitos desde una lista de 61. \textbf{M2}, aislar la mención: si la pregunta nombra otro
-ramo antes del consultado, acertaba 3 de 20. \textbf{M3}, el período, que fallaba cuando el
-ramo de contexto se cursa \q ahora\q.\par}
+En esos 60 casos la lectura del D2 fallaba por tres mecanismos. \textbf{M1} es copiar el código.
+Con el nombre exacto del ramo en la pregunta, Phi acertaba 18 de 34, porque copiaba mal un
+código de seis dígitos desde la lista de los 61 ramos. \textbf{M2} es aislar la mención. Si la
+pregunta nombra otro ramo antes del consultado, acertaba 3 de 20. \textbf{M3} es el período.
+Si la pregunta dice que otro ramo se cursa \q ahora\q, Phi tomaba ese \q ahora\q\ como el
+período del ramo consultado.\par}
 
 \seccion{El grafo de agentes}
 
@@ -101,37 +104,42 @@ ramo de contexto se cursa \q ahora\q.\par}
 
 \node[caja,fill=fondo] (q) {pregunta en prosa};
 \node[agente,below=of q] (a) {\textbf{A · Intérprete}\\ lee la pregunta, no ve catálogo};
-\node[herr,below=7mm of a] (t1) {\textbf{T1 · buscar\_ramo}\\ código, sin modelo};
+\node[herr,below=7mm of a] (t1) {\textbf{T1 · buscar\_ramo}\\ búsqueda léxica, sin modelo};
 \node[agente,below=of t1] (b) {\textbf{B · Resolvedor}\\ elige entre 5 candidatos};
 \node[agente,below=of b] (c) {\textbf{C · Verificador}\\ contrasta con la pregunta};
 \node[herr,below=of c] (t2) {\textbf{T2 · motor de reglas}\\ el código del D2};
-\node[caja,fill=fondo,below=of t2] (out) {\textbf{fin} · respuesta};
+\node[caja,fill=fondo,below=of t2] (out) {\textbf{fin} · decisión y regla};
 \node[caja,draw=gris,dashed,text width=12mm,right=9mm of a] (fin) {\textbf{fin} sin ramo};
+\node[caja,fill=fondo,text width=10mm,right=9mm of t2] (hist) {historial};
 
 \draw[fl] (q) -- node[right,et]{texto} (a);
-\draw[fl] (a) -- node[right,et]{busca: consultado (otros y\\ período siguen a B, C y T2)} (t1);
+\draw[fl] (a) -- node[right,et]{la mención consultada\\ (otros pasan a B y C; período, a C y T2)} (t1);
 \draw[fl] (t1) -- node[right,et]{5 candidatos\\ con puntaje} (b);
 \draw[fl] (b) -- node[right,et]{elige: código} (c);
 \draw[fl] (c) -- node[right,et]{acepta: código, período} (t2);
 \draw[fl] (t2) -- node[right,et]{decisión y regla} (out);
+\draw[fl] (hist) -- (t2);
 \draw[fl,dashed] (a) -- node[above,et]{sin\_ramo} (fin);
+% la pregunta también llega al Verificador
+\draw[fl] (q.east) -- ++(26mm,0) |- node[pos=0.2,left,et,align=right]{pregunta} ($(c.east)+(0,1.2mm)$);
 % bucle del Resolvedor con T1
 \draw[fl] (b.east) -- ++(4.5mm,0) |- node[pos=0.25,right,et]{busca de nuevo,\\ nueva consulta\\ (máx. 2)} (t1.east);
 % tope: el caso sigue con la última elección
-\draw[fl,dashed] (c.east) -- ++(4.5mm,0) |- node[pos=0.25,right,et]{tope (3.er rechazo\\ o 12 llamadas):\\ última elección} (t2.east);
+\draw[fl,dashed] ($(c.east)+(0,-1.2mm)$) -- ++(4.5mm,0) |- node[pos=0.25,right,et]{tope (3.er rechazo\\ o 12 llamadas):\\ última elección} (t2.east);
 % rechazo del Verificador al Intérprete
 \draw[fl] (c.west) -- ++(-15mm,0) |- node[pos=0.3,left,et,align=right]{rechaza:\\ problema\\ y motivo;\\ vuelve\\ máx. 2} (a.west);
-\draw[fl] (b.west) -- ++(-3mm,0) |- node[pos=0.25,left,et,align=right]{ninguno:\\ motivo} ($(a.west)+(0,-1.2mm)$);
+\draw[fl] (b.west) -- ++(-3mm,0) |- node[pos=0.25,left,et,align=right]{ninguno} ($(a.west)+(0,-1.2mm)$);
 \end{tikzpicture}
 \end{center}
 
-{\footnotesize\color{gris} Borde naranjo, agentes, cada uno con su archivo en \cod{prompts/}.
+{\footnotesize\color{gris} Borde naranjo, agentes, cada uno con su prompt en \cod{prompts/}.
 Borde verde, herramientas. Las vueltas al Intérprete, por rechazo o por \cod{ninguno}, suman
-máx. 2. Tope de 12 llamadas por caso. Al llegar a un tope se usa la última elección.\par}
+máx. 2. Al llegar a un tope, T2 recibe la última elección aunque esté rechazada, y un
+\cod{sin\_ramo} después de un rechazo también. El Verificador no puede bloquear un caso.\par}
 
 \vspace{0.6mm}
-{\footnotesize Una traza real (nuevos, caso 49), con las salidas de cada agente:\par}
-\vspace{0.3mm}
+{\footnotesize Traza real (nuevos, caso 49):\par}
+\vspace{0.2mm}
 {\setlength{\fboxsep}{1.4mm}\colorbox{fondo}{\parbox{\dimexpr\columnwidth-2.8mm\relax}{\ttfamily\fontsize{6.6}{8}\selectfont\raggedright
 \textrm{\footnotesize\q me falta programación pero la estoy cursando, ¿puedo tomar opti I el que viene?\q}\\[0.4mm]
 A$\to$T1 \{\q{}consultado\q{}: \q{}opti I\q{}, \q{}otros\q{}: [\q{}programación\q{}], \q{}frase\_periodo\q{}: \q{}el que viene\q{}, \q{}periodo\q{}: \q{}proximo\q{}\}\\
@@ -139,28 +147,38 @@ T1$\to$B 580315 Optimización I 0,60 · 201 Complementaria 1 0,55 · ...\\
 B$\to$T1 \{\q{}accion\q{}: \q{}buscar\q{}, \q{}consulta\q{}: \q{}Optimización I\q{}\}\\
 T1$\to$B 580315 Optimización I 1,50 · 580325 Optimización II 0,93 · ...\\
 B$\to$C \{\q{}accion\q{}: \q{}elegir\q{}, \q{}codigo\q{}: \q{}580315\q{}\}\\
-C$\to$T2 \{\q{}cita\_ramo\q{}: \q{}Optimización I\q{}, \q{}accion\q{}: \q{}aceptar\q{}\}\\
+C$\to$T2 \{\q{}cita\_ramo\q{}: \q{}Optimización I\q{}, \q{}cita\_periodo\q{}: \q{}proximo (2027-1)\q{}, \q{}accion\q{}: \q{}aceptar\q{}\}\\
 T2 condicional · R-DEPENDE-APROBACION (correcta)}}\par}
 
 \seccion{Los agentes}
 
 {\footnotesize
-\begin{tabular}{@{}p{12mm}p{37mm}p{38mm}@{}}
+\begin{tabular}{@{}p{13mm}p{38mm}p{36mm}@{}}
 \toprule
-agente & recibe y devuelve & decide \\
+agente & recibe $\to$ devuelve (JSON) & decide \\
 \midrule
-Intérprete & la pregunta $\to$ ramo consultado con las palabras del estudiante, los otros ramos, la frase que dice cuándo y el período & entregar o \cod{sin\_ramo}. Ante un rechazo, revisa su respuesta. No usa herramientas \\
-Resolvedor & la mención y 5 candidatos de T1 $\to$ un código & elegir, llamar a T1 con otra consulta o \cod{ninguno} \\
-Verificador & la pregunta y la elección $\to$ citas de la pregunta y su veredicto & aceptar y llamar a T2, o rechazar con motivo \\
+Intérprete & la pregunta (y el motivo de un rechazo) $\to$ la mención consultada, los otros ramos, la frase del período y el período & entregar o \cod{sin\_ramo}. No llama herramientas: el código busca su mención con T1 \\
+Resolvedor & la mención, los otros ramos y 5 candidatos $\to$ un código & elegir, llamar a T1 con otra consulta o \cod{ninguno}, que devuelve el caso \\
+Verificador & la pregunta, el ramo, el período y los otros $\to$ citas de la pregunta y veredicto & aceptar, que entrega a T2, o rechazar con problema y motivo \\
 \bottomrule
 \end{tabular}\par}
 
 \vspace{0.6mm}
 {\footnotesize
-El trabajo se divide por mecanismo y por contexto. El Intérprete no ve el catálogo, así que no
-puede caer en M1. El Resolvedor nunca ve más de cinco candidatos. El Verificador es el único que
-ve juntas la pregunta y la elección. Las reglas siguen en código porque el D2 midió que el modelo
-las aplica al 31,7\,\% con la ficha perfecta y el código al 100\,\%.\par}
+El enunciado define un agente como una llamada al modelo que decide qué pasa después según lo
+que observa. Los tres deciden, y cada decisión queda en la traza. El trabajo se divide por lo
+que cada uno ve. El Intérprete no ve el catálogo, así que no puede caer en M1. El Resolvedor
+nunca ve más de cinco candidatos. El Verificador es el único que ve juntas la pregunta y la
+elección. Las reglas siguen en código porque el D2 midió que el modelo las aplica al 31,7\,\%
+con la ficha perfecta delante.
+
+En la práctica las decisiones casi nunca cambian el camino. En 313 de los 330 casos la
+respuesta final es el primer candidato de T1 con el período de la primera respuesta del
+Intérprete, y el Intérprete nunca se detuvo. El Resolvedor se apartó del primer candidato en 16
+casos y acertó en 1 (en 8 el primero era el correcto). Un rechazo vuelve al Intérprete. Si su
+mención estaba bien, la repite, T1 devuelve lo mismo y el Resolvedor elige lo mismo. Así, 4 de
+los 5 casos con rechazo de cada corrida terminan en un tope. Una versión 5 que devolvía el
+rechazo al Resolvedor sacó 194 contra 196 en 223 casos de desarrollo y no se aceptó.\par}
 
 % ================================================================ COLUMNA 2
 \columnbreak
@@ -174,24 +192,25 @@ las aplica al 31,7\,\% con la ficha perfecta y el código al 100\,\%.\par}
 \cmidrule(lr){2-4}\cmidrule(l){5-7}
 acierto conjunto & plantilla & redact. & \textbf{150} & plantilla & redact. & \textbf{180} \\
 \midrule
+baseline zero-shot (D1)  &  -- & -- &  -- &  -- & -- &  -- \\
 baseline few-shot (D1)   &  28 &  7 &  35 &  30 & 13 &  43 \\
 sistema del D2           &  72 & 24 &  96 &  76 & 42 & 118 \\
 regla fija, sin modelo   &  83 &  7 &  90 &  77 & 25 & 102 \\
 \rowcolor{fondo}
 \textbf{tres agentes}    & \textbf{103} & \textbf{29} & \textbf{132} & \textbf{109} & \textbf{55} & \textbf{164} \\
-\quad con ramo y período bien & 97 & 24 & 121 & 103 & 55 & 158 \\
+\quad y además ramo y período bien & 97 & 24 & 121 & 103 & 55 & 158 \\
 \bottomrule
 \end{tabular}\par}
 
 \vspace{1mm}
-\destaque{\footnotesize En los 150 casos los agentes suben de 64,0\,\% a 88,0\,\%. Donde difieren con el D2 ganan 39 y pierden 3 (McNemar exacto, $p<0{,}001$), pero en los 30 redactados la diferencia no era significativa (6 a 1, $p=0{,}125$). Para comprobarlo se corrió el mismo sistema, sin cambios y con un protocolo subido antes, sobre 180 casos sellados que nadie había usado, 60 de ellos redactados a ciegas. Ahí ganan 50 a 4 ($p<0{,}001$), y 14 a 1 en las redactadas.}
+\destaque{\footnotesize En los 150 casos los agentes suben de 64,0\,\% a 88,0\,\%. En los casos donde uno de los dos sistemas acierta y el otro no, los agentes ganan 39 y el D2 3 (McNemar exacto, $p<0{,}001$). En los 30 redactados era 6 a 1, sin significancia ($p=0{,}125$). Por eso se corrió el mismo sistema, sin cambios y con un protocolo subido antes, sobre 180 casos sellados que no se habían usado para nada. Ahí ganan 50 a 4 ($p<0{,}001$), y 14 a 1 en las 60 redactadas.}
 
 \vspace{0.6mm}
 {\footnotesize
-La regla fija toma el texto que sigue a \q inscribir\q, \q tomar\q\ o \q meter\q\ y lo busca con T1.
-Iguala o supera al D2 en las preguntas de plantilla y cae a 7 de 30 y 25 de 60 en las redactadas.
-Los agentes no dependen de la plantilla. Exigiendo también ramo y período correctos, el D2 acierta
-75 y 94. Por mecanismo, en originales y nuevos sin ambiguos:\par}
+La regla fija toma el texto entre \q inscribir\q, \q tomar\q\ o \q meter\q\ y el signo de
+interrogación, lo busca con T1 y supone siempre el semestre actual. Le va bien en las preguntas
+de plantilla y cae a 7 de 30 y 25 de 60 en las redactadas. Por mecanismo, en los 105 casos de
+plantilla de la corrida del 20 de octubre cuya mención no es ambigua:\par}
 
 \vspace{0.3mm}
 {\footnotesize
@@ -200,8 +219,8 @@ Los agentes no dependen de la plantilla. Exigiendo también ramo y período corr
 acierta el ramo, cuando la pregunta... & casos & D2 & agentes \\
 \midrule
 trae el nombre exacto (M1)            & 69 & 44 & \textbf{67} \\
-lo abrevia o dice coloquial           & 36 & 19 & \textbf{33} \\
-\quad de ambos, nombra otro ramo antes (M2) & 35 &  7 & \textbf{34} \\
+lo abrevia o usa otro nombre          & 36 & 19 & \textbf{33} \\
+\quad y nombra otro ramo antes (M2)   & 35 &  7 & \textbf{34} \\
 \midrule
 acierta el período (M3)               & 105 & 90 & \textbf{98} \\
 \bottomrule
@@ -209,83 +228,77 @@ acierta el período (M3)               & 105 & 90 & \textbf{98} \\
 
 \seccion{Técnicas y ablación}
 
+% PENDIENTE: valores de PROTOCOLO_ABLACIONES_V4.md (scripts/analisis_ablaciones_v4.py)
 {\footnotesize
-\begin{tabular}{@{}llllr@{}}
+\begin{tabular}{@{}lllrrr@{}}
 \toprule
-técnica (Lecture 5) & agente & ataca & sin ella & $\Delta$ \\
+sin... (Lecture 5)                      & agente & apunta a & acierto & $\Delta$ & pares \\
 \midrule
-uso de herramienta (ReAct)   & B & M1      & 75  & $-57$ \\
-few-shot, 4 ejemplos         & A & M2      & 123 & $-9$ \\
-descomposición en menciones$^{*}$ & A & M2 & 136 & $+4$ \\
-Self-Refine con citas        & C & M2, M3  & 133 & $+1$ \\
-B reemplazado por el top-1   & B & M1      & 133 & $+1$ \\
+la búsqueda T1 (ReAct)                  & B & M1     & -- & -- & -- \\
+4 ejemplos (few-shot)                   & A & M2, M3 & -- & -- & -- \\
+la lista de otros ramos                 & A & M2     & -- & -- & -- \\
+la regla del verbo                      & A & M2     & -- & -- & -- \\
+citar antes de decidir (quotes first)   & A & M3     & -- & -- & -- \\
+citar antes de decidir (quotes first)   & C & M2, M3 & -- & -- & -- \\
+2 ejemplos (few-shot)                   & C & M2     & -- & -- & -- \\
+el Verificador entero                   & C & M2, M3 & -- & -- & -- \\
+el Resolvedor, se toma el top-1$^{*}$   & B & M1     & -- & -- & -- \\
 \bottomrule
 \end{tabular}\par}
 
 \vspace{0.6mm}
 {\footnotesize
-Cada fila es el sistema completo (132) sin una pieza, sobre los mismos 150 casos. Las ablaciones
-no se repitieron en la réplica. ($^{*}$) Esta fila quita dos instrucciones a la vez, la lista de
-los otros ramos y la regla de tomar el ramo que acompaña al verbo. Todos los agentes usan además
-un rol y salida JSON. El Verificador lleva 2 ejemplos, y el Intérprete y el Verificador copian
-la frase de la pregunta antes de decidir (\cod{frase\_periodo}, \cod{cita\_ramo}). Nada de eso se
-ablacionó.
+Cada fila es el sistema completo (164 de 180) sin una sola pieza, sobre los mismos 180 casos.
+\q pares\q\ son los casos que gana el completo y los que gana la ablación. ($^{*}$) Diagnóstico,
+no una técnica. La columna \q apunta a\q\ se fijó en el protocolo antes de correr. Los cuatro
+agentes usan además un rol y salida JSON, que no se ablacionan.
 
-La mejora la explican dos piezas. Sin T1 el modelo vuelve a copiar códigos y el sistema cae a
-75 (McNemar $p<0{,}001$). Sin los ejemplos cae a 123 ($p=0{,}004$) porque M2 baja de 34 a 26.
-El período, en cambio, sube sin ejemplos (141 contra 137).
-
-El Resolvedor y el Verificador no aportan, y las trazas muestran por qué. El Resolvedor se apartó
-del primer candidato de T1 en 8 de los 150 casos y en 8 de los 180. Acertó en 1 de esos 16, y
-en 8 el primer candidato era el correcto. Un rechazo del Verificador vuelve al Intérprete. Si su
-mención estaba bien, la repite, T1 devuelve los mismos candidatos y el Resolvedor elige lo mismo.
-Por eso 4 de los 5 rechazos de cada corrida terminan en tope. En originales 59 el Verificador
-rechazó con razón tres veces Optimización II y el tope aceptó esa elección.\par}
+PENDIENTE: dos o tres oraciones con lo que explican los resultados.\par}
 
 \seccion{Caso de falla}
 
 {\footnotesize
-Elegido por la regla del protocolo: el primer redactado que falla. \q ...ando cursando
+Es el primer redactado que falla, según la regla fijada antes de correr. \q ...ando cursando
 administración y quería tomar marketing el otro semestre, en marzo\q. El Intérprete copió
-\q en marzo\q\ y respondió \q proximo\q, que era correcto. El Verificador rechazó con el motivo
-\q el otro semestre sería el semestre actual\q. El Intérprete cambió a \q actual\q, el
-Verificador aceptó y T2 respondió \q no\q\ por el prerrequisito en curso. La respuesta correcta
-era \q condicional\q. Un modelo de 3,8B que revisa a otro puede deshacer un acierto, y es el
-único caso de los 150 en que el Verificador cambió el resultado.\par}
+\q en marzo\q\ y respondió \q proximo\q, que era correcto. El Verificador lo rechazó porque
+\q el otro semestre\q\ sería el actual. El Intérprete cambió a \q actual\q, el Verificador
+aceptó y T2 respondió \q no\q\ por el prerrequisito en curso, cuando correspondía
+\q condicional\q. Es el único caso de los 150 en que el Verificador cambió el resultado.\par}
 
 \seccion{Cómo se midió}
 
 {\footnotesize
-Los prompts se ajustaron en 52 casos de desarrollo (de 40 a 44 en cuatro versiones) y en 21
-preguntas de desarrollo redactadas (20 de 21). Las reglas para aceptar cada versión y los
-protocolos de las dos corridas se subieron al repositorio antes de correr. Las preguntas redactadas las escribió un modelo de lenguaje sin acceso
-al sistema y el equipo las leyó. En las 30 primeras, Claude, que conocía el sistema, corrigió la
-redacción de 3. Cada mensaje entre agentes queda en \cod{trazas/} con el hash del prompt que lo
-produjo.
-
-Después de la corrida del 20 de octubre probamos una versión 5, con un Verificador que corrige
-el período y devuelve el ramo al Resolvedor. En 223 casos de desarrollo sus dos variantes sacaron
-186 y 194 contra 196 de esta versión, y no se aceptó.\par}
+\textbf{Conjuntos.} Originales, los 60 casos del D1. Nuevos, 60 del D2. Ambos con preguntas
+de plantilla. Redactados, preguntas reescritas fuera de las plantillas: 30 en la corrida del
+20 de octubre y 60 entre los 180 sellados el 21 de octubre. Las redactó un modelo de lenguaje
+sin acceso al sistema, a partir del ramo y el período de cada caso, y el equipo las leyó.
+\textbf{Procedimiento.} Los prompts se ajustaron en 52 casos de desarrollo y 21 preguntas
+redactadas de desarrollo. La versión final se aceptó con una regla escrita antes de correrla.
+Las tres corridas de prueba tienen su protocolo subido al repositorio antes de correr. Cada
+mensaje entre agentes queda en \cod{trazas/} con el hash del prompt que lo produjo.\par}
 
 \seccion{Límites declarados}
 
 {\footnotesize
-\textbf{Ambiguos.} En 15 de los 120 casos de plantilla la pregunta nombra el ramo con una forma
-que sirve para varios, como \q gestión\q\ o \q la I\q. Ningún lector de la pregunta los resuelve.
-\textbf{T1 y los 150.} El puntaje de T1 se ajustó mirando las menciones de originales y nuevos.
-Las redactadas y los 180 sellados no los vio.
-\textbf{Casos parecidos.} 9 casos de desarrollo comparten historial y consulta con 7 de los 150,
-y 38 de los 180 repiten el problema o la pregunta de un caso anterior. Sin esos 38, los agentes
-ganan 34 a 4 (cálculo exploratorio).
+\textbf{Etiquetas.} Las genera el mismo verificador de reglas que usa T2. Se mide la lectura
+de la pregunta, no si el reglamento codificado es el real.
+\textbf{Ambiguos.} 15 de los 120 casos de plantilla de la primera corrida y 14 de los 120 de la
+réplica nombran el ramo con una forma que sirve para varios, como \q gestión\q.
+\textbf{Parecido con la prueba.} El puntaje de T1 y el diagnóstico M1 a M3 se hicieron mirando
+originales y nuevos. El prompt del Intérprete nombra los verbos de las plantillas. Las
+redactadas traen el nombre exacto del catálogo en 46 de 60 casos, contra 35 de 60 en
+plantilla. 38 de los 180 repiten el problema de un caso anterior. Sin ellos, los agentes ganan
+34 a 4.
 \textbf{Costo.} 3,2 llamadas, 2.797 tokens y 7,2\,s por caso, contra 1.155 tokens y 1,7\,s del D2.\par}
 
 \seccion{Lo que muestra el video}
 
 {\footnotesize
-Tres casos de los 150 elegidos por la regla del protocolo, corridos en vivo con
-\cod{demo\_d3\_colab.ipynb}, que compara cada mensaje con la traza guardada. Uno pasa por los
-tres agentes sin bucles. En otro el Verificador rechaza el período tres veces y el tope cierra
-con la respuesta correcta. El tercero es el caso de falla.\par}
+Tres casos de la corrida del 20 de octubre, corridos en vivo con \cod{demo\_d3\_colab.ipynb},
+que compara cada mensaje con la traza guardada. Uno pasa por los tres agentes sin vueltas. En
+otro el Verificador rechaza tres veces, con razón, un período mal leído, el tope lo deja pasar
+y la decisión sale correcta solo porque la regla no depende del período. El tercero es el caso
+de falla.\par}
 
 \end{multicols}
 \end{document}
