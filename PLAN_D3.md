@@ -558,6 +558,51 @@ Borrador del correo:
 
 ## Registro de decisiones
 
+**22 oct 2026 — La v5 no se acepta; diseño de la v5b, regla ajustada y respaldo, antes de
+correrla.** La v5 (commit `f966d79`) sacó en los 223 de desarrollo 186 conjunto y 178
+estricto, contra 196 y 180 de la v4 (`aceptacion_v5.py`; resultados en `resultados/v5/` y
+`trazas/v5/`). La regla no se cumple. Diagnóstico caso por caso, comparando con las trazas de
+la v4:
+
+| Pieza de la v5 | Arregló | Rompió | Casos |
+|---|---|---|---|
+| Revisión de citas del Verificador | 4 | 9 | rompe originales 33, 42, 47, 49; nuevos 47; redactados v4 5, 15; desarrollo 41, 46. Acepta bien, su cita copia la descripción del semestre, la revisión lo obliga a citar, inventa "este semestre" y corrige a actual |
+| Ejemplos reescritos del Intérprete | período 2 | período 5, mención 1 | originales 21 ("ecuaciones" → "Cálculo 2"); nuevos 23, 41; redactados v4 29; desarrollo 27, 35 |
+| El Verificador razona sobre requisitos o el ramo de contexto | 0 | 3 | redactados v4 1 y desarrollo redactado 0 (corrige "este semestre" a próximo porque cursa otro ramo); nuevos 6 (rechaza: "no puede inscribirse en el mismo semestre") |
+| Calendario y `corregir_periodo` en la primera salida | ~5 | — | nuevos 27, 29, 58; desarrollo 47 |
+| Rechazo por código al Resolvedor y coincidencia exacta | 2 | 0 | originales 40 y 59 |
+| Prompt v3 del Resolvedor | 2 | 2 | rompe redactados v4 0 ("progra" → Álgebra II) y 29 ("opti 1" → Optimización II) |
+
+La revisión de citas además subió el costo de 3,2 a 4,3 llamadas y de 7 a 13 s por caso. El
+falso rechazo de originales 21 ("Cálculo 2" contra Cálculo II) es una confusión de números.
+
+**La v5b, la única iteración que permite la regla.** Cuatro cambios, cada uno con su origen en
+la tabla:
+
+1. Se quita la revisión de citas. Las citas se siguen midiendo y no se fuerzan.
+2. El Intérprete vuelve a los ejemplos de la v4 (prompt v3). La reescritura buscaba que no se
+   parecieran a las plantillas y empeoró la lectura; el parecido se declara.
+3. El Verificador: corrige el semestre solo por las palabras que dicen cuándo quiere inscribir
+   esa asignatura, no por lo que la consulta diga de otras asignaturas ni por los requisitos;
+   un ejemplo que acepta "este semestre" con un ramo de contexto en curso; y "2", "II" y "dos"
+   son lo mismo.
+4. El Resolvedor y T1 no cambian: su efecto neto en desarrollo es cero y con una sola iteración
+   se cambia lo mínimo.
+
+**Regla ajustada, antes de ver la v5b.** El objetivo de la v5 no es subir el acierto sino que
+cada agente tenga un papel medible sin perder acierto (criterios de diseño de agentes y de
+técnicas). Se acepta si **no es peor** que la v4: conjunto **196 o más** y estricto **180 o
+más** (antes "mayor que"); el resto igual (período 206 o más, ningún conjunto baja más de 2,
+el Verificador no convierte aciertos estrictos en error, menos de 11 desvíos de T1 sin
+acertar).
+
+**Respaldo, antes de ver la v5b.** La regla original decía que si la v5b fallaba se congelaba
+la mejor de las dos v5. Si las dos son peores que la v4, mandar a la corrida final un sistema
+medido como peor no tiene sentido. Se reemplaza: si la v5b no cumple, **se entrega la v4**, que
+tiene su corrida con protocolo sobre 150 casos, con el texto del documento corregido según la
+auditoría del 21 de octubre, y la v5 se declara como una corrección probada en desarrollo que no
+superó a la v4, con este diagnóstico. No hay más iteraciones después de la v5b.
+
 **22 oct 2026 — Revisión independiente del código de la v5 (commit `1d799e8`), antes de
 correr nada.** Ninguna falla impedía la corrida, pero varias habrían medido mal. Corregidas,
 cada una con su prueba (60/60):
