@@ -46,8 +46,9 @@ en `PLAN_D3.md`, sección "Versión 5".
 | sección | qué hace | cuándo |
 |---|---|---|
 | 1 a 4 | GPU, clon, autopruebas, Drive, carga del modelo | siempre |
-| 5 | la v5 sobre los 223 casos de desarrollo y la regla de aceptación | ahora |
-| 6 | bajar los resultados en un zip | al terminar |
+| 5 | la v5 sobre los 223 casos de desarrollo y la regla de aceptación | en desarrollo |
+| 6 | la corrida final sobre los 180 casos de prueba | **una vez**, tras subir `PROTOCOLO_V5.md` |
+| 7 | bajar los resultados en un zip | al terminar |
 """),
 
     md("""## 1 · GPU, dependencias y repositorio
@@ -103,17 +104,21 @@ HASH = subprocess.check_output(['git', '-C', '/content/proyecto', 'rev-parse', '
                                 'HEAD'], text=True).strip()
 RESPALDO = Path('/content/drive/MyDrive/genai_d3_v5') / HASH
 PROYECTO = Path('/content/proyecto')
-for sub in ('resultados', 'trazas'):
+# resultados y trazas de la v5 van a resultados/v5 y trazas/v5; el baseline y el D2 (`base`)
+# escriben en resultados/, como en el D1 y el D2.
+DESTINOS = {'resultados': PROYECTO / 'resultados' / 'v5', 'trazas': PROYECTO / 'trazas' / 'v5',
+            'base': PROYECTO / 'resultados'}
+for sub, destino in DESTINOS.items():
     (RESPALDO / sub).mkdir(parents=True, exist_ok=True)
-    (PROYECTO / sub / 'v5').mkdir(parents=True, exist_ok=True)
+    destino.mkdir(parents=True, exist_ok=True)
     for p in (RESPALDO / sub).glob('*.jsonl'):
-        shutil.copy(p, PROYECTO / sub / 'v5' / p.name)
+        shutil.copy(p, destino / p.name)
         print('recuperado de Drive:', sub, p.name)
 
 def respaldar(*rutas):
     for r in rutas:
         r = Path(r)
-        sub = 'resultados' if 'resultados' in r.parts else 'trazas'
+        sub = 'trazas' if 'trazas' in r.parts else ('resultados' if 'v5' in r.parts else 'base')
         shutil.copy(r, RESPALDO / sub / r.name)
     print('copiado a Drive:', ', '.join(Path(r).name for r in rutas))
 
@@ -147,7 +152,41 @@ for conjunto in DESARROLLO:
 r = subprocess.run([sys.executable, 'aceptacion_v5.py'], capture_output=True, text=True)
 print(r.stdout, r.stderr[-2000:])"""),
 
-    md("""## 6 · Bajar los resultados
+    md("""## 6 · Corrida final sobre los 180 casos de prueba
+**Solo después de subir `PROTOCOLO_V5.md`** y de poner su commit en `COMMIT` (sección 1).
+Primero la v5 completa, el baseline y el D2 sobre los tres conjuntos, que es lo que necesita la
+hipótesis principal; después las nueve configuraciones de ablación. Unas 3,8 horas en la T4,
+en dos o tres sesiones: si la sesión se cae, vuelve a correr las secciones 1 a 4 y esta, y
+retoma donde iba. La regla fija sin modelo se corre en local, no acá.
+"""),
+    code("""PRUEBA = ['plantilla_a.jsonl', 'plantilla_b.jsonl', 'redactados.jsonl']
+prueba = PROYECTO / 'datos' / 'prueba_v5'
+assert all((prueba / c).exists() for c in PRUEBA), 'faltan los casos de prueba'
+for conjunto in PRUEBA:
+    salida, traza = runner_d3.ejecutar(modelo, 'completo', str(prueba / conjunto))
+    respaldar(salida, traza)
+
+# Baseline few-shot y sistema del D2. Cargan su propio modelo.
+for conjunto in PRUEBA:
+    casos = str(prueba / conjunto)
+    for args in (['runner.py', '--modelo', 'microsoft/Phi-3.5-mini-instruct',
+                  '--condicion', 'few_shot', '--casos', casos],
+                 ['runner_d2.py', '--variante', 'codigo', '--modo', 'encadenado',
+                  '--casos', casos]):
+        r = subprocess.run([sys.executable] + args, capture_output=True, text=True)
+        print('\\n'.join(r.stdout.strip().splitlines()[-4:]), r.stderr[-1500:])
+    for p in (PROYECTO / 'resultados').glob(f'*__{Path(conjunto).stem}.raw.jsonl'):
+        respaldar(p)"""),
+    code("""ABLACIONES = ['sin_herramienta', 'sin_ejemplos', 'sin_lista_otros', 'sin_regla_verbo',
+              'sin_citas_interprete', 'sin_citas_verificador', 'sin_calendario',
+              'sin_verificador', 'top1']
+for config in ABLACIONES:
+    for conjunto in PRUEBA:
+        salida, traza = runner_d3.ejecutar(modelo, config, str(prueba / conjunto))
+        respaldar(salida, traza)
+print('corrida final completa')"""),
+
+    md("""## 7 · Bajar los resultados
 Un zip con `resultados/` y `trazas/` de la v5. También están en Drive, en
 `genai_d3_v5/<commit>`.
 """),
