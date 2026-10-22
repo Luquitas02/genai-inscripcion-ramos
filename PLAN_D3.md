@@ -355,57 +355,101 @@ commitea antes de cada cambio grande.
 
 ---
 
-## Versión 5 (borrador del 21 de octubre, para revisar antes de tocar código)
+## Versión 5 (diseño del 21 de octubre, aprobado por Lucas; opción B)
 
 La v4 se midió con protocolo sobre 150 casos y queda como primera medición. La auditoría del
-21 de octubre encontró en sus trazas por qué el Resolvedor y el Verificador no aportan. La v5
-corrige eso y se mide sobre casos que nadie ha visto.
+21 de octubre encontró en sus trazas por qué el Resolvedor y el Verificador no aportan, y una
+revisión independiente de este diseño encontró que el error más corregible está en el período.
+La v5 se mide sobre casos que nadie del diseño ha visto.
 
 ### Qué casos se usan para qué
 
 | Conjunto | Casos | Papel en la v5 |
 |---|---|---|
 | Desarrollo v4 + desarrollo redactado | 52 + 21 | desarrollo |
-| Prueba de la v4 (originales, nuevos, redactados) | 150 | **desarrollo**: ya se miraron sus trazas, y de ahí sale el diagnóstico |
-| `datos/prueba_v5/` (plantilla A, plantilla B, redactados) | 60 + 60 + 60 | **prueba**, sellados el 21 de octubre antes de este diseño |
+| Prueba de la v4 (originales, nuevos, redactados) | 150 | **desarrollo**: de sus trazas sale el diagnóstico |
+| `datos/prueba_v5/plantilla_a`, `plantilla_b` | 60 + 60 | **prueba** |
+| `datos/prueba_v5/redactados` | 60 | **prueba** |
 
-El documento lo declara: los 150 de la v4 sirvieron para diagnosticar la v5, y por eso la v5
-no se mide sobre ellos.
+La prueba son **180 casos**. `base_redactados.jsonl` son los mismos 60 problemas que
+`redactados.jsonl` con la pregunta de plantilla, que no se usa. Los 180 se sellaron el 21 de
+octubre antes de este diseño. Claude no los ha leído. Lucas leyó las 60 redactadas para
+validarlas; por eso cada cambio de abajo cita los casos de desarrollo de donde sale.
 
-### El diagnóstico, en los 223 casos de desarrollo
+### Diagnóstico sobre los 223 casos de desarrollo (v4: 196 conjunto, 180 estricto)
 
-Se buscaron todos los casos donde el Resolvedor eligió algo distinto del primer candidato de
-T1 o el Verificador rechazó. Son 11 de 223:
+**Período: 17 errores**, casi siempre con la frase bien copiada.
 
-| Patrón | Casos | Qué pasa |
-|---|---|---|
-| D1. El Resolvedor confunde el número | 2 (originales 40 y 59) | "Optimización 1", T1 pone Optimización I primero con 1,50 y elige Optimización II |
-| D2. Mención ambigua o sigla | 5 ("la I" ×3, "TI", "cálculo") | elige Electiva 1 o un ramo cualquiera. Con "TI" no vuelve a buscar aunque el prompt lo pide para siglas |
-| D3. El Verificador rechaza algo correcto | 3 (originales 6, redactados 5 y 16) | en originales 6 vuelve a juzgar si puede inscribir ("ya está tomando Inglés I"), la falla que la v3 había quitado |
-| D4. Un rechazo correcto no corrige nada | 2 (originales 59, redactados 3) | el de ramo va al Intérprete y no al Resolvedor; el de período, el Intérprete lo repite igual tres veces |
+| Patrón | Casos de desarrollo |
+|---|---|
+| "el que viene" leído como actual | originales 54; nuevos 35, 40, 54, 58; desarrollo 15, 47, 48 |
+| "segundo semestre" leído como próximo (2026-2 *es* el segundo semestre) | redactados v4 2, 3, 11, 23 |
+| toma el "ahora" o "este semestre" del ramo de contexto | originales 29; nuevos 27, 29; desarrollo 24 |
+| "el otro semestre, en marzo" cambiado por un rechazo | redactados v4 16 |
 
-### Cambios
+El Verificador aceptó 15 de esos 16 casos. Rechazó solo redactados 3, y el Intérprete repitió
+su respuesta tres veces. "el que viene" es también una frase del generador; "segundo semestre"
+viene del redactor a ciegas.
 
-Cada cambio ataca un patrón medido y nada más.
+**Ramo: el Resolvedor se aparta del primer candidato de T1 en 11 casos y se equivoca en los
+11** (originales 40, 50, 54, 59; nuevos 44, 45, 50; redactados v4 4; desarrollo 17, 35, 48).
+Dos son "Optimización 1" con Optimización I primero en T1 (1,50) y elige Optimización II. Tres
+son "PCP": Phi no conoce la sigla y busca "Ingeniería Civil Industrial". Con "evapro" descarta
+el primer candidato, que era el correcto. El resto son menciones ambiguas ("la I", "TI",
+"cálculo"). El primer candidato de T1 es correcto en 196 de 223; de los 27 restantes, 23 son
+ambiguos por construcción.
 
-1. **El Verificador elige a quién devolver el trabajo (D4).** `problema` pasa de dos valores a
-   tres: `mencion` (el Intérprete tomó la asignatura equivocada de la consulta) y `periodo`
-   vuelven al Intérprete; `codigo` (la mención está bien pero el ramo del catálogo no
-   corresponde) vuelve al **Resolvedor**, con el código rechazado y el motivo. El Resolvedor
-   puede elegir otro candidato o buscar de nuevo. Con esto el Verificador tiene una decisión
-   de traspaso real entre dos agentes, que es lo que el enunciado pide de un agente.
-2. **El Resolvedor respeta el número y las siglas (D1, D2).** El prompt dice que si el primer
-   candidato tiene el mismo nombre y el mismo número que la mención, se elige ese, y que una
-   mención de dos o tres letras es una sigla y se busca escrita completa antes de elegir.
-3. **El Verificador vuelve a no juzgar el reglamento (D3).** Un tercer ejemplo: la consulta
-   nombra un ramo de contexto en curso y la interpretación es correcta, y se acepta.
-4. **La revisión del período trae la cita (D4).** Cuando el Verificador rechaza el período, el
-   Intérprete recibe además las palabras de la consulta que el Verificador citó.
-5. **Ejemplos del Intérprete fuera de las plantillas.** El primero copiaba la estructura del
-   generador ("oye, ... la reprobé, ¿igual puedo meter ... este semestre?"). Se reescriben los
-   cuatro con los mismos ramos, períodos y salidas.
+**Rechazos: 5 casos.** Dos correctos que no corrigen nada (originales 59 por ramo, que vuelve al
+Intérprete; redactados 3 por período) y tres falsos (originales 6, que juzga el reglamento:
+"ya está tomando Inglés I"; redactados 5 y 16).
 
-No cambia: T1, T2, los topes, el modelo, la generación ni el lector de JSON.
+**Citas del Verificador:** `cita_periodo` sale de la consulta en 29 de 232 llamadas; en las demás
+copia la etiqueta que revisa ("actual", "proximo (2027-1)").
+
+### Los papeles en la v5
+
+- **Intérprete:** lee la consulta. Devuelve la asignatura consultada, las otras y la frase que
+  dice cuándo, con su lectura del período.
+- **Resolvedor:** pasa de la mención a un código del catálogo. Elige entre los candidatos de
+  T1, busca de nuevo una sigla escrita completa, y ante un rechazo de código elige otro o
+  mantiene su elección.
+- **Verificador:** valida la interpretación contra la consulta y el calendario académico. Es el
+  único que conoce el calendario. Acepta, corrige el período, o devuelve el trabajo al agente
+  que corresponde.
+
+### Cambios, cada uno con su origen en desarrollo
+
+1. **Calendario en el Verificador y acción `corregir_periodo`** (17 errores de período). El
+   prompt del Verificador trae el calendario: 2026-2 es el segundo semestre de 2026 y está en
+   curso; 2027-1 es el primer semestre de 2027 y empieza en marzo; "el que viene", "el próximo"
+   y "en marzo" hablan de 2027-1; "ahora", "este semestre" y "este segundo semestre" hablan de
+   2026-2. Si la frase de la consulta contradice el período de la interpretación, el Verificador
+   responde `corregir_periodo` con el período correcto y el motivo, y el caso sigue a T2 con
+   ese período, sin volver al Intérprete. El Intérprete no recibe el calendario.
+2. **El período de la interpretación se muestra en palabras** ("2027-1, el primer semestre de
+   2027, que empieza en marzo"), no como etiqueta, y **las citas se validan en código**: si
+   `cita_ramo` o una `cita_periodo` no vacía no aparece en la consulta, el Verificador recibe
+   su propia salida con esa observación y la revisa **una vez** (revisa su propia salida). Se
+   mide `cita_periodo_en_consulta` igual que la de ramo.
+3. **El Verificador devuelve el trabajo al agente que corresponde** (originales 59). `rechazar`
+   lleva `problema`: `mencion` (tomó otra asignatura de la consulta) vuelve al Intérprete;
+   `codigo` (la mención está bien pero el ramo del catálogo no es ese) vuelve al
+   **Resolvedor** con el código rechazado y el motivo. Un valor que no sea `codigo` se lee como
+   `mencion`. Los dos cuentan para el tope de 2 vueltas.
+4. **El Resolvedor puede mantener su elección** (originales 6, redactados 5). Ante un rechazo de
+   código responde `elegir` con otro candidato, `mantener` con el mismo, `buscar` o `ninguno`.
+   Un ejemplo del prompt mantiene la elección ante un rechazo que habla del reglamento.
+5. **T1 marca la coincidencia exacta** (originales 40 y 59). Si el nombre normalizado del
+   candidato es igual a la mención normalizada, T1 lo marca. `normalizar` ya iguala "I" y "1".
+   El prompt del Resolvedor dice que un candidato marcado se elige.
+6. **El Verificador no juzga el reglamento** (originales 6). Un ejemplo: la consulta nombra un
+   ramo de contexto que está cursando y la interpretación es correcta; se acepta.
+7. **Ejemplos del Intérprete fuera de las plantillas.** El primero copiaba la estructura del
+   generador. Se reescriben los cuatro con los mismos ramos, períodos y salidas.
+
+No cambia: T2, los topes (2 vueltas, 2 búsquedas por vuelta, 12 llamadas), el modelo, la
+generación greedy cortada al primer JSON ni el lector de JSON. Al llegar a un tope se usa la
+última elección, con su período.
 
 ### Ablaciones, cada una quita una sola cosa
 
@@ -413,39 +457,57 @@ No cambia: T1, T2, los topes, el modelo, la generación ni el lector de JSON.
 |---|---|---|
 | `sin_herramienta` | T1; el Resolvedor recibe las 61 asignaturas | uso de herramienta |
 | `sin_ejemplos` | los 4 ejemplos del Intérprete | few-shot |
-| `sin_lista_otros` | el campo `otros` del Intérprete (la regla del verbo se queda) | descomposición |
-| `sin_regla_verbo` | la oración "la que quiere inscribir es la que acompaña al verbo..." | instrucción explícita |
-| `sin_citas` | `frase_periodo` en el Intérprete y `cita_ramo`/`cita_periodo` en el Verificador | citar antes de decidir ("quotes first") |
-| `sin_verificador` | el Verificador y su bucle; se acepta la primera elección | Self-Refine (crítica y revisión) |
+| `sin_lista_otros` | el campo `otros` del Intérprete; el Resolvedor y el Verificador reciben "ninguna" | descomposición |
+| `sin_regla_verbo` | la oración del verbo de inscribir en el Intérprete | instrucción explícita |
+| `sin_citas_interprete` | `frase_periodo` en el Intérprete | citar antes de decidir |
+| `sin_citas_verificador` | `cita_ramo` y `cita_periodo` en el Verificador, y su revisión de citas | citar antes de decidir |
+| `sin_calendario` | el calendario del Verificador | conocimiento en el prompt |
+| `sin_verificador` | el Verificador; se acepta la primera elección con su período | Self-Refine (crítica y corrección) |
 | `top1` | el Resolvedor; se toma el primer candidato | diagnóstico, no técnica |
 
-En la v4 `sin_descomposicion` quitaba a la vez la lista y la regla del verbo. Las dos quedan
-separadas. "Citar antes de decidir" se ablaciona por primera vez.
+No se ablacionan el rol, la salida JSON (sin ella el orquestador no funciona) ni los ejemplos
+del Verificador; se declara.
 
 ### Regla para aceptar la v5, escrita antes de correrla
 
-Sobre los 223 de desarrollo, contra la v4 (196 de 223: 132 + 44 + 20):
+Sobre los 223 de desarrollo, contra la v4 (conjunto 196, estricto 180, período 206). La v5 se
+acepta si cumple todo:
 
-- se acepta si saca **196 o más**, si **ningún** subconjunto (originales, nuevos, redactados,
-  desarrollo, desarrollo redactado) baja en más de 2 casos, y si el Resolvedor se aparta del
-  primer candidato de T1 **sin acertar** en menos casos que los 8 de la v4;
-- si no se cumple, se permite **una** iteración más (v5b) con la misma regla. Si tampoco, se
-  congela la que saque más en desarrollo y se reporta como está.
+- acierto conjunto **mayor que 196** y estricto (decisión, regla, ramo y período) **mayor que
+  180**;
+- período **206 o más**;
+- ningún subconjunto (originales, nuevos, redactados v4, desarrollo, desarrollo redactado) baja
+  más de 2 casos en acierto conjunto;
+- ninguna corrección o rechazo del Verificador convierte en error un caso que la v4 acertaba
+  estricto;
+- el Resolvedor se aparta del primer candidato de T1 sin acertar en menos de 11 casos.
 
-### La corrida final de la v5
+Si no se cumple, se permite **una** iteración (v5b) con la misma regla. Si tampoco, se congela
+la que saque más en conjunto y se reporta como está. `scripts/aceptacion_v5.py` aplica la regla.
 
-Protocolo nuevo (`PROTOCOLO_V5.md`), subido antes de correr, sobre los 240 casos sellados.
-Filas: baseline, D2, regla fija, **la v4 tal como se congeló**, la v5 completa y sus siete
-configuraciones. Medir también la v4 sobre los casos nuevos muestra si la corrección funciona
-en datos limpios (McNemar v5 contra v4), además de v5 contra D2. Unas 4,5 horas de T4, en dos
-o tres sesiones de Colab con el runner retomando.
+### La corrida final
 
-### Pendiente del profesor (clase del 22 de octubre)
+Protocolo nuevo (`PROTOCOLO_V5.md`), subido antes de correr, sobre los 180 casos.
 
-Si dice que 141 de 150 casos por el mismo camino es un pipeline, la v5 necesita más decisiones
-reales. El cambio 1 ya agrega una. Si dice que un agente sin aporte se penaliza, la regla de
-aceptación se queda como está, pero el documento tiene que mostrar el aporte por agente en la
-prueba nueva.
+- **Principal (H1):** la v5 acierta más casos que el D2, McNemar exacto bilateral, p < 0,05.
+- **Secundarias:** lo mismo con el criterio estricto, y sin los 8 casos que repiten una
+  pregunta anterior.
+- **Exploratorias:** v5 contra v4 y cada ablación contra la v5, con sus pares discordantes, sin
+  afirmar mejoras. Con 180 casos, McNemar necesita al menos 6 a 0 discordantes para p < 0,05.
+- **Filas:** baseline, D2, regla fija, la v4 congelada, la v5 y sus 9 configuraciones. La v4 se
+  corre en un clon aparte en `9158550`, sobre los mismos archivos de casos, y sus salidas se
+  renombran con `__v4`. Unas 4,2 horas de T4 en dos o tres sesiones.
+- Las salidas de la v5 van a `resultados/v5/` y `trazas/v5/`, para no mezclarse con la v4.
+
+### Calendario y corte
+
+- 22 oct: respuestas del profesor; implementación y pruebas sin GPU.
+- 23 oct: desarrollo en Colab (223 casos, unos 30 minutos) y regla de aceptación.
+- **24 oct: v5 congelada y protocolo subido.**
+- 25 y 26 oct: corrida final.
+- **27 oct, corte:** si la corrida no está completa, se entrega la v4 con los hallazgos de la
+  auditoría declarados como límites.
+- 28 a 31 oct: análisis, PDF, video, auditoría final y entrega.
 
 ## Preguntas al profesor
 
