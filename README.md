@@ -548,8 +548,9 @@ antes de correr (commit `9158550`). Acierto conjunto, decisión y regla, el crit
 
 Contra el D2, en los casos donde difieren, los agentes ganan 39 y pierden 3 (McNemar exacto,
 p = 5,6·10⁻⁹). En los 30 redactados la diferencia es 6 a 1 (p = 0,125). La regla fija toma el
-texto que sigue a "inscribir", "tomar" o "meter" y lo busca con T1. Supera al D2 en las
-preguntas de plantilla y cae a 7 de 30 en las redactadas.
+texto entre "inscribir", "tomar" o "meter" y el signo de interrogación, lo busca con T1 y supone
+siempre el semestre actual. Supera al D2 en las preguntas de plantilla de esta corrida (83
+contra 72) y cae a 7 de 30 en las redactadas.
 
 ### Réplica sobre 180 casos sellados
 
@@ -592,8 +593,11 @@ La mejora la explican T1, que saca al modelo de copiar códigos, y los ejemplos,
 no aportan, y las trazas muestran por qué. El Resolvedor se apartó del primer candidato de T1 en
 8 casos de los 150 y en 8 de los 180, y acertó en 1 de esos 16; en 8 el primero era el correcto.
 Un rechazo del Verificador vuelve al Intérprete: si su mención estaba bien la repite, T1 devuelve
-lo mismo y el Resolvedor elige lo mismo. Por eso 4 de los 5 rechazos de cada corrida terminan en
-tope. El detalle por mecanismo y caso está en [`PLAN_D3.md`](PLAN_D3.md), en los registros del
+lo mismo y el Resolvedor elige lo mismo. Por eso 4 de los 5 casos con rechazo de cada corrida
+terminan en un tope (en la réplica, 3 por rechazos y 1 por el límite de llamadas). Además el
+Verificador no tiene veto: al llegar a un tope, T2 recibe la última elección aunque esté
+rechazada. En 313 de los 330 casos la respuesta final es el primer candidato de T1 con el
+período de la primera respuesta del Intérprete. El detalle por mecanismo y caso está en [`PLAN_D3.md`](PLAN_D3.md), en los registros del
 20 y 21 de octubre.
 
 **Caso de falla.** "...ando cursando administración y quería tomar marketing el otro
@@ -610,10 +614,11 @@ escrita antes de correrla. Son cifras de desarrollo, no de prueba:
 | | conjunto | estricto | período |
 |---|---|---|---|
 | v4 (la que se entrega) | 196 | 180 | 206 |
-| v5 | 186 | 178 | — |
+| v5 | 186 | 178 | 207 |
 | v5b | 194 | 183 | 211 |
 
-La v5b lee mejor el período, pero su Verificador convierte 4 aciertos en error y el acierto
+La v5b lee mejor el período, pero su Verificador convierte 4 aciertos estrictos en error (3 en
+acierto conjunto) y el acierto
 conjunto no llega al de la v4. Ninguna de las dos se aceptó. El código quedó en la rama
 `v5-desarrollo` y el diagnóstico en `PLAN_D3.md` (22 de octubre).
 
@@ -622,7 +627,9 @@ conjunto no llega al de la v4. Ninguna de las dos se aceptó. El código quedó 
 [`demo_d3_colab.ipynb`](demo_d3_colab.ipynb)
 ([abrir en Colab](https://colab.research.google.com/github/Luquitas02/genai-inscripcion-ramos/blob/main/demo_d3_colab.ipynb))
 corre en vivo tres preguntas redactadas, elegidas por la regla del protocolo: "progra" (sin
-bucles), "inglés básico 1" (el Verificador rechaza tres veces y el tope cierra el caso) y el caso
+bucles), "inglés básico 1" (el Verificador rechaza tres veces, con razón, un período mal leído;
+el tope deja pasar ese período y la decisión sale correcta solo porque la regla no depende de
+él) y el caso
 de falla. Cada salida del modelo se marca `= guardada` si coincide con la traza de la corrida
 final en [`trazas/`](trazas/). Las celdas 1 a 3 se corren antes de grabar; se graba la 4.
 
