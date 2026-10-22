@@ -12,6 +12,7 @@ salir igual, y la marca `= guardada` lo muestra mensaje por mensaje.
   3. falla      redactado 16  "...quería tomar marketing el otro semestre, en marzo..."
 
     import demo_d3; demo_d3.video(modelo)       # en Colab, con el modelo cargado
+    demo_d3.en_vivo(modelo, "¿...?")            # una pregunta escrita en el momento
     python demo_d3.py --pruebas                  # sin GPU: reproduce las trazas guardadas
 """
 
@@ -77,6 +78,28 @@ def video(modelo):
     iguales = sum(m == "= guardada" for m in todas)
     print(f"{iguales} de {len(todas)} salidas del modelo iguales a la corrida final")
     return iguales == len(todas)
+
+
+def en_vivo(modelo, pregunta, historial_de=0):
+    """Una pregunta escrita en el momento, sobre el historial de un caso redactado. No hay
+    etiqueta para esa pregunta, así que se muestra la decisión sin marcar acierto ni falla."""
+    casos = _casos()
+    caso = dict(casos[historial_de], id="en_vivo", pregunta_prosa=pregunta)
+    print("=" * 110)
+    print(f"pregunta escrita en el momento  ·  historial del redactado {historial_de}")
+    print("=" * 110)
+    nombres = {cod: n for cod, n, _ in O.CATALOGO}
+    for estado in ("aprobada", "inscrita", "reprobada"):
+        ramos = [nombres.get(c, c) for c, e in caso["historial"].items() if e == estado]
+        if ramos:
+            print(f"    {estado}s: {', '.join(ramos)}")
+    fila, mensajes = O.correr_caso(modelo, caso, Verificador(), "completo",
+                                   O.cargar_prompts("completo"))
+    V.imprimir(mensajes)
+    pred = fila["prediccion"]
+    print(f"\n    sistema: {pred['decision']} / {pred['regla']}   ·   "
+          f"{fila['llamadas']} llamadas, {fila['segundos_total']:.1f} s\n")
+    return fila
 
 
 class ModeloRepetidor:
