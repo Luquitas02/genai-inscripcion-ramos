@@ -92,6 +92,13 @@ class ModeloRepetidor:
 
 
 def _pruebas():
+    # Esta demo reproduce las trazas de la v4 con el código y los prompts de la v4. Desde la
+    # v5 el orquestador y los prompts cambiaron, así que solo corre en el commit de la v4,
+    # que es el que fija demo_d3_colab.ipynb.
+    if getattr(O, "VERSION", "v4") != "v4":
+        print(f"Esta es la demo de la v4 y el código es {O.VERSION}. Córrela en el commit "
+              "b145da9 (git checkout b145da9), que es el que clona demo_d3_colab.ipynb.")
+        return 1
     v = Verificador()
     casos = _casos()
     prompts = O.cargar_prompts("completo")

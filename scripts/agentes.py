@@ -8,11 +8,11 @@ archivo tiene una sección `# sistema` y una `# usuario`, y las marcas {{...}} s
 El hash del archivo queda en cada mensaje de la traza, así que una traza dice exactamente con
 qué versión del prompt se produjo.
 
-Cada agente devuelve su decisión en el campo `accion` de un JSON:
+Cada agente devuelve su decisión en el campo `accion` de un JSON (sistema v5):
 
   Intérprete    entregar | sin_ramo
-  Resolvedor    elegir | buscar | ninguno
-  Verificador   aceptar | rechazar
+  Resolvedor    elegir | buscar | ninguno | mantener (solo tras un rechazo de código)
+  Verificador   aceptar | corregir_periodo | rechazar (problema: mencion | codigo)
 
 Este módulo no ejecuta las acciones: arma el prompt, llama al modelo y lee la acción. Quien
 la ejecuta es `orquestador.py`. Una salida ilegible recibe una acción por defecto declarada, y
@@ -38,8 +38,11 @@ PROMPTS = Path(__file__).resolve().parent.parent / "prompts"
 _MARCA_EJEMPLOS = re.compile(r"<!-- ejemplos -->.*?<!-- /ejemplos -->\n?", re.S)
 _COMENTARIO = re.compile(r"<!--.*?-->\n?", re.S)
 
-PERIODO_TXT = {"actual": "actual (2026-2, el semestre en curso)",
-               "proximo": "proximo (2027-1, el semestre siguiente)"}
+# Cómo ve el Verificador el período de la interpretación. En la v4 lo veía como etiqueta
+# ("proximo (2027-1, ...)") y en 188 de 232 llamadas copió la etiqueta, o una frase que no está
+# en la consulta, como si fuera una cita. En la v5 lo ve en palabras.
+PERIODO_TXT = {"actual": "2026-2, el segundo semestre de 2026, el que está en curso",
+               "proximo": "2027-1, el primer semestre de 2027, que empieza en marzo"}
 
 
 class Prompt:
@@ -156,20 +159,36 @@ def interprete(modelo, prompt, pregunta, revision=None):
 # --------------------------------------------------------------- B. Resolvedor
 
 def _render_candidatos(candidatos):
-    return "\n".join(f"{c['codigo']}  {c['nombre']}  ({c['similitud']:.2f})" for c in candidatos)
+    return "\n".join(f"{c['codigo']}  {c['nombre']}  ({c['similitud']:.2f})"
+                     + ("  COINCIDENCIA EXACTA" if c.get("exacta") else "")
+                     for c in candidatos)
+
+
+def _bloque_rechazo(rechazo):
+    if not rechazo:
+        return ""
+    return ("\n=== RECHAZO DEL VERIFICADOR ===\n"
+            f"Tu elección anterior: {rechazo['codigo']} {rechazo['nombre']}.\n"
+            f"Motivo del rechazo: \"{rechazo['motivo']}\"\n"
+            "Elige otra, mantén tu elección, busca de nuevo o responde ninguno.\n")
 
 
 def resolvedor(modelo, prompt, consultado, otros, candidatos, busquedas_hechas, busquedas_max,
-               catalogo=None):
+               catalogo=None, rechazo=None):
     """Devuelve (accion, llamada).
 
     Con `catalogo` es la ablación sin herramienta: recibe las 61 asignaturas en vez de los
     candidatos y no puede buscar. El código elegido se valida contra lo que vio.
+
+    `rechazo` es el rechazo del Verificador por el código ({"codigo", "nombre", "motivo"}).
+    Con él, `mantener` vuelve a elegir el código rechazado. Sin rechazo, `mantener` no tiene
+    sentido y cuenta como `ninguno`.
     """
     if catalogo is not None:
         mensajes = prompt.mensajes(
             consultado=consultado, otros=_lista(otros),
-            catalogo="\n".join(f"{c}  {n}" for c, n in catalogo))
+            catalogo="\n".join(f"{c}  {n}" for c, n in catalogo),
+            rechazo=_bloque_rechazo(rechazo))
         validos = {c for c, _ in catalogo}
     else:
         quedan = busquedas_max - len(busquedas_hechas)
@@ -181,7 +200,8 @@ def resolvedor(modelo, prompt, consultado, otros, candidatos, busquedas_hechas, 
                    else "No te quedan búsquedas: elige o responde ninguno.")
         mensajes = prompt.mensajes(consultado=consultado, otros=_lista(otros),
                                    candidatos=_render_candidatos(candidatos),
-                                   busquedas="\n" + bloque + "\n")
+                                   busquedas="\n" + bloque + "\n",
+                                   rechazo=_bloque_rechazo(rechazo))
         validos = {c["codigo"] for c in candidatos}
     crudo, tokens, segundos = llamar(modelo, mensajes)
     d, _ = _extraer_json(crudo)
@@ -191,7 +211,9 @@ def resolvedor(modelo, prompt, consultado, otros, candidatos, busquedas_hechas, 
         tipo = _texto(d.get("accion")).lower()
         codigo = _texto(str(d.get("codigo", "")))
         consulta = _texto(d.get("consulta"))
-        if tipo == "elegir" or (not tipo and codigo):
+        if tipo == "mantener" and rechazo:
+            accion = {"accion": "mantener", "codigo": rechazo["codigo"], "legible": True}
+        elif tipo == "elegir" or (not tipo and codigo):
             if codigo in validos:
                 accion = {"accion": "elegir", "codigo": codigo, "legible": True}
             else:
@@ -204,25 +226,52 @@ def resolvedor(modelo, prompt, consultado, otros, candidatos, busquedas_hechas, 
 
 # --------------------------------------------------------------- C. Verificador
 
-def verificador(modelo, prompt, pregunta, codigo, nombre, periodo, otros):
-    """Devuelve (accion, llamada)."""
+def bloque_revision_citas(salida, fuera):
+    """La observación con que el Verificador revisa su propia salida (v5): sus citas tienen que
+    salir de la consulta. `fuera` son los nombres de las citas que no aparecen en ella."""
+    previa = {k: salida[k] for k in ("cita_ramo", "cita_periodo", "accion", "problema",
+                                     "periodo_corregido", "motivo") if salida.get(k)}
+    return ("\n=== REVISIÓN DE TU RESPUESTA ANTERIOR ===\n"
+            f"Tu respuesta: {json.dumps(previa, ensure_ascii=False)}\n"
+            f"{' y '.join(fuera)} no aparece en la consulta. Las citas tienen que ser palabras "
+            "copiadas de la CONSULTA DEL ESTUDIANTE, no de la interpretación. Vuelve a "
+            "copiarlas de la consulta y decide de nuevo.\n")
+
+
+def verificador(modelo, prompt, pregunta, codigo, nombre, periodo, otros, revision=""):
+    """Devuelve (accion, llamada).
+
+    Acciones: `aceptar`, `corregir_periodo` (con `periodo_corregido`) o `rechazar` (con
+    `problema` `mencion` o `codigo`). Un `problema` que no empieza por "cod" se lee como
+    `mencion`, que vuelve al Intérprete como en la v4. Un `corregir_periodo` sin un período
+    legible, o con el mismo período, cuenta como `aceptar`.
+    """
     mensajes = prompt.mensajes(pregunta=pregunta, codigo=codigo, nombre=nombre,
-                               periodo=PERIODO_TXT[periodo], otros=", ".join(otros) or "ninguna")
+                               periodo=PERIODO_TXT[periodo], otros=", ".join(otros) or "ninguna",
+                               revision=revision)
     crudo, tokens, segundos = llamar(modelo, mensajes)
     d, _ = _extraer_json(crudo)
 
     accion = {"accion": "aceptar", "legible": d is not None}
-    if d is not None and _texto(d.get("accion")).lower() == "rechazar":
-        problema = _texto(d.get("problema")).lower().replace("í", "i").replace("é", "e")
-        problema = "periodo" if problema.startswith("periodo") else "ramo"
-        accion = {"accion": "rechazar", "problema": problema,
+    tipo = _texto(d.get("accion")).lower() if d is not None else ""
+    if tipo == "rechazar":
+        problema = _texto(d.get("problema")).lower()
+        accion = {"accion": "rechazar",
+                  "problema": "codigo" if problema.startswith("cod") else "mencion",
                   "motivo": _texto(d.get("motivo")) or "sin motivo", "legible": True}
+    elif tipo.startswith("corregir"):
+        nuevo = norm_periodo(d.get("periodo"))
+        if nuevo and nuevo != periodo:
+            accion = {"accion": "corregir_periodo", "periodo_corregido": nuevo,
+                      "motivo": _texto(d.get("motivo")) or "sin motivo", "legible": True}
     # La evidencia que copió antes de decidir queda en la traza, que es lo que muestra el video.
-    # Si la cita no está en la consulta, el Verificador copió la interpretación que revisaba
-    # (pasó en la v3). Se marca para medirlo; no cambia la acción.
-    if d is not None:
+    # Si una cita no está en la consulta, el Verificador copió la interpretación que revisaba.
+    # El orquestador le devuelve la salida una vez para que la revise (v5).
+    if d is not None and ("cita_ramo" in d or "cita_periodo" in d):
         accion["cita_ramo"] = _texto(d.get("cita_ramo"))
         accion["cita_periodo"] = _texto(d.get("cita_periodo"))
         accion["cita_ramo_en_consulta"] = cita_en(accion["cita_ramo"], pregunta)
+        accion["cita_periodo_en_consulta"] = (None if not accion["cita_periodo"]
+                                             else cita_en(accion["cita_periodo"], pregunta))
     return accion, {"mensajes": mensajes, "crudo": crudo, "tokens": tokens,
                     "segundos": segundos, "prompt": prompt.ref()}

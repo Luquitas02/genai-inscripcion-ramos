@@ -68,12 +68,17 @@ def similitud(consulta_norm, nombre_norm):
 
 
 def buscar_ramo(texto, k=K_CANDIDATOS):
-    """T1. Los k ramos más parecidos al texto, con su puntaje, de mayor a menor."""
+    """T1. Los k ramos más parecidos al texto, con su puntaje, de mayor a menor.
+
+    `exacta` marca el candidato cuyo nombre normalizado es igual al texto normalizado (v5).
+    En la v4 el Resolvedor recibió "Optimización 1" con Optimización I primero (1,50) y eligió
+    Optimización II; la marca le dice lo que el puntaje solo sugería.
+    """
     q = normalizar(texto)
-    puntajes = sorted(((similitud(q, n), c, nombre) for c, nombre, n in CATALOGO),
+    puntajes = sorted(((similitud(q, n), c, nombre, n) for c, nombre, n in CATALOGO),
                       key=lambda x: (-x[0], x[1]))
-    return [{"codigo": c, "nombre": nombre, "similitud": round(s, 3)}
-            for s, c, nombre in puntajes[:k]]
+    return [{"codigo": c, "nombre": nombre, "similitud": round(s, 3), "exacta": bool(q) and q == n}
+            for s, c, nombre, n in puntajes[:k]]
 
 
 def motor_de_reglas(v, caso, codigo, periodo):
@@ -96,6 +101,11 @@ def _pruebas():
         ("palabra suelta dentro del nombre", buscar_ramo("transferencia")[0]["codigo"], "542355"),
         ("devuelve cinco", len(buscar_ramo("cálculo")), 5),
         ("orden estable ante empate", buscar_ramo("electiva") == buscar_ramo("electiva"), True),
+        ("coincidencia exacta: 'Optimización 1' marca Optimización I",
+         [(x["codigo"], x["exacta"]) for x in buscar_ramo("Optimización 1")[:2]],
+         [("580315", True), ("580325", False)]),
+        ("una palabra suelta no es coincidencia exacta",
+         any(x["exacta"] for x in buscar_ramo("transferencia")), False),
     ]
     # T2 con el ramo y el período verdaderos reproduce la etiqueta en los 60 casos, igual que
     # el sistema del D2 con el paso 1 perfecto.

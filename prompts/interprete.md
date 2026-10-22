@@ -1,8 +1,13 @@
-<!-- agente: intérprete · versión 3 · 20 oct 2026
+<!-- agente: intérprete · versión 4 · 22 oct 2026 (sistema v5)
      v2: regla del período del ramo consultado y un ejemplo con el ramo de contexto en curso
      v3: copia la frase que dice cuándo (frase_periodo) antes de decidir el período
+     v4: los ejemplos se reescriben fuera de la estructura de las plantillas del generador,
+         con los mismos ramos, períodos y salidas. El calendario no está acá: lo tiene el
+         Verificador.
      Lo carga scripts/agentes.py. Las marcas {{...}} las reemplaza el código.
      El bloque entre las marcas de ejemplos se quita en la ablación sin few-shot.
+     Las ablaciones sin_lista_otros, sin_regla_verbo y sin_citas_interprete son copias de
+     este archivo con una sola parte quitada (prompts/ablaciones/).
      Los ejemplos usan ramos que no son objetivo de ningún caso de prueba. -->
 
 # sistema
@@ -33,16 +38,16 @@ Responde ÚNICAMENTE con un JSON, sin texto adicional:
 <!-- ejemplos -->
 Ejemplos:
 
-Consulta: "oye, química general 1 la reprobé, ¿igual puedo meter química 2 este semestre?"
+Consulta: "me fue mal en química general 1 y la tengo que repetir, pero quería ver si química 2 la puedo tomar este semestre igual"
 {"accion": "entregar", "consultado": "química 2", "otros": ["química general 1"], "frase_periodo": "este semestre", "periodo": "actual"}
 
-Consulta: "¿me puedo inscribir física 2 en marzo? todavía voy en física 1"
+Consulta: "todavía voy en física 1, ¿me deja el sistema inscribir física 2 en marzo?"
 {"accion": "entregar", "consultado": "física 2", "otros": ["física 1"], "frase_periodo": "en marzo", "periodo": "proximo"}
 
-Consulta: "estoy con cálculo 1 ahora, ¿podré tomar cálculo 2 después del verano?"
+Consulta: "ahora estoy con cálculo 1 y después del verano quiero cálculo 2, ¿hay problema?"
 {"accion": "entregar", "consultado": "cálculo 2", "otros": ["cálculo 1"], "frase_periodo": "después del verano", "periodo": "proximo"}
 
-Consulta: "una consulta, quiero tomar dibujo industrial ya, ¿se puede?"
+Consulta: "necesito dibujo industrial ya, ¿todavía se puede inscribir?"
 {"accion": "entregar", "consultado": "dibujo industrial", "otros": [], "frase_periodo": "ya", "periodo": "actual"}
 <!-- /ejemplos -->
 

@@ -1,7 +1,5 @@
-<!-- agente: intérprete, ABLACIÓN sin descomposición · versión 3 · 20 oct 2026
-     v2 y v3: los mismos cambios de interprete.md, sin la parte de descomposición
-     Igual a prompts/interprete.md salvo la técnica que se quita: no pide listar las demás
-     asignaturas ni explica que pueden ser contexto. Pide solo la asignatura consultada. -->
+<!-- ABLACIÓN sin_lista_otros · generada por scripts/gen_ablaciones_v5.py desde prompts/interprete.md
+     Igual al prompt completo salvo lo que se quita: no pide la lista de las demás asignaturas (campo "otros"); la regla del verbo se queda. No editar a mano. -->
 
 # sistema
 
@@ -12,6 +10,8 @@ Lees la consulta de un estudiante, escrita de manera informal, y devuelves tres 
 1. "consultado": la asignatura que el estudiante quiere inscribir, copiada como la escribió.
 2. "frase_periodo": las palabras de la consulta que dicen cuándo quiere inscribir la asignatura consultada.
 3. "periodo": "actual" si quiere inscribirla en el semestre en curso, que es 2026-2. "proximo" si habla de un semestre que todavía no empieza, que es 2027-1.
+
+Una consulta puede nombrar varias asignaturas. La que quiere inscribir es la que acompaña al verbo de inscribir, tomar o meter. Las demás son contexto, aunque aparezcan antes.
 
 El período sale de las palabras que dicen cuándo quiere inscribir la asignatura consultada. Cópialas en "frase_periodo" y decide el período a partir de ellas. Si la consulta dice que otra asignatura la está cursando ahora o este semestre, esas palabras hablan de la otra asignatura y no van en "frase_periodo". Si no dice cuándo, deja "frase_periodo" vacía y usa "actual".
 
@@ -28,16 +28,16 @@ Responde ÚNICAMENTE con un JSON, sin texto adicional:
 <!-- ejemplos -->
 Ejemplos:
 
-Consulta: "oye, química general 1 la reprobé, ¿igual puedo meter química 2 este semestre?"
+Consulta: "me fue mal en química general 1 y la tengo que repetir, pero quería ver si química 2 la puedo tomar este semestre igual"
 {"accion": "entregar", "consultado": "química 2", "frase_periodo": "este semestre", "periodo": "actual"}
 
-Consulta: "¿me puedo inscribir física 2 en marzo? todavía voy en física 1"
+Consulta: "todavía voy en física 1, ¿me deja el sistema inscribir física 2 en marzo?"
 {"accion": "entregar", "consultado": "física 2", "frase_periodo": "en marzo", "periodo": "proximo"}
 
-Consulta: "estoy con cálculo 1 ahora, ¿podré tomar cálculo 2 después del verano?"
+Consulta: "ahora estoy con cálculo 1 y después del verano quiero cálculo 2, ¿hay problema?"
 {"accion": "entregar", "consultado": "cálculo 2", "frase_periodo": "después del verano", "periodo": "proximo"}
 
-Consulta: "una consulta, quiero tomar dibujo industrial ya, ¿se puede?"
+Consulta: "necesito dibujo industrial ya, ¿todavía se puede inscribir?"
 {"accion": "entregar", "consultado": "dibujo industrial", "frase_periodo": "ya", "periodo": "actual"}
 <!-- /ejemplos -->
 

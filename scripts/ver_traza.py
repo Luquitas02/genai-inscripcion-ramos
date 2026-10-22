@@ -24,7 +24,8 @@ def resumen_contenido(m):
     if m["tipo"] == "entrada":
         return f"\"{c['pregunta']}\""
     if m["de"] == "T1":
-        cands = ", ".join(f"{x['codigo']} {x['nombre']} ({x['similitud']:.2f})"
+        cands = ", ".join(f"{x['codigo']} {x['nombre']} ({x['similitud']:.2f}"
+                          + (", EXACTA)" if x.get("exacta") else ")")
                           for x in c["candidatos"])
         return f"busca \"{c['consulta']}\" → {cands}"
     if m["de"] == "T2":

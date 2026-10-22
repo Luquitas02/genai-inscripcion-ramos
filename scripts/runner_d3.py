@@ -30,8 +30,10 @@ import agentes as A
 import orquestador as O
 
 BASE = Path(__file__).resolve().parent.parent
-RESULTADOS = BASE / "resultados"
-TRAZAS = BASE / "trazas"
+# Las salidas de la v5 van a su propia carpeta: los archivos de la v4 tienen los mismos nombres
+# y el runner se negaría a mezclarlos (otro commit, otros prompts).
+RESULTADOS = BASE / "resultados" / "v5"
+TRAZAS = BASE / "trazas" / "v5"
 CASOS_ORIGINALES = BASE / "datos" / "casos.jsonl"
 
 MODELO_POR_DEFECTO = "microsoft/Phi-3.5-mini-instruct"
@@ -193,7 +195,8 @@ def correr(modelo, casos, v, config, salida, traza):
                   f"{fila['segundos_total']:5.1f}s {fila['llamadas']:2} llamadas  "
                   f"ramo {'ok' if fila['acierto_ramo'] else '--'} "
                   f"per {'ok' if fila['acierto_periodo'] else '--'}  "
-                  f"rech {ramas['rechazos_verificador']} busq {ramas['busquedas_extra']}  "
+                  f"rech {ramas['rechazos_mencion']}+{ramas['rechazos_codigo']} "
+                  f"corr {ramas['correcciones_periodo']} busq {ramas['busquedas_extra']}  "
                   f"{fila['prediccion']['decision']} / {fila['prediccion']['regla']}")
 
 
@@ -211,12 +214,11 @@ def resumen(salida):
     print(f"ramo {cuenta(lambda x: x['acierto_ramo'])}/{n}   "
           f"período {cuenta(lambda x: x['acierto_periodo'])}/{n}   "
           f"T1 recall@5 {cuenta(lambda x: x['t1_recall5'])}/{cuenta(lambda x: x['t1_recall5'] is not None)}")
-    print(f"CONJUNTO {cuenta(lambda x: x['acierto_conjunto'])}/{n}")
+    print(f"CONJUNTO {cuenta(lambda x: x['acierto_conjunto'])}/{n}   "
+          f"ESTRICTO {cuenta(lambda x: x.get('acierto_estricto'))}/{n}")
     print("ramas activadas (casos):")
-    for clave in ("rechazos_verificador", "busquedas_extra", "ninguno_resolvedor",
-                  "sin_ramo", "tope_rechazos", "tope_llamadas", "ilegibles", "codigo_fuera",
-                  "citas_fuera"):
-        print(f"  {clave:22} {cuenta(lambda x: x['ramas'][clave]):3}")
+    for clave in filas[0]["ramas"]:
+        print(f"  {clave:26} {cuenta(lambda x: x['ramas'][clave]):3}")
     print(f"llamadas por caso {sum(x['llamadas'] for x in filas) / n:.1f}   "
           f"tokens por caso {sum(x['tokens_total'] for x in filas) / n:,.0f}   "
           f"segundos por caso {sum(x['segundos_total'] for x in filas) / n:.1f}")
@@ -229,142 +231,228 @@ def _pruebas():
     caso = dict(json.loads(open(CASOS_ORIGINALES, encoding="utf-8").readline()), id="0")
     # caso 0: "¿puedo inscribir Programación este semestre?" -> no / 525140
 
-    A_OK = '{"accion": "entregar", "consultado": "Programación", "otros": [], "periodo": "actual"}'
+    A_OK = ('{"accion": "entregar", "consultado": "Programación", "otros": [], '
+            '"frase_periodo": "este semestre", "periodo": "actual"}')
     A_MAL = ('{"accion": "entregar", "consultado": "Álgebra I", "otros": [], '
-             '"periodo": "actual"}')
+             '"frase_periodo": "este semestre", "periodo": "actual"}')
     B_OK = '{"accion": "elegir", "codigo": "503203"}'
-    B_MAL = '{"accion": "elegir", "codigo": "525140"}'
+    B_MAL = '{"accion": "elegir", "codigo": "525140"}'      # Álgebra I, tras A_MAL
+    B_OTRO = '{"accion": "elegir", "codigo": "580327"}'     # Simulación, candidato de 'Programación'
     B_BUSCA = '{"accion": "buscar", "consulta": "programacion"}'
-    C_OK = '{"accion": "aceptar"}'
-    C_NO = '{"accion": "rechazar", "problema": "ramo", "motivo": "Álgebra I es contexto."}'
+    B_MANT = '{"accion": "mantener"}'
+    CITAS = '"cita_ramo": "Programación", "cita_periodo": "este semestre", '
+    C_OK = '{' + CITAS + '"accion": "aceptar"}'
+    C_COD = '{' + CITAS + '"accion": "rechazar", "problema": "codigo", "motivo": "No es Simulación."}'
+    C_MEN = '{' + CITAS + '"accion": "rechazar", "problema": "mencion", "motivo": "Álgebra I es contexto."}'
+    C_CORR = '{' + CITAS + '"accion": "corregir_periodo", "periodo": "proximo", "motivo": "x"}'
+    C_FUERA = ('{"cita_ramo": "Programación", "cita_periodo": "actual (2026-2)", '
+               '"accion": "aceptar"}')
 
     def corre(respuestas, config="completo"):
         m = ModeloGuion(respuestas)
         fila, traza = O.correr_caso(m, caso, v, config)
         return m, fila, traza
 
+    def recorrido(t):
+        return [(x["de"], x["para"]) for x in t]
+
     chequeos = []
 
     def chequea(nombre, obtenido, esperado):
         chequeos.append((nombre, obtenido, esperado))
 
+    # --- camino directo
     m, f, t = corre([A_OK, B_OK, C_OK])
-    chequea("camino directo: 3 llamadas", len(m.llamadas), 3)
-    chequea("camino directo: acierta", f["acierto_conjunto"], True)
-    chequea("camino directo: recorrido de la traza",
-            [(x["de"], x["para"]) for x in t],
+    chequea("camino directo: 3 llamadas, acierta estricto",
+            (len(m.llamadas), f["acierto_conjunto"], f["acierto_estricto"]), (3, True, True))
+    chequea("camino directo: recorrido de la traza", recorrido(t),
             [("estudiante", "interprete"), ("interprete", "T1"), ("T1", "resolvedor"),
              ("resolvedor", "verificador"), ("verificador", "T2"), ("T2", "fin")])
     chequea("cada llamada al modelo deja prompt y salida cruda en la traza",
             all(x.get("prompt", {}).get("hash") and x.get("crudo") for x in t
                 if x["tipo"] == "agente"), True)
-    chequea("T1 recall@5 registrado", f["t1_recall5"], True)
+    chequea("la fila dice la versión y el primer candidato de T1",
+            (f["version"], f["t1_top1_inicial"], f["t1_recall5"]), ("v5", "503203", True))
+    chequea("T1 marca la coincidencia exacta en lo que ve el Resolvedor",
+            "503203  Programación  (1.50)  COINCIDENCIA EXACTA" in m.llamadas[1][1]["content"], True)
+    chequea("el Verificador ve el semestre en palabras, no la etiqueta",
+            ("2026-2, el segundo semestre de 2026" in m.llamadas[2][1]["content"],
+             "actual (" in m.llamadas[2][1]["content"]), (True, False))
 
+    # --- búsqueda extra
     m, f, t = corre([A_OK, B_BUSCA, B_OK, C_OK])
     chequea("búsqueda extra: 4 llamadas y T1 dos veces",
             (len(m.llamadas), sum(x["de"] == "T1" for x in t)), (4, 2))
     chequea("búsqueda extra: la segunda vez el Resolvedor sabe lo que buscó",
             "Búsquedas que ya hiciste" in m.llamadas[2][1]["content"], True)
 
-    m, f, t = corre([A_MAL, B_MAL, C_NO, A_OK, B_OK, C_OK])
-    chequea("rechazo y corrección: 6 llamadas, acierta",
-            (len(m.llamadas), f["acierto_conjunto"], f["ramas"]["rechazos_verificador"]),
-            (6, True, 1))
-    chequea("rechazo: el Intérprete recibe la revisión",
-            "REVISIÓN" in m.llamadas[3][1]["content"], True)
+    # --- rechazo por el código: vuelve al Resolvedor, no al Intérprete
+    m, f, t = corre([A_OK, B_OTRO, C_COD, B_OK, C_OK])
+    chequea("rechazo por código: 5 llamadas, el Intérprete una sola vez, acierta",
+            (len(m.llamadas), sum(x["de"] == "interprete" for x in t), f["acierto_conjunto"],
+             f["ramas"]["rechazos_codigo"]), (5, 1, True, 1))
+    chequea("rechazo por código: el mensaje va del Verificador al Resolvedor",
+            ("verificador", "resolvedor") in recorrido(t), True)
+    chequea("rechazo por código: el Resolvedor recibe el código rechazado y el motivo",
+            ("RECHAZO DEL VERIFICADOR" in m.llamadas[3][1]["content"],
+             "580327" in m.llamadas[3][1]["content"], "No es Simulación." in m.llamadas[3][1]["content"]),
+            (True, True, True))
+    chequea("sin rechazo el Resolvedor no ve el bloque de rechazo",
+            "RECHAZO DEL VERIFICADOR" in m.llamadas[1][1]["content"], False)
 
-    m, f, t = corre([A_MAL, B_MAL, C_NO])
-    chequea("tope de rechazos: 9 llamadas, usa la última elección",
+    m, f, t = corre([A_OK, B_OK, C_COD, B_MANT, C_OK])
+    chequea("mantener: vuelve a elegir el código rechazado y se cuenta",
+            (f["extraccion"]["ramo"], f["ramas"]["mantener"], f["acierto_conjunto"]),
+            ("503203", 1, True))
+
+    m, f, t = corre([A_OK, B_MANT, A_OK, B_OK, C_OK])
+    chequea("mantener sin rechazo: cuenta como ninguno y vuelve al Intérprete",
+            (len(m.llamadas), f["ramas"]["ninguno_resolvedor"], f["acierto_conjunto"]),
+            (5, 1, True))
+
+    m, f, t = corre([A_OK, B_OTRO, C_COD, B_OTRO, C_COD, B_OTRO, C_COD])
+    chequea("tope por rechazos de código: 7 llamadas, usa la última elección",
+            (len(m.llamadas), f["ramas"]["tope_rechazos"], f["extraccion"]["ramo"], f["aceptada"]),
+            (7, True, "580327", False))
+
+    # --- rechazo por la mención: vuelve al Intérprete
+    m, f, t = corre([A_MAL, B_MAL, C_MEN, A_OK, B_OK, C_OK])
+    chequea("rechazo por mención: 6 llamadas, acierta, se cuenta",
+            (len(m.llamadas), f["acierto_conjunto"], f["ramas"]["rechazos_mencion"]), (6, True, 1))
+    chequea("rechazo por mención: el Intérprete recibe la revisión",
+            "REVISIÓN" in m.llamadas[3][1]["content"], True)
+    m, f, t = corre([A_MAL, B_MAL, '{' + CITAS + '"accion": "rechazar", "problema": "ramo", '
+                     '"motivo": "otro"}', A_OK, B_OK, C_OK])
+    chequea("un problema que no es 'codigo' se lee como mención",
+            (f["ramas"]["rechazos_mencion"], f["ramas"]["rechazos_codigo"]), (1, 0))
+
+    m, f, t = corre([A_MAL, B_MAL, C_MEN])
+    chequea("tope por rechazos de mención: 9 llamadas, usa la última elección",
             (len(m.llamadas), f["ramas"]["tope_rechazos"], f["extraccion"]["ramo"], f["aceptada"]),
             (9, True, "525140", False))
 
+    # --- corrección del período
+    m, f, t = corre([A_OK, B_OK, C_CORR])
+    chequea("corregir_periodo: 3 llamadas, T2 recibe el período corregido",
+            (len(m.llamadas), f["extraccion"]["periodo"], t[-1]["contenido"]["periodo"],
+             f["ramas"]["correcciones_periodo"], f["aceptada"]), (3, "proximo", "proximo", 1, True))
+    m, f, t = corre([A_OK, B_OK, '{' + CITAS + '"accion": "corregir_periodo", "periodo": "actual"}'])
+    chequea("corregir_periodo con el mismo período cuenta como aceptar",
+            (f["ramas"]["correcciones_periodo"], f["extraccion"]["periodo"]), (0, "actual"))
+    m, f, t = corre([A_OK, B_OK, '{' + CITAS + '"accion": "corregir_periodo", "periodo": "?"}'])
+    chequea("corregir_periodo sin período legible cuenta como aceptar",
+            (f["ramas"]["correcciones_periodo"], f["aceptada"]), (0, True))
+
+    # --- revisión de citas
+    m, f, t = corre([A_OK, B_OK, C_FUERA, C_OK])
+    chequea("cita fuera de la consulta: el Verificador revisa su salida una vez",
+            (len(m.llamadas), f["ramas"]["revision_citas"], f["ramas"]["cita_periodo_fuera"],
+             f["ramas"]["citas_fuera_tras_revision"]), (4, 1, 1, 0))
+    chequea("la revisión le muestra su respuesta y qué cita no está",
+            ("REVISIÓN DE TU RESPUESTA ANTERIOR" in m.llamadas[3][1]["content"],
+             "cita_periodo no aparece" in m.llamadas[3][1]["content"]), (True, True))
+    chequea("la revisión queda en la traza como mensaje del Verificador a sí mismo",
+            ("verificador", "verificador") in recorrido(t), True)
+    m, f, t = corre([A_OK, B_OK, C_FUERA, C_FUERA])
+    chequea("la revisión es una sola: si la cita sigue fuera, sigue con esa salida",
+            (len(m.llamadas), f["ramas"]["citas_fuera_tras_revision"], f["aceptada"]), (4, 1, True))
+    m, f, t = corre([A_OK, B_OK, '{"cita_ramo": "Programación", "cita_periodo": "", '
+                     '"accion": "aceptar"}'])
+    chequea("cita de período vacía: no se revisa", (len(m.llamadas), f["ramas"]["revision_citas"]),
+            (3, 0))
+
+    # --- paradas y salidas ilegibles
     m, f, t = corre(['{"accion": "sin_ramo"}'])
     chequea("sin_ramo: 1 llamada y sin decisión",
-            (len(m.llamadas), f["prediccion"]["decision"], f["ramas"]["sin_ramo"]),
-            (1, None, True))
-
+            (len(m.llamadas), f["prediccion"]["decision"], f["ramas"]["sin_ramo"]), (1, None, True))
     m, f, t = corre([A_OK, B_OK, "no sé qué responder"])
     chequea("Verificador ilegible: acepta y se cuenta",
             (f["aceptada"], f["ramas"]["ilegibles"], f["acierto_conjunto"]), (True, 1, True))
-
     m, f, t = corre([A_OK, '{"accion": "elegir", "codigo": "999999"}', A_OK, B_OK, C_OK])
     chequea("código fuera de los candidatos: cuenta como ninguno y vuelve al Intérprete",
             (len(m.llamadas), f["ramas"]["codigo_fuera"], f["ramas"]["ninguno_resolvedor"],
              f["acierto_conjunto"]), (5, 1, 1, True))
-
-    m, f, t = corre([A_OK, B_BUSCA, B_BUSCA, B_OK, C_NO])
+    m, f, t = corre([A_OK, B_BUSCA, B_BUSCA, B_OK, C_MEN])
     chequea("tope de llamadas: se corta en 12",
             (len(m.llamadas), f["ramas"]["tope_llamadas"]), (12, True))
-
     m, f, t = corre(['{"accion": "entregar", "consultado": "Programación", "periodo": "?"}',
                      B_OK, C_OK])
     chequea("período ilegible: se usa actual y se marca",
-            (f["extraccion"]["periodo"], t[1]["contenido"]["periodo_por_defecto"]),
-            ("actual", True))
+            (f["extraccion"]["periodo"], t[1]["contenido"]["periodo_por_defecto"]), ("actual", True))
 
+    # --- configuraciones
     m, f, t = corre([A_OK, B_OK], "sin_verificador")
     chequea("sin verificador: 2 llamadas", (len(m.llamadas), f["acierto_conjunto"]), (2, True))
-
     m, f, t = corre([A_OK, C_OK], "top1")
     chequea("top1: el Resolvedor no llama al modelo",
             (len(m.llamadas), f["extraccion"]["ramo"]), (2, "503203"))
-
     m, f, t = corre([A_OK, B_OK, C_OK], "sin_herramienta")
     chequea("sin herramienta: el Resolvedor ve las 61 asignaturas y no hay T1",
             ("CATÁLOGO" in m.llamadas[1][1]["content"],
              len(re.findall(r"^\d+  ", m.llamadas[1][1]["content"], re.M)),
              any(x["de"] == "T1" for x in t)), (True, 61, False))
+    m, f, t = corre([A_OK, B_OTRO, C_COD, B_OK, C_OK], "sin_herramienta")
+    chequea("sin herramienta: el rechazo por código también le llega al Resolvedor",
+            ("RECHAZO DEL VERIFICADOR" in m.llamadas[3][1]["content"], f["acierto_conjunto"]),
+            (True, True))
+    m, f, t = corre([A_OK, B_OK, C_FUERA], "sin_citas_verificador")
+    chequea("sin citas del Verificador: no pide citas ni revisa",
+            ("cita_ramo" in m.llamadas[2][0]["content"], len(m.llamadas), f["ramas"]["revision_citas"]),
+            (False, 3, 0))
 
-    m, _, _ = corre([A_OK, B_OK, C_OK], "sin_ejemplos")
-    m2, _, _ = corre([A_OK, B_OK, C_OK])
+    sistemas = {}
+    for config in O.CONFIGURACIONES:
+        mm = ModeloGuion([A_OK, B_OK, C_OK])
+        O.correr_caso(mm, caso, v, config)
+        sistemas[config] = [msg[0]["content"] for msg in mm.llamadas]
+    completo_a, completo_c = sistemas["completo"][0], sistemas["completo"][-1]
     chequea("sin ejemplos: el Intérprete pierde solo el bloque de ejemplos",
-            ("Ejemplos:" in m.llamadas[0][0]["content"], "Ejemplos:" in m2.llamadas[0][0]["content"]),
+            ("Ejemplos:" in sistemas["sin_ejemplos"][0], "Ejemplos:" in completo_a), (False, True))
+    chequea("sin lista de otros: el Intérprete no pide 'otros' y conserva la regla del verbo",
+            ('"otros"' in sistemas["sin_lista_otros"][0],
+             "acompaña al verbo" in sistemas["sin_lista_otros"][0]), (False, True))
+    chequea("sin regla del verbo: el Intérprete conserva 'otros' y pierde la regla",
+            ('"otros"' in sistemas["sin_regla_verbo"][0],
+             "acompaña al verbo" in sistemas["sin_regla_verbo"][0]), (True, False))
+    chequea("sin citas del Intérprete: no pide frase_periodo",
+            ("frase_periodo" in sistemas["sin_citas_interprete"][0], "frase_periodo" in completo_a),
             (False, True))
+    chequea("sin calendario: el Verificador pierde solo el calendario",
+            ("Calendario académico" in sistemas["sin_calendario"][-1],
+             "Calendario académico" in completo_c, "corregir_periodo" in sistemas["sin_calendario"][-1]),
+            (False, True, True))
+    import gen_ablaciones_v5 as GA
+    chequea("los prompts de ablación coinciden con lo que genera gen_ablaciones_v5.py",
+            [n for n in GA.ABLACIONES
+             if (A.PROMPTS / "ablaciones" / n).read_text(encoding="utf-8").replace("\r\n", "\n")
+             != GA.generar(n)], [])
 
-    m, _, _ = corre([A_OK, B_OK, C_OK], "sin_descomposicion")
-    chequea("sin descomposición: el Intérprete no pide las otras asignaturas",
-            '"otros"' in m.llamadas[0][0]["content"], False)
+    # --- la regla fija sin modelo recorre el flujo v5
+    fila_rf, _ = O.correr_caso(ModeloFalso(), caso, v, "completo")
+    chequea("regla fija: acierta el caso 0 por el flujo v5",
+            (fila_rf["acierto_conjunto"], fila_rf["llamadas"]), (True, 3))
 
-    # Salidas reales de Phi en la primera corrida de desarrollo (casos 0 y 13): el JSON,
-    # una explicación y el JSON repetido o cambiado. Vale el primero.
+    # --- lectura del JSON y corte de generación (sin cambios desde la v4)
     A_REAL = ('{"accion": "entregar", "consultado": "Programación", "otros": [], '
               '"periodo": "actual"}\n\nExplicación: el estudiante pregunta por "Programación".'
               '\n\nJSON:\n\n{"accion": "entregar", "consultado": "Programación", "otros": [], '
               '"periodo": "actual"}')
-    C_REAL = ('{"accion": "aceptar", "problema": "error de contexto", "motivo": "..."}\n\n'
-              '```json\n{\n  "accion": "rechazar",\n  "problema": "contexto",\n'
-              '  "motivo": "otra cosa"\n}\n```')
-    m, f, t = corre([A_REAL, B_OK, C_REAL])
+    m, f, t = corre([A_REAL, B_OK, C_OK])
     chequea("JSON repetido con explicación: se lee el primero",
-            (f["ramas"]["ilegibles"], f["ramas"]["sin_ramo"], f["acierto_conjunto"],
-             f["ramas"]["rechazos_verificador"]), (0, False, True, 0))
+            (f["ramas"]["ilegibles"], f["ramas"]["sin_ramo"], f["acierto_conjunto"]), (0, False, True))
     chequea("JSON dentro de un bloque de código: se lee",
-            A._extraer_json('Claro:\n```json\n{"accion": "aceptar"}\n```')[0],
-            {"accion": "aceptar"})
+            A._extraer_json('Claro:\n```json\n{"accion": "aceptar"}\n```')[0], {"accion": "aceptar"})
     chequea("llaves sueltas antes del JSON: se saltan",
-            A._extraer_json('uso {llaves} sueltas {"accion": "ninguno"}')[0],
-            {"accion": "ninguno"})
-
-    # Citas del Verificador: se mide si salen de la consulta o de la interpretación (v3).
-    m, f, t = corre([A_OK, B_OK,
-                     '{"cita_ramo": "Programación", "cita_periodo": "este semestre", '
-                     '"accion": "aceptar"}'])
-    chequea("cita tomada de la consulta: no se marca", f["ramas"]["citas_fuera"], 0)
-    m, f, t = corre([A_OK, B_OK,
-                     '{"cita_ramo": "503203 Programación", "cita_periodo": "actual (2026-2)", '
-                     '"accion": "aceptar"}'])
-    chequea("cita copiada de la interpretación: se marca y no cambia la acción",
-            (f["ramas"]["citas_fuera"], f["aceptada"]), (1, True))
-
-    # El corte de generación: se detiene solo cuando el primer JSON está cerrado.
+            A._extraer_json('uso {llaves} sueltas {"accion": "ninguno"}')[0], {"accion": "ninguno"})
     chequea("corte: JSON a medias no corta", json_completo('{"accion": "entre'), False)
     chequea("corte: JSON cerrado corta", json_completo('{"accion": "aceptar"} y más'), True)
     chequea("corte: lo que lee el agente es lo mismo con y sin corte",
-            A._extraer_json(A_REAL)[0] == A._extraer_json(A_REAL[:A_REAL.index("}") + 1])[0],
-            True)
+            A._extraer_json(A_REAL)[0] == A._extraer_json(A_REAL[:A_REAL.index("}") + 1])[0], True)
 
+    todos = ModeloGuion([A_MAL, B_MAL, C_COD, B_OK, C_FUERA, C_MEN])
+    O.correr_caso(todos, caso, v, "completo")
     chequea("los prompts no dejan marcas sin reemplazar",
-            any("{{" in msg["content"] for msg in sum(m2.llamadas, [])), False)
+            any("{{" in msg["content"] for msg in sum(todos.llamadas, [])), False)
 
     fallas = [(n, o, e) for n, o, e in chequeos if o != e]
     for n, o, e in fallas:

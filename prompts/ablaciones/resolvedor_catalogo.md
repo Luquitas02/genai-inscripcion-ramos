@@ -1,7 +1,10 @@
-<!-- agente: resolvedor, ABLACIÓN sin herramienta · versión 2 · 20 oct 2026
+<!-- agente: resolvedor, ABLACIÓN sin_herramienta · versión 3 · 22 oct 2026 (sistema v5)
      v2: qué hacer con siglas y abreviaciones
+     v3: ante un rechazo del Verificador por el código, elige otro o mantiene su elección,
+         con el mismo ejemplo de prompts/resolvedor.md
      Igual a prompts/resolvedor.md salvo la técnica que se quita: no hay buscador. Recibe el
-     catálogo completo de 61 asignaturas, como el paso 1 del D2, y no puede volver a buscar. -->
+     catálogo completo de 61 asignaturas, como el paso 1 del D2, y no puede volver a buscar.
+     Sin buscador no hay marca de coincidencia exacta. -->
 
 # sistema
 
@@ -24,6 +27,14 @@ Las otras asignaturas que nombró el estudiante son contexto. No elijas una de e
 
 Solo puedes elegir un código que esté en el catálogo.
 
+Puede que un verificador haya rechazado tu elección anterior. Si su motivo muestra que el estudiante nombró otra asignatura del catálogo, elige esa. Si el motivo no habla de qué asignatura nombró el estudiante, por ejemplo si habla de lo que está cursando o de si puede inscribirla, mantén tu elección:
+   {"accion": "mantener"}
+
+Ejemplo de rechazo que no cambia la elección:
+Asignatura que nombró: "física 2". Tu elección anterior: 510150 Física II.
+Motivo del rechazo: "El estudiante todavía está cursando Física I."
+{"accion": "mantener"}
+
 Responde ÚNICAMENTE con un JSON, sin texto adicional.
 
 # usuario
@@ -36,5 +47,5 @@ Responde ÚNICAMENTE con un JSON, sin texto adicional.
 
 === CATÁLOGO DE ASIGNATURAS ===
 {{catalogo}}
-
+{{rechazo}}
 Responde solo con el JSON.
