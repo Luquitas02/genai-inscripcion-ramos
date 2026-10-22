@@ -387,6 +387,10 @@ con otra pregunta y 8 repiten una pregunta anterior. Se reporta también sin eso
 los lotes nuevos ninguna pregunta se repite. `datos/prueba_v5/SELLO.txt` guarda el sha256 de
 cada lote al generarlo. El script imprime solo conteos: nadie mira las preguntas hasta la
 corrida final, salvo la lectura de validez de las 60 redactadas, que hace Lucas y no Claude.
+Lucas encontró un garabato en las redactadas: las instrucciones pedían español chileno
+informal y no prohibían groserías. Un agente aparte, que solo vio esas dos filas, cambió una
+palabra en cada una (id 3 y 29) por "oye", sin tocar el ramo, el período ni el ramo de
+contexto. Las otras 58 filas quedaron idénticas a las del commit `2f37a22`.
 
 **21 oct 2026 — Auditoría completa antes del video.** Tres revisores independientes (rúbrica,
 cifras y protocolo, código y reproducibilidad) y una revisión propia. Todas las cifras del
