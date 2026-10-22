@@ -558,6 +558,24 @@ Borrador del correo:
 
 ## Registro de decisiones
 
+**22 oct 2026 — Réplica de la v4 sobre los 180 casos sellados: se cumple H1.** Corrida con
+`replica_v4_colab.ipynb` en el commit del protocolo (`5b5c5d5`, mismos hashes de prompts que la
+corrida del 20 de octubre); salida de `analisis_replica_v4.py`:
+
+| | plantilla A | plantilla B | redactados | 180 (estricto) |
+|---|---|---|---|---|
+| baseline | 18 | 12 | 13 | 43 |
+| D2 | 39 | 37 | 42 | 118 (94) |
+| regla fija | 37 | 40 | 25 | 102 (57) |
+| v4 | 54 | 55 | 55 | 164 (158) |
+
+H1: la v4 gana 50 y el D2 4, p = 3,8e-11. Estricto 66 a 2; sin los 8 que repiten, 50 a 4; cada
+conjunto por separado, p < 0,001. En las redactadas, que en los 150 eran el punto débil (30
+casos), la v4 saca 55 de 60 y la regla fija 25. Ramo 164/180, período 173/180, recall@5 de T1
+176/180. Las ramas casi no se activan: 173 de 180 casos siguen el camino fijo (5 rechazos del
+Verificador, 4 búsquedas extra), igual que en los 150. Por el protocolo, los 180 van al
+documento al lado de los 150; el caso de falla, el video y las ablaciones no cambian.
+
 **22 oct 2026 — La v4 se replica sobre los 180 casos sellados (decisión de Lucas).** Se entrega
 la v4, y los 150 casos de su corrida ya se usaron para diseñar la v5. Los 180 de
 `datos/prueba_v5/` siguen sin usar. Se corren la v4 completa, el baseline y el D2, sin
