@@ -1,6 +1,7 @@
-sha256 de cada lote al generarlo, antes de diseñar la v5
+sha256 de cada archivo tal como queda en git (saltos de línea LF). Para comprobarlo:
+git show HEAD:datos/prueba_v5/<archivo> | sha256sum
 08e6d4b15af7c318d8200a45fc844ea3a22de92ad0fbb1dd0d50f45448982f12  plantilla_a.jsonl  semilla 20261022
 3a8567c9323a34c84a75f4e87c4e121f515a8d0060f015a2f88f31a4d9696c7e  plantilla_b.jsonl  semilla 20261023
 361e28048e6f1fba81d32c7bcb6e4bccf9675cedd82d36e9105bfb40f1f0a66f  base_redactados.jsonl  semilla 20261024
 218bdf1d55927603ff935fba5153db4cb37e08c74e6af45b82fa2a7bf8ab8ba0  redactados_modelo.json  preguntas del redactor a ciegas, antes de la lectura de Lucas
-3fdb78b6ec6c3328f635f4be465d434b2bd0ee5dc8514d153096eeef50a318e7  redactados.jsonl  las 60 redactadas tras la lectura de Lucas (21 oct)
+e2549281a8afd82a1d754a76c0ea95769b6c5ec4f487f0f6757f6344e24b52bc  redactados.jsonl  las 60 redactadas tras la lectura de Lucas (21 oct)
