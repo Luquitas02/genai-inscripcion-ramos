@@ -375,6 +375,19 @@ Borrador del correo:
 
 ## Registro de decisiones
 
+**21 oct 2026 — Casos de prueba de la v5, sellados antes de diseñarla.**
+`scripts/preparar_prueba_v5.py` genera tres lotes de 60 con semillas 20261022, 20261023 y
+20261024, balanceados como los anteriores (7/7/6 por nivel): `plantilla_a`, `plantilla_b` y
+`base_redactados`, cuyas 60 preguntas se redactan de nuevo a ciegas. Se descarta todo caso
+que repita el historial y la consulta, o la pregunta, de un conjunto anterior. El nivel 1 no
+alcanza: con el nombre completo del ramo el generador produce solo 10 problemas "sí" y 10
+"condicional" (20 preguntas "sí", 16 ya usadas). Ahí el filtro baja un escalón y cada caso
+guarda cuál (`filtro_v5`): 95 de 120 de plantilla son del todo nuevos, 17 repiten el problema
+con otra pregunta y 8 repiten una pregunta anterior. Se reporta también sin esos 8. Dentro de
+los lotes nuevos ninguna pregunta se repite. `datos/prueba_v5/SELLO.txt` guarda el sha256 de
+cada lote al generarlo. El script imprime solo conteos: nadie mira las preguntas hasta la
+corrida final, salvo la lectura de validez de las 60 redactadas, que hace Lucas y no Claude.
+
 **21 oct 2026 — Auditoría completa antes del video.** Tres revisores independientes (rúbrica,
 cifras y protocolo, código y reproducibilidad) y una revisión propia. Todas las cifras del
 documento se reproducen desde los archivos crudos, el protocolo se cumplió y no hay fugas de

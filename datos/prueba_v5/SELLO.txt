@@ -1,0 +1,4 @@
+sha256 de cada lote al generarlo, antes de diseñar la v5
+08e6d4b15af7c318d8200a45fc844ea3a22de92ad0fbb1dd0d50f45448982f12  plantilla_a.jsonl  semilla 20261022
+3a8567c9323a34c84a75f4e87c4e121f515a8d0060f015a2f88f31a4d9696c7e  plantilla_b.jsonl  semilla 20261023
+361e28048e6f1fba81d32c7bcb6e4bccf9675cedd82d36e9105bfb40f1f0a66f  base_redactados.jsonl  semilla 20261024

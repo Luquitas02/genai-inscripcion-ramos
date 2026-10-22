@@ -21,6 +21,9 @@ período, créditos ya inscritos), no de la redacción. Lo único que cambia es 
     python preparar_redactados.py llenar <json> <autor>  -> completa las preguntas vacías
     python preparar_redactados.py unir                   -> datos/casos_redactados.jsonl
 
+Con `--v5` arma los 60 redactados de prueba de la versión 5, desde el lote aparte
+`prueba_v5/base_redactados.jsonl` (`prueba_v5/redactados.csv` -> `prueba_v5/redactados.jsonl`).
+
 Lo mismo con `--desarrollo` arma 21 redactados del conjunto de DESARROLLO
 (`desarrollo_redactados.csv` -> `casos_desarrollo_redactados.jsonl`), para comprobar antes
 de congelar los prompts que el sistema no se rompe con preguntas fuera de las plantillas. Se
@@ -55,6 +58,10 @@ ESTADO_TXT = {INSCRITA: "la está cursando ahora", REPROBADA: "la reprobó"}
 PRUEBA = ("casos.jsonl", CSV_RUTA, JSONL_SALIDA, 10, SEMILLA, True)
 DESARROLLO = ("casos_desarrollo.jsonl", DATOS / "desarrollo_redactados.csv",
               DATOS / "casos_desarrollo_redactados.jsonl", 7, 20261021, False)
+# Prueba de la v5: se redactan los 60 casos de `prueba_v5/base_redactados.jsonl`, un lote
+# aparte de los de plantilla (ver preparar_prueba_v5.py). 20 por nivel = todos.
+PRUEBA_V5 = ("prueba_v5/base_redactados.jsonl", DATOS / "prueba_v5" / "redactados.csv",
+             DATOS / "prueba_v5" / "redactados.jsonl", 20, 20261025, True)
 CONF = PRUEBA
 
 
@@ -175,6 +182,9 @@ if __name__ == "__main__":
     if "--desarrollo" in sys.argv:
         sys.argv.remove("--desarrollo")
         CONF = DESARROLLO
+    if "--v5" in sys.argv:
+        sys.argv.remove("--v5")
+        CONF = PRUEBA_V5
     accion = sys.argv[1] if len(sys.argv) > 1 else ""
     if accion == "elegir":
         raise SystemExit(elegir())
