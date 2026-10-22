@@ -4,7 +4,8 @@
 %  Joaquín Sepúlveda · Renato Saavedra · Lucas Saldivia
 %
 %  UNA PÁGINA, VERTICAL, compilado desde LaTeX. Overleaf → pdfLaTeX.
-%  Todas las cifras salen de scripts/analisis_d3.py sobre resultados/.
+%  Las cifras de los 150 casos salen de scripts/analisis_d3.py y las de los
+%  180 de scripts/analisis_replica_v4.py, sobre resultados/.
 % =====================================================================
 \documentclass[9pt,a4paper]{extarticle}
 
@@ -56,7 +57,7 @@
 \raggedright
 
 % ---------------------------------------------------------------- cabecera
-{\Large\bfseries De 64,0\,\% a 88,0\,\% en la validación de inscripción de ramos con tres agentes sobre el mismo modelo de 3,8B}\\[0.8mm]
+{\Large\bfseries Tres agentes sobre el mismo modelo de 3,8B suben la validación de inscripción de ramos de 64,0\,\% a 88,0\,\%, y de 65,6\,\% a 91,1\,\% en 180 casos nuevos}\\[0.8mm]
 {\footnotesize\color{gris}%
 \textbf{Deliverable 3} · Generative Artificial Intelligence (580694) · Universidad de Concepción · 31 de octubre de 2026\\
 \textbf{Equipo:} Joaquín Sepúlveda · Renato Saavedra · Lucas Saldivia \quad\textbullet\quad
@@ -167,26 +168,30 @@ las aplica al 31,7\,\% con la ficha perfecta y el código al 100\,\%.\par}
 \seccion{Resultados}
 
 {\footnotesize
-\begin{tabular}{@{}lrrrr@{}}
+\begin{tabular}{@{}lrrrrrr@{}}
 \toprule
-acierto conjunto & originales & nuevos & redactados & \textbf{150} \\
+& \multicolumn{3}{c}{corrida del 20 oct} & \multicolumn{3}{c}{réplica, casos sellados} \\
+\cmidrule(lr){2-4}\cmidrule(l){5-7}
+acierto conjunto & plantilla & redact. & \textbf{150} & plantilla & redact. & \textbf{180} \\
 \midrule
-baseline few-shot (D1)   & 10 & 18 &  7 & 35 \\
-sistema del D2           & 35 & 37 & 24 & 96 \\
-regla fija, sin modelo   & 42 & 41 &  7 & 90 \\
+baseline few-shot (D1)   &  28 &  7 &  35 &  30 & 13 &  43 \\
+sistema del D2           &  72 & 24 &  96 &  76 & 42 & 118 \\
+regla fija, sin modelo   &  83 &  7 &  90 &  77 & 25 & 102 \\
 \rowcolor{fondo}
-\textbf{tres agentes}    & \textbf{52} & \textbf{51} & \textbf{29} & \textbf{132} \\
+\textbf{tres agentes}    & \textbf{103} & \textbf{29} & \textbf{132} & \textbf{109} & \textbf{55} & \textbf{164} \\
+\quad con ramo y período bien & 97 & 24 & 121 & 103 & 55 & 158 \\
 \bottomrule
 \end{tabular}\par}
 
 \vspace{1mm}
-\destaque{\footnotesize Los agentes suben de 64,0\,\% a 88,0\,\% en los 150 casos. Donde difieren con el D2 ganan 39 y pierden 3 (McNemar exacto, $p<0{,}001$). Ganan en los tres conjuntos, aunque en los 30 redactados la diferencia no es significativa (6 a 1, $p=0{,}125$). Sin los casos ambiguos aciertan 48 de 51 en originales y 50 de 54 en nuevos.}
+\destaque{\footnotesize En los 150 casos los agentes suben de 64,0\,\% a 88,0\,\%. Donde difieren con el D2 ganan 39 y pierden 3 (McNemar exacto, $p<0{,}001$), pero en los 30 redactados la diferencia no era significativa (6 a 1, $p=0{,}125$). Para comprobarlo se corrió el mismo sistema, sin cambios y con un protocolo subido antes, sobre 180 casos sellados que nadie había usado, 60 de ellos redactados a ciegas. Ahí ganan 50 a 4 ($p<0{,}001$), y 14 a 1 en las redactadas.}
 
 \vspace{0.6mm}
 {\footnotesize
 La regla fija toma el texto que sigue a \q inscribir\q, \q tomar\q\ o \q meter\q\ y lo busca con T1.
-Supera al D2 en las preguntas de plantilla y cae a 7 de 30 en las redactadas. Los agentes
-no dependen de la plantilla. Por mecanismo, en originales y nuevos sin ambiguos:\par}
+Iguala o supera al D2 en las preguntas de plantilla y cae a 7 de 30 y 25 de 60 en las redactadas.
+Los agentes no dependen de la plantilla. Exigiendo también ramo y período correctos, el D2 acierta
+75 y 94. Por mecanismo, en originales y nuevos sin ambiguos:\par}
 
 \vspace{0.3mm}
 {\footnotesize
@@ -210,8 +215,8 @@ acierta el período (M3)               & 105 & 90 & \textbf{98} \\
 técnica (Lecture 5) & agente & ataca & sin ella & $\Delta$ \\
 \midrule
 uso de herramienta (ReAct)   & B & M1      & 75  & $-57$ \\
-few-shot, 4 ejemplos         & A & M2, M3  & 123 & $-9$ \\
-descomposición en menciones  & A & M2      & 136 & $+4$ \\
+few-shot, 4 ejemplos         & A & M2      & 123 & $-9$ \\
+descomposición en menciones$^{*}$ & A & M2 & 136 & $+4$ \\
 Self-Refine con citas        & C & M2, M3  & 133 & $+1$ \\
 B reemplazado por el top-1   & B & M1      & 133 & $+1$ \\
 \bottomrule
@@ -219,19 +224,23 @@ B reemplazado por el top-1   & B & M1      & 133 & $+1$ \\
 
 \vspace{0.6mm}
 {\footnotesize
-Cada fila es el sistema completo (132) con una sola pieza menos, sobre los mismos 150 casos.
-Todos los agentes usan además un rol y salida JSON, y el Verificador lleva 2 ejemplos que no
-se ablacionaron. El Intérprete y el Verificador citan la
-pregunta antes de decidir (\cod{frase\_periodo}, \cod{cita\_ramo}). Esa técnica subió el período
-de 41 a 48 de 52 en desarrollo y no se ablacionó en la corrida final.
+Cada fila es el sistema completo (132) sin una pieza, sobre los mismos 150 casos. Las ablaciones
+no se repitieron en la réplica. ($^{*}$) Esta fila quita dos instrucciones a la vez, la lista de
+los otros ramos y la regla de tomar el ramo que acompaña al verbo. Todos los agentes usan además
+un rol y salida JSON. El Verificador lleva 2 ejemplos, y el Intérprete y el Verificador copian
+la frase de la pregunta antes de decidir (\cod{frase\_periodo}, \cod{cita\_ramo}). Nada de eso se
+ablacionó.
 
 La mejora la explican dos piezas. Sin T1 el modelo vuelve a copiar códigos y el sistema cae a
-75 (McNemar $p<0{,}001$). Sin los ejemplos cae a 123 ($p=0{,}004$), y M2 baja de 34 a 26. Pedir
-la lista de los otros ramos no aporta. Sin esa instrucción, M2 queda en 34. El Resolvedor y el
-Verificador deciden poco. Hubo búsquedas extra en 4 casos de 150 y rechazos en 5, y su efecto
-neto es nulo. Ninguna búsqueda extra arregló un ramo. Con \q opti I\q\ confirmó lo que T1 ya
-ponía primero, con \q PCP\q\ buscó \q Ingeniería Civil Industrial\q\ y con \q evapro\q\ descartó
-el candidato correcto.\par}
+75 (McNemar $p<0{,}001$). Sin los ejemplos cae a 123 ($p=0{,}004$) porque M2 baja de 34 a 26.
+El período, en cambio, sube sin ejemplos (141 contra 137).
+
+El Resolvedor y el Verificador no aportan, y las trazas muestran por qué. El Resolvedor se apartó
+del primer candidato de T1 en 8 de los 150 casos y en 8 de los 180. Acertó en 1 de esos 16, y
+en 8 el primer candidato era el correcto. Un rechazo del Verificador vuelve al Intérprete. Si su
+mención estaba bien, la repite, T1 devuelve los mismos candidatos y el Resolvedor elige lo mismo.
+Por eso 4 de los 5 rechazos de cada corrida terminan en tope. En originales 59 el Verificador
+rechazó con razón tres veces Optimización II y el tope aceptó esa elección.\par}
 
 \seccion{Caso de falla}
 
@@ -247,31 +256,36 @@ era \q condicional\q. Un modelo de 3,8B que revisa a otro puede deshacer un acie
 \seccion{Cómo se midió}
 
 {\footnotesize
-Los prompts se ajustaron en 52 casos de desarrollo que no se usan en la prueba (de 40 a 44 en
-cuatro versiones) y en 21 preguntas de desarrollo redactadas (20 de 21). Las reglas para
-aceptar cada versión y el protocolo de la corrida final (\cod{PROTOCOLO\_D3.md}) se subieron
-antes de correr. Las 30 preguntas redactadas las escribió un modelo de lenguaje sin acceso
-al sistema, y fueron revisadas con asistencia de IA y confirmadas por el equipo. Cada mensaje
-entre agentes queda en \cod{trazas/} con el hash del prompt que lo produjo.\par}
+Los prompts se ajustaron en 52 casos de desarrollo (de 40 a 44 en cuatro versiones) y en 21
+preguntas de desarrollo redactadas (20 de 21). Las reglas para aceptar cada versión y los
+protocolos de las dos corridas se subieron al repositorio antes de correr. Las preguntas redactadas las escribió un modelo de lenguaje sin acceso
+al sistema y el equipo las leyó. En las 30 primeras, Claude, que conocía el sistema, corrigió la
+redacción de 3. Cada mensaje entre agentes queda en \cod{trazas/} con el hash del prompt que lo
+produjo.
+
+Después de la corrida del 20 de octubre probamos una versión 5, con un Verificador que corrige
+el período y devuelve el ramo al Resolvedor. En 223 casos de desarrollo sus dos variantes sacaron
+186 y 194 contra 196 de esta versión, y no se aceptó.\par}
 
 \seccion{Límites declarados}
 
 {\footnotesize
 \textbf{Ambiguos.} En 15 de los 120 casos de plantilla la pregunta nombra el ramo con una forma
 que sirve para varios, como \q gestión\q\ o \q la I\q. Ningún lector de la pregunta los resuelve.
-\textbf{Costo.} 3,2 llamadas, 2.797 tokens y 7,2\,s por caso, contra 1.155 tokens y 1,7\,s del D2.
-\textbf{Dos agentes sin aporte medido.} Resolvedor y Verificador quedan dentro del ruido en
-estos datos. Sus decisiones se ven en las trazas, pero no cambian el acierto.\par}
+\textbf{T1 y los 150.} El puntaje de T1 se ajustó mirando las menciones de originales y nuevos.
+Las redactadas y los 180 sellados no los vio.
+\textbf{Casos parecidos.} 9 casos de desarrollo comparten historial y consulta con 7 de los 150,
+y 38 de los 180 repiten el problema o la pregunta de un caso anterior. Sin esos 38, los agentes
+ganan 34 a 4 (cálculo exploratorio).
+\textbf{Costo.} 3,2 llamadas, 2.797 tokens y 7,2\,s por caso, contra 1.155 tokens y 1,7\,s del D2.\par}
 
 \seccion{Lo que muestra el video}
 
 {\footnotesize
-Tres casos elegidos por la regla del protocolo, corridos en vivo en la T4 con
-\cod{demo\_d3\_colab.ipynb}, que compara cada mensaje con la traza guardada en \cod{trazas/}.
-\q ¿todavía se puede meter progra este semestre?\q\ pasa por los tres agentes sin bucles. En
-\q ¿me dejan inscribir inglés básico 1 ahora en el segundo semestre?\q\ el Verificador rechaza
-el período tres veces, con razón. El Intérprete no lo corrige en sus dos vueltas y el tercer
-rechazo activa el tope. La decisión y la regla salen correctas igual. El tercero es el caso de falla. El README explica cómo reproducir cada corrida.\par}
+Tres casos de los 150 elegidos por la regla del protocolo, corridos en vivo con
+\cod{demo\_d3\_colab.ipynb}, que compara cada mensaje con la traza guardada. Uno pasa por los
+tres agentes sin bucles. En otro el Verificador rechaza el período tres veces y el tope cierra
+con la respuesta correcta. El tercero es el caso de falla.\par}
 
 \end{multicols}
 \end{document}
