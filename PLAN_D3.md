@@ -499,6 +499,28 @@ Protocolo nuevo (`PROTOCOLO_V5.md`), subido antes de correr, sobre los 180 casos
   renombran con `__v4`. Unas 4,2 horas de T4 en dos o tres sesiones.
 - Las salidas de la v5 van a `resultados/v5/` y `trazas/v5/`, para no mezclarse con la v4.
 
+### El documento de la v5 (esqueleto, 22 de octubre)
+
+Una página, dos columnas. Una sola historia: falla del D2 → agentes → resultado sobre casos
+limpios contra baseline y D2 → qué técnica explica qué → un caso de falla. La v4 va como una
+fila y una frase; el resto de la v4 queda en este plan y en el README.
+
+- **Título:** la cifra de la v5 contra el D2 en los 180 casos.
+- **Columna 1.** (1) Tarea, falla y continuidad, con la desviación declarada: la v4 se midió en
+  150 casos, de sus trazas salió el diagnóstico, la v5 se mide en 180 que nadie vio. (2) Grafo
+  TikZ: 3 agentes y 2 herramientas como nodos, aristas con lo que se pasa (incluidas
+  pregunta→Verificador e historial→T2), los tres bucles con su tope (búsquedas ≤2, vueltas ≤2,
+  revisión de citas ≤1) y las paradas (sin ramo, tope, T2). (3) Tabla de agentes: agente,
+  archivo de prompt, recibe → devuelve (JSON), herramienta, qué decide. (4) Por qué esta
+  división: lo que cada agente ve y los otros no.
+- **Columna 2.** (5) Resultados: baseline, D2, regla fija, v4 y v5 en plantilla (120),
+  redactadas (60) y 180, con el estricto como segunda cifra; recuadro con H1. (6) Técnicas y
+  ablación: las 9 configuraciones con técnica, agente, mecanismo, acierto sin ella, Δ y pares
+  discordantes. (7) Caso de falla, por la regla del protocolo. (8) Cómo se midió y límites.
+  (9) Lo que muestra el video.
+- **Sale respecto del PDF de la v4:** el recuadro de la traza de ejemplo (el video muestra
+  trazas) y la tabla por mecanismo (queda en una frase).
+
 ### Calendario y corte
 
 - 22 oct: respuestas del profesor; implementación y pruebas sin GPU.
