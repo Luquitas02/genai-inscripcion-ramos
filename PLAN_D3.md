@@ -558,6 +558,30 @@ Borrador del correo:
 
 ## Registro de decisiones
 
+**22 oct 2026 — La v5b no se acepta. Se entrega la v4.** La v5b (commit `a012c33`) sacó en los
+223 de desarrollo 194 conjunto (v4 196), 183 estricto (v4 180), 211 período (v4 206) y 8
+desvíos de T1 sin acertar (v4 11). Cumple estricto, período, bajas por conjunto y desvíos, y
+falla dos condiciones: conjunto (194 < 196) y que el Verificador no convierta aciertos
+estrictos en error (convierte 4). Resultados en `resultados/v5/v5b_desarrollo/` y
+`trazas/v5/v5b_desarrollo/`.
+
+Los 4 casos convertidos muestran el mismo límite: el Verificador sigue razonando sobre los
+requisitos aunque el prompt se lo prohíbe con una regla y un ejemplo. En redactados v4 1 y
+desarrollo redactado 0 corrige "este semestre" a próximo ("debe inscribirse el próximo
+semestre"); en originales 46 y 57 rechaza la mención sin motivo real y en la vuelta el
+Intérprete cambia el período.
+
+Lo que sí mostró la v5b: el calendario y la corrección del período mejoran la lectura del
+período (206 → 211) y el acierto estricto (180 → 183), y el rechazo por código al Resolvedor
+con la coincidencia exacta arregla "Optimización 1" (originales 40 y 59). Lo que no alcanzó:
+un Verificador de 3,8B que corrige también rompe, y el acierto conjunto no llega al de la v4.
+
+Por el respaldo registrado antes de correrla, **se entrega la v4** (corrida con protocolo del
+20 de octubre, commit `9158550`), con el documento corregido según la auditoría del 21 de
+octubre y la v5 declarada como una corrección probada en desarrollo que no superó a la v4. No
+hay más iteraciones. El código de la v5 y la v5b queda en la rama `v5-desarrollo`; el `main`
+vuelve al sistema de la v4 para que lo que se clone sea lo que miden el documento y el video.
+
 **22 oct 2026 — La v5 no se acepta; diseño de la v5b, regla ajustada y respaldo, antes de
 correrla.** La v5 (commit `f966d79`) sacó en los 223 de desarrollo 186 conjunto y 178
 estricto, contra 196 y 180 de la v4 (`aceptacion_v5.py`; resultados en `resultados/v5/v5_desarrollo/` y
