@@ -18,7 +18,7 @@ from gen_notebook_replica_v4 import REPO, code, md
 BASE = Path(__file__).resolve().parent.parent
 SALIDA = BASE / "ablaciones_v4_colab.ipynb"
 # El commit que sube PROTOCOLO_ABLACIONES_V4.md. Se escribe acá en un commit aparte, después.
-COMMIT = ""
+COMMIT = "6d8a18b"
 
 CELDAS = [
     md("""# Ablaciones de la v4 sobre los 180 casos sellados — Phi-3.5-mini
