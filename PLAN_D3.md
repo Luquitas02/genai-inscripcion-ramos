@@ -492,18 +492,25 @@ Protocolo nuevo (`PROTOCOLO_V5.md`), subido antes de correr, sobre los 180 casos
 - **Principal (H1):** la v5 acierta más casos que el D2, McNemar exacto bilateral, p < 0,05.
 - **Secundarias:** lo mismo con el criterio estricto, y sin los 8 casos que repiten una
   pregunta anterior.
-- **Exploratorias:** v5 contra v4 y cada ablación contra la v5, con sus pares discordantes, sin
-  afirmar mejoras. Con 180 casos, McNemar necesita al menos 6 a 0 discordantes para p < 0,05.
-- **Filas:** baseline, D2, regla fija, la v4 congelada, la v5 y sus 9 configuraciones. La v4 se
-  corre en un clon aparte en `9158550`, sobre los mismos archivos de casos, y sus salidas se
-  renombran con `__v4`. Unas 4,2 horas de T4 en dos o tres sesiones.
+- **Exploratorias:** cada ablación contra la v5, con sus pares discordantes, sin afirmar
+  mejoras. Con 180 casos, McNemar necesita al menos 6 a 0 discordantes para p < 0,05.
+- **Filas:** baseline, D2, regla fija, la v5 y sus 9 configuraciones. Unas 3,8 horas de T4 en
+  dos o tres sesiones.
+- **La v4 no se corre sobre los 180** (decisión del 22 de octubre). La rúbrica pide baseline,
+  D2, sistema completo y ablaciones, no la versión anterior, y el aporte de cada agente se mide
+  con las ablaciones de la v5. Correrla agregaba media hora, un clon aparte y una fila en un
+  documento de una página, para una comparación que con pocos casos discordantes no sería
+  concluyente. El documento no afirma que la v5 supere a la v4 en prueba. La v4 queda en una
+  frase: su resultado sobre los 150 casos del D1 y el D2 y que de sus trazas salió el
+  diagnóstico. La comparación v4 contra v5 en los 223 de desarrollo va al README, marcada como
+  desarrollo.
 - Las salidas de la v5 van a `resultados/v5/` y `trazas/v5/`, para no mezclarse con la v4.
 
 ### El documento de la v5 (esqueleto, 22 de octubre)
 
 Una página, dos columnas. Una sola historia: falla del D2 → agentes → resultado sobre casos
-limpios contra baseline y D2 → qué técnica explica qué → un caso de falla. La v4 va como una
-fila y una frase; el resto de la v4 queda en este plan y en el README.
+limpios contra baseline y D2 → qué técnica explica qué → un caso de falla. La v4 va en una
+frase; el resto de la v4 queda en este plan y en el README.
 
 - **Título:** la cifra de la v5 contra el D2 en los 180 casos.
 - **Columna 1.** (1) Tarea, falla y continuidad, con la desviación declarada: la v4 se midió en
@@ -513,7 +520,7 @@ fila y una frase; el resto de la v4 queda en este plan y en el README.
   revisión de citas ≤1) y las paradas (sin ramo, tope, T2). (3) Tabla de agentes: agente,
   archivo de prompt, recibe → devuelve (JSON), herramienta, qué decide. (4) Por qué esta
   división: lo que cada agente ve y los otros no.
-- **Columna 2.** (5) Resultados: baseline, D2, regla fija, v4 y v5 en plantilla (120),
+- **Columna 2.** (5) Resultados: baseline, D2, regla fija y v5 en plantilla (120),
   redactadas (60) y 180, con el estricto como segunda cifra; recuadro con H1. (6) Técnicas y
   ablación: las 9 configuraciones con técnica, agente, mecanismo, acierto sin ella, Δ y pares
   discordantes. (7) Caso de falla, por la regla del protocolo. (8) Cómo se midió y límites.
