@@ -217,9 +217,9 @@ en `trazas/`: con generación greedy tiene que decir `= guardada`.
 Grabar a 1920x1080 para que el texto monoespaciado se lea.
 """),
     code(f"""# 1 · repositorio y dependencias
-# El commit de la demo: los prompts y el código son los de la corrida final (9158550) y
-# trae scripts/demo_d3.py. Con '' clona main.
-COMMIT = 'b145da9'
+# El commit de la demo: los prompts, los agentes y las herramientas son los de la corrida final
+# (9158550), y trae scripts/demo_d3.py con la pregunta en vivo. Con '' clona main.
+COMMIT = 'db40918'
 
 %cd /content
 !pip -q install transformers==5.17.0 accelerate==1.14.0 bitsandbytes==0.50.2
@@ -243,6 +243,10 @@ modelo = runner_d3.cargar_modelo('microsoft/Phi-3.5-mini-instruct')
 print('modelo cargado · revisión', getattr(modelo.modelo.config, '_commit_hash', '?'))"""),
     code("""# 4 · DEMOSTRACIÓN: grabar esta celda
 demo_d3.video(modelo)"""),
+    code("""# 5 · una pregunta escrita en el momento, sobre el historial de un estudiante de la prueba
+# (grabar también). No tiene etiqueta: se ve la decisión del sistema, sin acierto ni falla.
+PREGUNTA = '¿puedo tomar estadística este semestre si ya pasé cálculo 2?'
+demo_d3.en_vivo(modelo, PREGUNTA)"""),
 ]
 
 

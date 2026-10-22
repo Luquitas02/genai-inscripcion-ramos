@@ -629,9 +629,12 @@ conjunto no llega al de la v4. Ninguna de las dos se aceptó. El código quedó 
 corre en vivo tres preguntas redactadas, elegidas por la regla del protocolo: "progra" (sin
 bucles), "inglés básico 1" (el Verificador rechaza tres veces, con razón, un período mal leído;
 el tope deja pasar ese período y la decisión sale correcta solo porque la regla no depende de
-él) y el caso
-de falla. Cada salida del modelo se marca `= guardada` si coincide con la traza de la corrida
-final en [`trazas/`](trazas/). Las celdas 1 a 3 se corren antes de grabar; se graba la 4.
+él) y el caso de falla. Cada salida del modelo se marca `= guardada` si coincide con la traza de
+la corrida final en [`trazas/`](trazas/). Al final, la celda 5 corre una pregunta escrita en el
+momento sobre el historial de un estudiante de la prueba; como no tiene etiqueta, muestra la
+decisión sin marcar acierto. El notebook clona el commit `db40918`, que tiene los mismos prompts,
+agentes y herramientas de la corrida final. Las celdas 1 a 3 se corren antes de grabar; se
+graban la 4 y la 5.
 
 ## Reproducir
 
