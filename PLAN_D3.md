@@ -558,6 +558,29 @@ Borrador del correo:
 
 ## Registro de decisiones
 
+**22 oct 2026 — Auditoría con cuatro revisores y ablaciones de una sola técnica sobre los 180.**
+Revisores independientes de rúbrica, cifras, coherencia y foco/escritura, más una revisión de
+reproducibilidad desde un clon limpio. Ninguna cifra está mal y todo se reproduce. Lo que sí
+encontraron, verificado en los archivos:
+
+- En 313 de 330 casos la salida final es el primer candidato de T1 con el período de la primera
+  respuesta del Intérprete. `sin_ramo` no ocurrió nunca. El Verificador no tiene veto: al tope,
+  T2 corre con la elección rechazada (`orquestador.py`).
+- El caso "con decisión" del video (redactados 3) acierta con el período mal: el Verificador
+  tenía razón y el tope lo pasó por alto. El documento decía "respuesta correcta".
+- Las citas salen de la consulta solo a veces (fuera en 33/150 y 38/180) y el documento las
+  presentaba como hecho.
+- Límites sin declarar: las etiquetas salen del mismo verificador que usa T2; las redactadas
+  traen más a menudo el nombre exacto del catálogo (46/60 contra unos 35/60 en plantilla); el
+  prompt del Intérprete trae la regla del verbo de las plantillas; el diagnóstico M1-M3 se hizo
+  sobre prueba; la revisión del modelo no está fijada en el código.
+- Las ablaciones no quitan siempre una sola cosa y "quotes first" no se midió.
+
+Decisiones, con Lucas: no se cambia el sistema; el documento se reencuadra con estos datos; las
+ablaciones se repiten sobre los 180, una técnica a la vez, con `PROTOCOLO_ABLACIONES_V4.md`,
+`scripts/gen_ablaciones_v4.py`, `scripts/analisis_ablaciones_v4.py` (probado sobre los 150) y
+`ablaciones_v4_colab.ipynb`. Lucas confirmó que leyó las 30 redactadas del primer conjunto.
+
 **22 oct 2026 — Réplica de la v4 sobre los 180 casos sellados: se cumple H1.** Corrida con
 `replica_v4_colab.ipynb` en el commit del protocolo (`5b5c5d5`, mismos hashes de prompts que la
 corrida del 20 de octubre); salida de `analisis_replica_v4.py`:

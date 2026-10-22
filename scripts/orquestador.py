@@ -42,6 +42,21 @@ CONFIGURACIONES = {
                            "resolvedor": "agente", "verificador": True},
     "top1":               {"interprete": "interprete.md", "ejemplos": True,
                            "resolvedor": "top1", "verificador": True},
+    # Ablaciones de una sola técnica (PROTOCOLO_ABLACIONES_V4.md). `sin_descomposicion` quitaba
+    # la lista de otros y la regla del verbo a la vez; aquí van por separado. Los prompts los
+    # genera scripts/gen_ablaciones_v4.py desde los de la v4.
+    "sin_lista_otros":    {"interprete": "ablaciones/interprete_sin_lista_otros.md",
+                           "ejemplos": True, "resolvedor": "agente", "verificador": True},
+    "sin_regla_verbo":    {"interprete": "ablaciones/interprete_sin_regla_verbo.md",
+                           "ejemplos": True, "resolvedor": "agente", "verificador": True},
+    "sin_citas_interprete": {"interprete": "ablaciones/interprete_sin_citas.md",
+                             "ejemplos": True, "resolvedor": "agente", "verificador": True},
+    "sin_citas_verificador": {"interprete": "interprete.md", "ejemplos": True,
+                              "resolvedor": "agente", "verificador": True,
+                              "prompt_verificador": "ablaciones/verificador_sin_citas.md"},
+    "sin_ejemplos_verificador": {"interprete": "interprete.md", "ejemplos": True,
+                                 "resolvedor": "agente", "verificador": True,
+                                 "prompt_verificador": "ablaciones/verificador_sin_ejemplos.md"},
 }
 
 
@@ -51,7 +66,7 @@ def cargar_prompts(config):
         "interprete": A.Prompt(c["interprete"], con_ejemplos=c["ejemplos"]),
         "resolvedor": A.Prompt("ablaciones/resolvedor_catalogo.md"
                                if c["resolvedor"] == "catalogo" else "resolvedor.md"),
-        "verificador": A.Prompt("verificador.md"),
+        "verificador": A.Prompt(c.get("prompt_verificador", "verificador.md")),
     }
 
 
