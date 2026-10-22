@@ -558,6 +558,16 @@ Borrador del correo:
 
 ## Registro de decisiones
 
+**22 oct 2026 — La v4 se replica sobre los 180 casos sellados (decisión de Lucas).** Se entrega
+la v4, y los 150 casos de su corrida ya se usaron para diseñar la v5. Los 180 de
+`datos/prueba_v5/` siguen sin usar. Se corren la v4 completa, el baseline y el D2, sin
+ablaciones, con `PROTOCOLO_REPLICA_V4.md` subido antes, `scripts/analisis_replica_v4.py`
+(probado sobre los 150, reproduce 132/150 y 39 a 3) y `replica_v4_colab.ipynb`. Esto reemplaza
+la decisión del 22 de octubre de no correr la v4 sobre estos casos, que suponía que se iba a
+entregar la v5. El protocolo fija antes de ver nada cómo entra al documento: los 180 van al
+lado de los 150 cualquiera sea el resultado, y el caso de falla, el video y las ablaciones
+siguen siendo los de la corrida del 20 de octubre.
+
 **22 oct 2026 — La v5b no se acepta. Se entrega la v4.** La v5b (commit `a012c33`) sacó en los
 223 de desarrollo 194 conjunto (v4 196), 183 estricto (v4 180), 211 período (v4 206) y 8
 desvíos de T1 sin acertar (v4 11). Cumple estricto, período, bajas por conjunto y desvíos, y
