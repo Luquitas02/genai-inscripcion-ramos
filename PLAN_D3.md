@@ -375,6 +375,55 @@ Borrador del correo:
 
 ## Registro de decisiones
 
+**21 oct 2026 — Auditoría completa antes del video.** Tres revisores independientes (rúbrica,
+cifras y protocolo, código y reproducibilidad) y una revisión propia. Todas las cifras del
+documento se reproducen desde los archivos crudos, el protocolo se cumplió y no hay fugas de
+la respuesta hacia los agentes. Lo que encontraron, verificado en los archivos:
+
+- **El bucle de rechazo no puede corregir al Resolvedor.** Un rechazo por `ramo` vuelve al
+  Intérprete. Si su mención estaba bien, la repite, T1 devuelve lo mismo y el Resolvedor,
+  greedy, elige lo mismo. En originales 59 ("Optimización 1") el Verificador rechazó con razón
+  tres veces Optimización II y el tope aceptó la elección rechazada. De los 5 casos con
+  rechazo, 4 terminan en tope.
+- **El Resolvedor empeora la elección del ramo.** Se aparta del primer candidato de T1 en 8 de
+  150 casos y no acierta en ninguno; en 3 el primer candidato era el correcto. Ramo 132/150
+  contra 135/150 de `top1`.
+- **Ablaciones que no quitan una sola cosa.** `sin_descomposicion` quita la lista de otros
+  ramos y también la regla del verbo ("la que acompaña al verbo de inscribir, tomar o meter").
+  "Citar antes de decidir" no se ablacionó.
+- **Atribuciones sin respaldo.** Sin ejemplos el período mejora (141 contra 137 en los 150):
+  los ejemplos atacan M2 (34 → 26), no M3. El Verificador cita fuera de la consulta en 33 de
+  150 casos. La subida del período de 41 a 48 en desarrollo (v3) vino con las citas y con
+  quitar la regla del Verificador v2, a la vez.
+- **Aciertos por azar.** 11 de los 132 aciertos tienen el ramo o el período mal. Exigiendo
+  además ramo y período: agentes 121, D2 75.
+- **T1 se diseñó mirando la prueba.** El diagnóstico del 19 de octubre midió la búsqueda léxica
+  sobre las menciones de originales y nuevos (prueba). El bono por contención de `similitud`
+  sube el primer lugar correcto de 46 a 50 de 51 en originales (34 a 37 de 39 en desarrollo).
+  "Ningún caso de prueba se miró" vale para los prompts, no para T1. Los redactados, que T1 no
+  vio, quedan como control (ramo 29/30).
+- **Solapamiento desarrollo-prueba.** `preparar_desarrollo.py` solo filtró preguntas
+  idénticas. 6 casos de desarrollo y 3 de desarrollo redactado tienen el mismo historial y la
+  misma consulta que originales 6 y 9, nuevos 6, 9, 29 y 30, y redactados 5.
+- **Correcciones a este registro.** Con `es_ambigua`, el desarrollo tiene 13 ambiguos y no 7:
+  en los 39 restantes la v4 acierta 37, 36 con el ramo correcto (el "43 de 45" anterior usaba
+  otra definición). Las filas con el commit `9158550` son 1.071 (900 de Phi en prueba, 150 de
+  la regla fija y 21 de desarrollo redactado), no 540. Esas 21 son una re-corrida del chequeo
+  de robustez hecha a las 11:33, después de subir el protocolo (11:21); la corrida original en
+  `3ba2528` quedó reemplazada en Drive. Da el mismo 20/21.
+- **Redactados.** Lucas leyó las 30 el 21 de octubre. Las filas 4, 18 y 20 las corrigió Claude,
+  que conocía el sistema; la del id 4 ("en el 2-2026" → "en el segundo semestre") es el caso
+  "con decisión" del video.
+- **Reproducibilidad.** Los notebooks clonaban `main`; ahora fijan `9158550` (corrida) y
+  `b145da9` (demo, mismos prompts y código). `runner_d3.py --dir-salida` reproduce la regla
+  fija sin chocar con los resultados guardados (idéntica fila por fila).
+
+**Decisión.** No se toca la corrida de la v4 ni se vuelve a medir sobre estos 150 casos, que ya
+se miraron. Se hace una versión 5 con el bucle corregido y ablaciones de una sola cosa, ajustada
+en desarrollo y medida con un protocolo nuevo sobre casos de prueba nuevos (120 de plantilla y
+60 redactados), sellados antes de diseñarla. La v4 queda como primera medición. Las preguntas
+al profesor (agente o pipeline, agentes sin aporte, esquema de técnicas) definen el alcance.
+
 **19 oct 2026 — Diagnóstico por mecanismo.** El 3/20 del D2 es real pero no es la falla
 principal: con el nombre exacto Phi acierta 18/34. Los agentes se diseñan contra M1, M2 y M3.
 
@@ -394,12 +443,13 @@ el documento apareció que tres afirmaciones de este registro se apoyaban en el 
 conjunto y no en el ramo elegido. En "PCP" (desarrollo y prueba) el Resolvedor buscó
 "Ingeniería Civil Industrial" y eligió Ingeniería Económica, y la decisión coincidió por azar.
 En "DHG" la sigla era el ramo de contexto y no hubo nada que resolver. Las entradas
-correspondientes quedan corregidas. Por lo mismo, el 44/52 de desarrollo incluye un acierto
-por azar (PCP): con el ramo correcto son 43 de los 45 casos con solución. Lección: un caso se
+correspondientes quedan corregidas. Por lo mismo, el 44/52 de desarrollo incluye aciertos
+por azar (PCP y otros tres; ver la corrección del 21 de octubre). Lección: un caso se
 cuenta como resuelto por un agente solo si el ramo que eligió es el correcto.
 
 **20 oct 2026 — Resultados de la corrida final (commit `9158550`, `scripts/analisis_d3.py`).**
-Las 540 filas llevan el commit y los hashes del protocolo.
+Las filas llevan el commit y los hashes del protocolo (1.071 en total; ver la corrección del
+21 de octubre).
 - **H1 se cumple.** Agentes 132/150 (88,0 %) contra D2 96/150 (64,0 %): ganan 39 casos y
   pierden 3, McNemar p = 5,6·10⁻⁹. Por conjunto: originales 52 contra 35, nuevos 51 contra 37,
   redactados 29 contra 24 (p = 0,125, n chico). Baseline 35/150. Regla fija 90/150, que cae a

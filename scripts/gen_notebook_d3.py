@@ -52,10 +52,12 @@ Ejecuta las celdas **en orden, de arriba abajo**.
 Debe decir `cuda: True` y mostrar una **Tesla T4**. Si no: *Entorno de ejecución* →
 *Cambiar tipo de entorno de ejecución* → **T4 GPU**.
 
-`COMMIT` vacío clona la última versión de `main`. Para la etapa final, pon el hash del commit
-que sube `PROTOCOLO_D3.md`.
+`COMMIT` trae el commit que sube `PROTOCOLO_D3.md`, con el que se hizo la corrida final. Así
+el notebook corre el mismo código y los mismos prompts que se midieron. `COMMIT = ''` clona la
+última versión de `main`, que sirve solo para desarrollo: el runner se niega a mezclar filas
+de otro commit en un archivo de resultados ya guardado.
 """),
-    code(f"""COMMIT = ''
+    code(f"""COMMIT = '9158550'
 
 %cd /content
 !nvidia-smi -L
@@ -215,7 +217,9 @@ en `trazas/`: con generación greedy tiene que decir `= guardada`.
 Grabar a 1920x1080 para que el texto monoespaciado se lea.
 """),
     code(f"""# 1 · repositorio y dependencias
-COMMIT = ''
+# El commit de la demo: los prompts y el código son los de la corrida final (9158550) y
+# trae scripts/demo_d3.py. Con '' clona main.
+COMMIT = 'b145da9'
 
 %cd /content
 !pip -q install transformers==5.17.0 accelerate==1.14.0 bitsandbytes==0.50.2

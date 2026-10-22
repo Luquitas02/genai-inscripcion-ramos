@@ -383,6 +383,9 @@ def main():
     ap.add_argument("--limite", type=int, default=None)
     ap.add_argument("--modelo-falso", action="store_true")
     ap.add_argument("--pruebas", action="store_true")
+    ap.add_argument("--dir-salida", default=None,
+                    help="carpeta para resultados y trazas, en vez de resultados/ y trazas/. "
+                         "Sirve para reproducir una corrida sin tocar la guardada")
     args = ap.parse_args()
 
     if args.pruebas:
@@ -393,11 +396,11 @@ def main():
     else:
         # 256 tokens de salida, como el D2. Los JSON de los agentes miden menos de 80.
         modelo = cargar_modelo(args.modelo)
-    ejecutar(modelo, args.config, args.casos, args.limite)
+    ejecutar(modelo, args.config, args.casos, args.limite, args.dir_salida)
     return 0
 
 
-def ejecutar(modelo, config, ruta_casos, limite=None):
+def ejecutar(modelo, config, ruta_casos, limite=None, dir_salida=None):
     """Una configuración sobre un conjunto. El notebook la llama con el modelo ya cargado,
     para no recargar Phi en cada configuración. Devuelve las rutas de salida y traza."""
     v = Verificador()
@@ -405,10 +408,14 @@ def ejecutar(modelo, config, ruta_casos, limite=None):
     if limite:
         casos = casos[:limite]
     etq = getattr(modelo, "nombre", "falso").split("/")[-1]
-    RESULTADOS.mkdir(exist_ok=True)
-    TRAZAS.mkdir(exist_ok=True)
+    # Con --dir-salida, resultados y traza van a la misma carpeta y no tocan los guardados.
+    res = Path(dir_salida) if dir_salida else RESULTADOS
+    tra = res if dir_salida else TRAZAS
+    res.mkdir(parents=True, exist_ok=True)
+    tra.mkdir(parents=True, exist_ok=True)
     nombre = nombre_salida(etq, config, ruta_casos)
-    salida, traza = RESULTADOS / f"{nombre}.raw.jsonl", TRAZAS / f"{nombre}.jsonl"
+    salida = res / f"{nombre}.raw.jsonl"
+    traza = tra / (f"{nombre}.traza.jsonl" if dir_salida else f"{nombre}.jsonl")
     print(f"{len(casos)} casos · {etq} · configuración {config}")
     print(f"salida: {salida.name}\ntraza:  {traza.name}\n")
     correr(modelo, casos, v, config, salida, traza)

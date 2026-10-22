@@ -238,8 +238,17 @@ cadena y reglas simultáneas.
 datos/
 ├── malla.json               grafo de prerrequisitos y reglas, congelado
 ├── casos.jsonl              60 casos etiquetados por el verificador
-└── casos_nuevos.jsonl       60 casos más con la semilla 20260930, generados el 30 de
-                             septiembre con el sistema ya fijo
+├── casos_nuevos.jsonl       60 casos más con la semilla 20260930, generados el 30 de
+│                            septiembre con el sistema ya fijo
+│   ── Deliverable 3 ──
+├── casos_desarrollo.jsonl   52 casos para ajustar los prompts, semilla 20261020
+├── casos_redactados.jsonl   30 casos originales con la pregunta redactada fuera de
+│                            las plantillas (prueba)
+├── casos_desarrollo_redactados.jsonl
+│                            21 de desarrollo redactados, el chequeo de robustez
+├── redactados.csv, desarrollo_redactados.csv
+│                            autor y revisión de cada pregunta redactada
+└── *_modelo.json            las respuestas del agente que las redactó
 
 scripts/
 │   ── Deliverable 1, congelado: produjo las cifras del baseline ──
@@ -258,7 +267,26 @@ scripts/
 ├── ablacion_p3.py           el paso 3, cuatro versiones del prompt
 ├── demo.py                  lo del video: baseline y sistema en vivo, casos 40 a 49
 ├── empaquetar.py            arma paquete_colab.zip y lo verifica byte a byte
-└── gen_notebook.py          genera los tres notebooks de Colab
+├── gen_notebook.py          genera los tres notebooks de Colab
+│   ── Deliverable 3 ──
+├── herramientas.py          T1 (búsqueda léxica) y T2 (la ficha del D2)
+├── agentes.py               los tres agentes: arman el prompt y leen la acción
+├── orquestador.py           ejecuta cada acción, aplica los topes, escribe la traza
+├── runner_d3.py             una configuración sobre un conjunto; --modelo-falso es
+│                            la regla fija sin modelo
+├── analisis_d3.py           todas las cifras del D3, según el protocolo
+├── diagnostico_d3.py        el paso 1 del D2 separado por mecanismo
+├── preparar_desarrollo.py   arma el conjunto de desarrollo
+├── preparar_redactados.py   elige los casos a redactar y arma el conjunto
+├── ver_traza.py             muestra una traza como conversación entre agentes
+├── demo_d3.py               lo del video del D3
+└── gen_notebook_d3.py       genera corrida_d3_colab.ipynb y demo_d3_colab.ipynb
+
+prompts/                     un archivo por agente, con versión en la cabecera
+└── ablaciones/              las versiones sin cada técnica
+
+trazas/                      cada mensaje entre agentes de cada corrida del D3, con
+                             el hash del prompt que lo produjo
 
 resultados/
 ├── Mistral-*.raw.jsonl      baseline del D1
@@ -270,14 +298,16 @@ resultados/
 ├── ablacion_p3__*.raw.jsonl el paso 3, cuatro versiones del prompt
 ├── corrida_1_prompt_v1/     primera corrida, no mejoró (se conserva)
 ├── corrida_2_prompt_v2/     segunda corrida, no mejoró (se conserva)
-└── corrida_3_final/         copia idéntica de pipeline__*, archivada junto a
-                             las otras dos para compararlas
+├── corrida_3_final/         copia idéntica de pipeline__*, archivada junto a
+│                            las otras dos para compararlas
+└── agentes__*.raw.jsonl     el D3: una fila por caso y configuración
 
 poster/
 ├── poster.tex               el entregable del D1, una página apaisada
 ├── Deliverable_1.pdf        el D1 compilado
 ├── deliverable2.tex         el entregable del D2, una página vertical
-└── Deliverable_2.pdf        el D2 compilado
+├── Deliverable_2.pdf        el D2 compilado
+└── deliverable3.tex         el entregable del D3, una página vertical
 
 PLAN.md                      el plan del D1
 Hallazgos del baseline - Deliverable 1.docx
@@ -290,6 +320,10 @@ demo_colab.ipynb             solo la demo del video, clona el repositorio
 corridas_30sep_colab.ipynb   los tres candidatos en el sistema y los 60 casos nuevos
 PROTOCOLO_30SEP.md           las reglas de esas corridas, subidas antes de correrlas
 requirements-colab.txt       las versiones con que se ensayó y grabó la demo
+PLAN_D3.md                   el diseño del D3 y su registro de decisiones
+PROTOCOLO_D3.md              las reglas de la corrida final, subidas antes de correrla
+corrida_d3_colab.ipynb       notebook del D3: desarrollo y corrida final
+demo_d3_colab.ipynb          solo la demo del video del D3
 ```
 
 ### Reproducir
@@ -491,8 +525,8 @@ orquestador en código la ejecuta ([`scripts/orquestador.py`](scripts/orquestado
 |---|---|---|---|
 | **A · Intérprete** | la pregunta | ramo consultado con las palabras del estudiante, otros ramos, frase de período, período | entregar o `sin_ramo`; ante un rechazo, revisa |
 | **T1 · buscar_ramo** | un texto | los 5 ramos más parecidos, con puntaje | (herramienta, sin modelo) |
-| **B · Resolvedor** | la mención y los 5 candidatos | un código | elegir, buscar de nuevo (máx. 2) o `ninguno` |
-| **C · Verificador** | la pregunta y la elección | citas de la pregunta y veredicto | aceptar y llamar a T2, o rechazar (máx. 2) |
+| **B · Resolvedor** | la mención y los 5 candidatos | un código | elegir, buscar de nuevo (máx. 2 por vuelta) o `ninguno` |
+| **C · Verificador** | la pregunta y la elección | citas de la pregunta y veredicto | aceptar y llamar a T2, o rechazar. Tras 2 vueltas al Intérprete, el tercer rechazo cierra el caso con la última elección |
 | **T2 · motor de reglas** | código y período | decisión y regla | (herramienta: la ficha y el reglamento del D2) |
 
 Los prompts están en [`prompts/`](prompts/), uno por agente, con su versión en la cabecera;
@@ -554,14 +588,18 @@ python scripts/runner_d3.py --pruebas   # 29/29: cada rama del grafo con un mode
 python scripts/demo_d3.py --pruebas     # la demo reproduce las trazas guardadas
 python scripts/analisis_d3.py           # todas las cifras de esta sección y del PDF
 python scripts/diagnostico_d3.py        # el diagnóstico del paso 1 del D2 por mecanismo
-python scripts/runner_d3.py --modelo-falso --casos datos/casos_redactados.jsonl   # regla fija
+python scripts/runner_d3.py --modelo-falso --casos datos/casos_redactados.jsonl --dir-salida /tmp/regla_fija
+                                        # regla fija, idéntica a la guardada fila por fila
 python scripts/ver_traza.py trazas/agentes__Phi-3.5-mini-instruct__completo__casos_redactados.jsonl 16
 ```
 
 Con Phi, en una T4 de Colab: [`corrida_d3_colab.ipynb`](corrida_d3_colab.ipynb) clona el
-repositorio en el commit que se le indica y corre el desarrollo (sección 5) o la etapa final
+repositorio en el commit de la corrida final (`COMMIT = '9158550'`, ya puesto) y corre el desarrollo (sección 5) o la etapa final
 (sección 6, unas dos horas). El runner no retoma un archivo corrido con otros prompts u otro
 commit. Las salidas quedan en `resultados/agentes__*.raw.jsonl` y `trazas/agentes__*.jsonl`.
+El clon ya trae esos archivos, y con el mismo commit el runner los retoma sin volver a correr:
+para repetir la medición desde cero hay que borrarlos antes en el clon de Colab, junto con
+los `*__casos_redactados.raw.jsonl` del baseline y del D2.
 
 ## Cómo se midió
 
