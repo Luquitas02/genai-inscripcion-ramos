@@ -529,6 +529,46 @@ Borrador del correo:
 
 ## Registro de decisiones
 
+**22 oct 2026 — Revisión independiente del código de la v5 (commit `1d799e8`), antes de
+correr nada.** Ninguna falla impedía la corrida, pero varias habrían medido mal. Corregidas,
+cada una con su prueba (60/60):
+
+- Al revisar sus citas, el Verificador veía su respuesta anterior con la clave interna
+  `periodo_corregido`; si la copiaba, la corrección de período se perdía. Ahora ve la clave
+  del esquema y el lector acepta las dos.
+- `"problema": "código"` con tilde se leía como mención. Se quitan las tildes antes de leer.
+- En `sin_lista_otros`, si el modelo escribía `otros` igual, la lista llegaba al Resolvedor y
+  al Verificador. Ahora el orquestador la vacía.
+- Las citas se comparaban como subcadena ("actual" calzaba en "actualmente"). Ahora por
+  palabras completas.
+- La revisión de citas era una por llamada al Verificador. Ahora es **una por caso**, como dice
+  el diseño; si no quedan llamadas o sale ilegible, vale la primera salida.
+- La regla 4 de aceptación contaba coincidencias: un rechazo correcto que terminaba en tope
+  contaba contra el Verificador. Ahora cada fila guarda lo que el Verificador vio la primera vez
+  (`primera_verificada`) y el caso cuenta solo si eso era correcto y el final no.
+- `aceptacion_v5.py` exige filas de la v5 de un solo commit. El notebook guarda en Drive una
+  carpeta por commit, para que un commit nuevo no choque con lo ya corrido.
+
+Precisiones al diseño, que el revisor señaló con razón:
+
+- **Cambio 6.** El ejemplo que acepta con un ramo de contexto en curso (física 1 y física 2) ya
+  estaba en la v4, y aun así la v4 rechazó originales 6. No es un cambio nuevo. Lo que protege
+  ese caso en la v5 es `mantener` (cambio 4) y que un rechazo por mención que no corrige nada
+  termina en tope con la misma elección.
+- **El Intérprete sabe**, como en la v4, que el semestre en curso es 2026-2 y el siguiente
+  2027-1. Lo que no recibe es el calendario: qué frases corresponden a cada semestre.
+- **`sin_calendario` quita el bloque de calendario.** El semestre de la interpretación sigue en
+  palabras (cambio 2) y los ejemplos siguen diciendo "el que viene" → 2027-1, así que la
+  ablación mide el bloque, no todo el conocimiento de calendario del prompt. Se declara así.
+- **Frases del calendario**, exactas: 2026-2 "ahora", "ya", "este semestre", "el segundo
+  semestre" (de 2026); 2027-1 "el que viene", "el próximo", "el otro semestre", "en marzo",
+  "después del verano", "el próximo año". "el segundo semestre" sale de los redactados v4 2, 3,
+  11 y 23; "el otro semestre", de redactados v4 16.
+- `top1` ante un rechazo por código vuelve a tomar el mismo candidato: esas vueltas no pueden
+  cambiar nada y terminan en tope. Tras un rechazo por código el Resolvedor vuelve a ver los
+  candidatos de la mención original. `citas_fuera` de la v5 no se compara con el 33/150 de la
+  v4, que contaba distinto.
+
 **21 oct 2026 — Casos de prueba de la v5, sellados antes de diseñarla.**
 `scripts/preparar_prueba_v5.py` genera tres lotes de 60 con semillas 20261022, 20261023 y
 20261024, balanceados como los anteriores (7/7/6 por nivel): `plantilla_a`, `plantilla_b` y

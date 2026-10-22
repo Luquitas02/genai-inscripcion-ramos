@@ -13,7 +13,8 @@ Es código y no decide nada: ejecuta la acción que escribió cada agente y apli
                                   (vuelve al Intérprete)   (vuelve al Resolvedor)
 
     Si una cita del Verificador no aparece en la consulta, el Verificador recibe su propia
-    salida y la revisa una vez.
+    salida y la revisa, una sola vez por caso. Si esa revisión no se puede hacer (tope de
+    llamadas) o sale ilegible, vale su primera salida.
 
 Topes, para que ningún bucle sea infinito:
   MAX_RECHAZOS    vueltas por rechazo del Verificador (al Intérprete o al Resolvedor) o por
@@ -39,12 +40,14 @@ MAX_LLAMADAS = 12
 
 # Cada configuración es el sistema completo con una sola cosa quitada (ver PLAN_D3.md).
 _COMPLETO = {"interprete": "interprete.md", "ejemplos": True, "resolvedor": "agente",
-             "verificador": "verificador.md", "revisar_citas": True}
+             "verificador": "verificador.md", "revisar_citas": True, "otros": True}
 CONFIGURACIONES = {
     "completo":              dict(_COMPLETO),
     "sin_herramienta":       dict(_COMPLETO, resolvedor="catalogo"),
     "sin_ejemplos":          dict(_COMPLETO, ejemplos=False),
-    "sin_lista_otros":       dict(_COMPLETO, interprete="ablaciones/interprete_sin_lista_otros.md"),
+    # Sin la lista, el Resolvedor y el Verificador reciben "ninguna" aunque el modelo la escriba.
+    "sin_lista_otros":       dict(_COMPLETO, interprete="ablaciones/interprete_sin_lista_otros.md",
+                                  otros=False),
     "sin_regla_verbo":       dict(_COMPLETO, interprete="ablaciones/interprete_sin_regla_verbo.md"),
     "sin_citas_interprete":  dict(_COMPLETO, interprete="ablaciones/interprete_sin_citas.md"),
     "sin_citas_verificador": dict(_COMPLETO, verificador="ablaciones/verificador_sin_citas.md",
@@ -86,6 +89,7 @@ class Corrida:
                       "tope_llamadas": False, "ilegibles": 0, "codigo_fuera": 0,
                       "citas_fuera": 0, "cita_periodo_fuera": 0, "citas_fuera_tras_revision": 0}
         self.ultima = None          # {"codigo", "nombre", "periodo", "otros"}
+        self.primera_verificada = None   # lo que vio el Verificador la primera vez
 
     def anotar(self, de, para, tipo, contenido, llamada=None):
         m = {"n": len(self.traza) + 1, "de": de, "para": para, "tipo": tipo,
@@ -170,7 +174,7 @@ def correr_caso(modelo, caso, v, config, prompts=None):
     pregunta = caso["pregunta_prosa"]
     r.anotar("estudiante", "interprete", "entrada", {"pregunta": pregunta})
 
-    revision, rechazo, rechazos, aceptada = None, None, 0, False
+    revision, rechazo, rechazos, aceptada, citas_revisadas = None, None, 0, False, False
     t1_inicial, a, periodo, otros = None, None, None, []
     try:
         while True:
@@ -186,7 +190,7 @@ def correr_caso(modelo, caso, v, config, prompts=None):
                              periodo_por_defecto=a["periodo"] is None)
                 r.anotar("interprete", "T1" if c["resolvedor"] != "catalogo" else "resolvedor",
                          "agente", a_pub, ll)
-                otros = a["otros"]
+                otros = a["otros"] if c["otros"] else []
                 if t1_inicial is None and c["resolvedor"] != "catalogo":
                     t1_inicial = [x["codigo"] for x in buscar_ramo(a["consultado"])]
 
@@ -212,19 +216,29 @@ def correr_caso(modelo, caso, v, config, prompts=None):
             if not c["verificador"]:
                 aceptada = True
                 break
+            if r.primera_verificada is None:
+                r.primera_verificada = {"codigo": elegido, "periodo": periodo}
             cv, ll = r.agente(A.verificador, prompts["verificador"], pregunta, elegido, nombre,
                               periodo, otros)
             fuera = _citas_fuera(cv)
             r.ramas["citas_fuera"] += "cita_ramo" in fuera
             r.ramas["cita_periodo_fuera"] += "cita_periodo" in fuera
-            if fuera and c["revisar_citas"]:
-                # Revisa su propia salida una vez: sus citas tienen que salir de la consulta.
+            if fuera and c["revisar_citas"] and not citas_revisadas and r.llamadas < MAX_LLAMADAS:
+                # Revisa su propia salida una vez por caso: sus citas tienen que salir de la
+                # consulta. Si la revisión sale ilegible, vale la primera salida.
+                citas_revisadas = True
                 r.anotar("verificador", "verificador", "agente", _publica(cv), ll)
                 r.ramas["revision_citas"] += 1
-                cv, ll = r.agente(A.verificador, prompts["verificador"], pregunta, elegido,
-                                  nombre, periodo, otros,
-                                  revision=A.bloque_revision_citas(cv, fuera))
-                r.ramas["citas_fuera_tras_revision"] += bool(_citas_fuera(cv))
+                cv2, ll2 = r.agente(A.verificador, prompts["verificador"], pregunta, elegido,
+                                    nombre, periodo, otros,
+                                    revision=A.bloque_revision_citas(cv, fuera))
+                if cv2["legible"]:
+                    cv, ll = cv2, ll2
+                    r.ramas["citas_fuera_tras_revision"] += bool(_citas_fuera(cv))
+                else:
+                    r.anotar("verificador", "verificador", "agente",
+                             dict(_publica(cv2), nota="revisión ilegible: vale la primera salida"),
+                             ll2)
 
             if cv["accion"] == "aceptar":
                 r.anotar("verificador", "T2", "agente", _publica(cv), ll)
@@ -285,6 +299,7 @@ def correr_caso(modelo, caso, v, config, prompts=None):
         "acierto_periodo": ext["periodo"] == per_real,
         "t1_recall5": None if t1_inicial is None else ramo_real in t1_inicial,
         "t1_top1_inicial": None if t1_inicial is None else t1_inicial[0],
+        "primera_verificada": r.primera_verificada,
         "prediccion": pred,
         "acierto_decision": pred["decision"] == caso["respuesta"]["decision"],
         "acierto_regla": pred["regla"] == caso["respuesta"]["regla"],

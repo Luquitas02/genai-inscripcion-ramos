@@ -27,7 +27,7 @@ No decides si el estudiante puede inscribir la asignatura. Eso lo resuelve otra 
 
 <!-- calendario -->
 Calendario académico:
-- El semestre en curso es 2026-2, el segundo semestre de 2026. "ahora", "ya", "este semestre" y "este segundo semestre" hablan de 2026-2.
+- El semestre en curso es 2026-2, el segundo semestre de 2026. "ahora", "ya", "este semestre" y "el segundo semestre" (de 2026) hablan de 2026-2.
 - El semestre siguiente es 2027-1, el primer semestre de 2027, que empieza en marzo. "el que viene", "el próximo", "el otro semestre", "en marzo", "después del verano" y "el próximo año" hablan de 2027-1.
 <!-- /calendario -->
 

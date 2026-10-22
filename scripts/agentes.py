@@ -111,10 +111,12 @@ def llamar(modelo, mensajes):
 
 
 def cita_en(cita, texto):
-    """True si la cita aparece en el texto, sin distinguir tildes, mayúsculas ni romanos."""
+    """True si la cita aparece en el texto como palabras completas, sin distinguir tildes,
+    mayúsculas ni romanos. Con palabras completas "actual" no calza en "actualmente" ni "ya"
+    en "playa" (en la v4 se comparaba como subcadena)."""
     from herramientas import normalizar
     c = normalizar(cita)
-    return bool(c) and c in normalizar(texto)
+    return bool(c) and f" {c} " in f" {normalizar(texto)} "
 
 
 def _lista(nombres):
@@ -229,8 +231,14 @@ def resolvedor(modelo, prompt, consultado, otros, candidatos, busquedas_hechas, 
 def bloque_revision_citas(salida, fuera):
     """La observación con que el Verificador revisa su propia salida (v5): sus citas tienen que
     salir de la consulta. `fuera` son los nombres de las citas que no aparecen en ella."""
-    previa = {k: salida[k] for k in ("cita_ramo", "cita_periodo", "accion", "problema",
-                                     "periodo_corregido", "motivo") if salida.get(k)}
+    # Con las claves del esquema del prompt: "periodo", no la clave interna "periodo_corregido".
+    # Si el modelo copia su respuesta anterior, tiene que poder leerse igual.
+    previa = {k: salida[k] for k in ("cita_ramo", "cita_periodo", "accion", "problema")
+              if salida.get(k)}
+    if salida.get("periodo_corregido"):
+        previa["periodo"] = salida["periodo_corregido"]
+    if salida.get("motivo"):
+        previa["motivo"] = salida["motivo"]
     return ("\n=== REVISIÓN DE TU RESPUESTA ANTERIOR ===\n"
             f"Tu respuesta: {json.dumps(previa, ensure_ascii=False)}\n"
             f"{' y '.join(fuera)} no aparece en la consulta. Las citas tienen que ser palabras "
@@ -255,12 +263,13 @@ def verificador(modelo, prompt, pregunta, codigo, nombre, periodo, otros, revisi
     accion = {"accion": "aceptar", "legible": d is not None}
     tipo = _texto(d.get("accion")).lower() if d is not None else ""
     if tipo == "rechazar":
-        problema = _texto(d.get("problema")).lower()
+        from herramientas import normalizar
+        problema = normalizar(_texto(d.get("problema")))      # "código" y "codigo" valen igual
         accion = {"accion": "rechazar",
                   "problema": "codigo" if problema.startswith("cod") else "mencion",
                   "motivo": _texto(d.get("motivo")) or "sin motivo", "legible": True}
     elif tipo.startswith("corregir"):
-        nuevo = norm_periodo(d.get("periodo"))
+        nuevo = norm_periodo(d.get("periodo") or d.get("periodo_corregido"))
         if nuevo and nuevo != periodo:
             accion = {"accion": "corregir_periodo", "periodo_corregido": nuevo,
                       "motivo": _texto(d.get("motivo")) or "sin motivo", "legible": True}

@@ -15,7 +15,10 @@ La v5 se acepta si cumple todo:
   2. período igual o mayor que el de la v4 (206)
   3. ningún conjunto baja más de 2 casos en acierto conjunto
   4. ninguna corrección ni rechazo del Verificador convierte en error un caso que la v4
-     acertaba estricto
+     acertaba estricto. Se cuenta cuando lo que vio el Verificador la primera vez
+     (`primera_verificada`) tenía bien el ramo y el período, el Verificador intervino y el
+     caso terminó sin acierto estricto. Si la elección ya venía mal y el Verificador la
+     rechazó con razón, no cuenta contra él aunque el caso termine en tope.
   5. el Resolvedor se aparta del primer candidato de T1 sin acertar en menos casos que la v4 (11)
 
     python aceptacion_v5.py
@@ -63,6 +66,13 @@ def intervino_verificador(x):
                 or r.get("rechazos_codigo"))
 
 
+def convertido_por_verificador(x, ramo_real, periodo_real):
+    """La primera interpretación que revisó era correcta, intervino y el caso quedó mal."""
+    p = x.get("primera_verificada")
+    return bool(p and p["codigo"] == ramo_real and p["periodo"] == periodo_real
+                and intervino_verificador(x) and not estricto(x))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", default="completo")
@@ -71,7 +81,7 @@ def main():
 
     tot = {"v4": {"conjunto": 0, "estricto": 0, "periodo": 0, "desvio": 0},
            "v5": {"conjunto": 0, "estricto": 0, "periodo": 0, "desvio": 0}}
-    bajas, convertidos, cambios, n = [], [], [], 0
+    bajas, convertidos, cambios, n, commits = [], [], [], 0, set()
     print(f"{'conjunto':30} {'n':>4} {'v4':>5} {'v5':>5}   (acierto conjunto)")
     for conj in DESARROLLO:
         v4 = cargar(RAIZ / "resultados" / f"agentes__{MODELO}__completo__{conj}.raw.jsonl")
@@ -83,10 +93,12 @@ def main():
         if set(v5) != set(v4):
             print(f"{conj}: la v5 tiene {len(v5)} casos y la v4 {len(v4)}; corre el conjunto completo")
             return 2
-        if any("t1_top1_inicial" not in x for x in v5.values()):
-            # Sin ese campo los desvíos de T1 darían 0 sin haberse medido.
-            print(f"{ruta5.name} no trae t1_top1_inicial: no son filas de la v5")
+        if any(x.get("version") != "v5" or "t1_top1_inicial" not in x for x in v5.values()):
+            # Sin esos campos los desvíos de T1 darían 0 sin haberse medido.
+            print(f"{ruta5.name} no son filas de la v5 (falta version o t1_top1_inicial)")
             return 2
+        commits |= {x.get("commit") for x in v5.values()}
+        casos = [json.loads(l) for l in open(RAIZ / "datos" / f"{conj}.jsonl", encoding="utf-8")]
         top4 = top1_inicial_v4(conj)
         c4 = sum(x["acierto_conjunto"] for x in v4.values())
         c5 = sum(x["acierto_conjunto"] for x in v5.values())
@@ -101,11 +113,16 @@ def main():
                 tot[etq]["estricto"] += estricto(x)
                 tot[etq]["periodo"] += x["acierto_periodo"]
                 tot[etq]["desvio"] += desvio_sin_acierto(x, top)
-            if estricto(x4) and not estricto(x5) and intervino_verificador(x5):
+            real = casos[int(i)]["consulta"]
+            if estricto(x4) and convertido_por_verificador(x5, real["ramos"][0], real["periodo"]):
                 convertidos.append(f"{conj} {i}")
             if x4["acierto_conjunto"] != x5["acierto_conjunto"] or estricto(x4) != estricto(x5):
                 cambios.append((conj, i, x4, x5))
 
+    if len(commits) != 1:
+        print(f"\nLos archivos de la v5 vienen de commits distintos: {sorted(map(str, commits))}")
+        return 2
+    print(f"\nv5 del commit {commits.pop()}")
     t4, t5 = tot["v4"], tot["v5"]
     print(f"\n{'':30} {n:4}   v4    v5")
     for k, nombre in (("conjunto", "acierto conjunto"), ("estricto", "estricto (ramo y período)"),

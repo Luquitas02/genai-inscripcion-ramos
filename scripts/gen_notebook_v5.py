@@ -54,8 +54,8 @@ en `PLAN_D3.md`, sección "Versión 5".
 Debe decir `cuda: True` y mostrar una **Tesla T4**. Si no: *Entorno de ejecución* →
 *Cambiar tipo de entorno de ejecución* → **T4 GPU**.
 
-`COMMIT` es el commit que se mide. Cada fila de resultados lo guarda, y el runner no mezcla
-filas de commits distintos en un mismo archivo.
+`COMMIT` es el commit que se mide; vacío clona la última versión de `main`. Cada fila de
+resultados guarda el commit, y el runner no mezcla filas de commits distintos en un archivo.
 """),
     code(f"""COMMIT = ''
 
@@ -89,14 +89,19 @@ for args in pruebas:
 print('TODO EN ORDEN')"""),
 
     md("""## 3 · Google Drive
-**No te saltes esta celda.** Cada corrida se copia a Drive apenas termina, en la carpeta
-`genai_d3_v5`, y lo que ya estaba en Drive se copia al clon para que el runner retome.
+**No te saltes esta celda.** Cada conjunto se copia a Drive apenas termina, en
+`genai_d3_v5/<commit>`, y lo que ya estaba ahí para este mismo commit se copia al clon para
+que el runner retome. Si la sesión se cae a mitad de un conjunto, ese conjunto se repite.
 """),
     code("""from google.colab import drive
 import shutil
 from pathlib import Path
 drive.mount('/content/drive')
-RESPALDO = Path('/content/drive/MyDrive/genai_d3_v5')
+# Una carpeta por commit: un commit nuevo (otro prompt, otra versión) empieza de cero en vez
+# de chocar con lo que se corrió con el anterior, y lo de este commit se retoma.
+HASH = subprocess.check_output(['git', '-C', '/content/proyecto', 'rev-parse', '--short=10',
+                                'HEAD'], text=True).strip()
+RESPALDO = Path('/content/drive/MyDrive/genai_d3_v5') / HASH
 PROYECTO = Path('/content/proyecto')
 for sub in ('resultados', 'trazas'):
     (RESPALDO / sub).mkdir(parents=True, exist_ok=True)
@@ -143,7 +148,8 @@ r = subprocess.run([sys.executable, 'aceptacion_v5.py'], capture_output=True, te
 print(r.stdout, r.stderr[-2000:])"""),
 
     md("""## 6 · Bajar los resultados
-Un zip con `resultados/` y `trazas/` de la v5. También están en Drive, en `genai_d3_v5`.
+Un zip con `resultados/` y `trazas/` de la v5. También están en Drive, en
+`genai_d3_v5/<commit>`.
 """),
     code("""from google.colab import files
 shutil.make_archive('/content/resultados_v5', 'zip', str(RESPALDO))
