@@ -558,6 +558,18 @@ Borrador del correo:
 
 ## Registro de decisiones
 
+**25 oct 2026 — Ablaciones de una sola técnica sobre los 180, según el protocolo.** Corridas el
+22 (cortadas por cupo de GPU) y el 25 con `ablaciones_v4_colab.ipynb`, que retomó desde Drive.
+Resultados en `be528fb`. Verificado: los 1.620 registros traen el commit `6d8a18b` y los hashes
+de prompts del protocolo, y cada ablación cambia salidas del modelo (de 11 casos en
+`sin_regla_verbo` a 180 en las que cambian el formato). Acierto contra 164: sin T1 100 (64 a 0),
+sin ejemplos 151 (16 a 3, p = 0,004), sin lista de otros 169 (1 a 6), sin regla del verbo 164,
+sin citas del Intérprete 159 (9 a 4; estricto 141, 21 a 4, p = 0,0009, período 154 contra 173),
+sin citas del Verificador, sin sus ejemplos y sin Verificador 164 (0 a 0 en los tres), top-1 168
+(0 a 4). Zero-shot 11/180. El Verificador no cambia ningún resultado de los 180. Según el
+protocolo, la tabla del documento pasa a las nueve filas de los 180 y las de los 150 quedan en
+el README como primera medición. No se cambió nada del sistema.
+
 **22 oct 2026 — Auditoría con cuatro revisores y ablaciones de una sola técnica sobre los 180.**
 Revisores independientes de rúbrica, cifras, coherencia y foco/escritura, más una revisión de
 reproducibilidad desde un clon limpio. Ninguna cifra está mal y todo se reproduce. Lo que sí

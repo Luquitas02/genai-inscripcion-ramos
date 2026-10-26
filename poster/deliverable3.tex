@@ -192,7 +192,7 @@ rechazo al Resolvedor sacó 194 contra 196 en 223 casos de desarrollo y no se ac
 \cmidrule(lr){2-4}\cmidrule(l){5-7}
 acierto conjunto & plantilla & redact. & \textbf{150} & plantilla & redact. & \textbf{180} \\
 \midrule
-baseline zero-shot (D1)  &  -- & -- &  -- &  -- & -- &  -- \\
+baseline zero-shot (D1)  &  -- & -- &  -- &   7 &  4 &  11 \\
 baseline few-shot (D1)   &  28 &  7 &  35 &  30 & 13 &  43 \\
 sistema del D2           &  72 & 24 &  96 &  76 & 42 & 118 \\
 regla fija, sin modelo   &  83 &  7 &  90 &  77 & 25 & 102 \\
@@ -228,21 +228,21 @@ acierta el período (M3)               & 105 & 90 & \textbf{98} \\
 
 \seccion{Técnicas y ablación}
 
-% PENDIENTE: valores de PROTOCOLO_ABLACIONES_V4.md (scripts/analisis_ablaciones_v4.py)
+% Valores de scripts/analisis_ablaciones_v4.py (PROTOCOLO_ABLACIONES_V4.md, commit be528fb)
 {\footnotesize
 \begin{tabular}{@{}lllrrr@{}}
 \toprule
 sin... (Lecture 5)                      & agente & apunta a & acierto & $\Delta$ & pares \\
 \midrule
-la búsqueda T1 (ReAct)                  & B & M1     & -- & -- & -- \\
-4 ejemplos (few-shot)                   & A & M2, M3 & -- & -- & -- \\
-la lista de otros ramos                 & A & M2     & -- & -- & -- \\
-la regla del verbo                      & A & M2     & -- & -- & -- \\
-citar antes de decidir (quotes first)   & A & M3     & -- & -- & -- \\
-citar antes de decidir (quotes first)   & C & M2, M3 & -- & -- & -- \\
-2 ejemplos (few-shot)                   & C & M2     & -- & -- & -- \\
-el Verificador entero                   & C & M2, M3 & -- & -- & -- \\
-el Resolvedor, se toma el top-1$^{*}$   & B & M1     & -- & -- & -- \\
+la búsqueda T1 (ReAct)                  & B & M1     & 100 & $-64$ & 64 a 0 \\
+4 ejemplos (few-shot)                   & A & M2, M3 & 151 & $-13$ & 16 a 3 \\
+la lista de otros ramos                 & A & M2     & 169 &  $+5$ &  1 a 6 \\
+la regla del verbo                      & A & M2     & 164 &   $0$ &  0 a 0 \\
+citar antes de decidir (quotes first)   & A & M3     & 159 &  $-5$ &  9 a 4 \\
+citar antes de decidir (quotes first)   & C & M2, M3 & 164 &   $0$ &  0 a 0 \\
+2 ejemplos (few-shot)                   & C & M2     & 164 &   $0$ &  0 a 0 \\
+el Verificador entero                   & C & M2, M3 & 164 &   $0$ &  0 a 0 \\
+el Resolvedor, se toma el top-1$^{*}$   & B & M1     & 168 &  $+4$ &  0 a 4 \\
 \bottomrule
 \end{tabular}\par}
 
@@ -253,7 +253,12 @@ Cada fila es el sistema completo (164 de 180) sin una sola pieza, sobre los mism
 no una técnica. La columna \q apunta a\q\ se fijó en el protocolo antes de correr. Los cuatro
 agentes usan además un rol y salida JSON, que no se ablacionan.
 
-PENDIENTE: dos o tres oraciones con lo que explican los resultados.\par}
+Dos técnicas sostienen el resultado. Sin T1 el Resolvedor elige entre los 61 ramos y acierta el
+abreviado en 9 de 34 casos, contra 33. Sin los ejemplos, el Intérprete falla sobre todo cuando
+la pregunta nombra otro ramo antes (27 de 38, contra 36). Si no cita el período, lo acierta en
+154 contra 173 y el estricto pierde 17 (21 a 4, $p<0{,}001$). El conjunto casi no
+cambia porque muchas reglas no dependen del período. En los 180 el Verificador no cambia
+ningún resultado.\par}
 
 \seccion{Caso de falla}
 

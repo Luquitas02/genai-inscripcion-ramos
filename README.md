@@ -563,6 +563,7 @@ y fijaba que estos resultados irían al documento cualquiera fuera el resultado.
 
 | | plantilla A (60) | plantilla B (60) | redactados a ciegas (60) | **180** | con ramo y período bien |
 |---|---|---|---|---|---|
+| baseline zero-shot (D1) | 4 | 3 | 4 | 11 | — |
 | baseline few-shot (D1) | 18 | 12 | 13 | 43 | — |
 | sistema del D2 | 39 | 37 | 42 | 118 | 94 |
 | regla fija, sin modelo | 37 | 40 | 25 | 102 | 57 |
@@ -576,6 +577,47 @@ casos que repiten el problema o la pregunta de un caso anterior, 34 a 4. Las cif
 
 ## Qué explica la mejora
 
+Cada fila es la v4 completa (164 de 180, estricto 158) sin una sola técnica, sobre los 180 casos
+sellados. El protocolo [`PROTOCOLO_ABLACIONES_V4.md`](PROTOCOLO_ABLACIONES_V4.md) se subió antes
+de correr (commit `6d8a18b`) y fijaba el mecanismo al que apunta cada técnica. Resultados en el
+commit `be528fb`, cifras con `python scripts/analisis_ablaciones_v4.py`. "Pares" son los casos
+que gana el completo y los que gana la ablación. Las diferencias de 3 casos o menos se reportan
+como ruido. Son comparaciones exploratorias, sin corrección por comparaciones múltiples.
+
+| sin... | agente | apunta a | acierto (180) | Δ | pares | estricto | pares estricto |
+|---|---|---|---|---|---|---|---|
+| la búsqueda T1 (el Resolvedor recibe el catálogo de 61) | Resolvedor | M1 | 100 | −64 | 64 a 0 | 91 | 67 a 0 |
+| los 4 ejemplos del Intérprete | Intérprete | M2, M3 | 151 | −13 | 16 a 3 | 144 | 18 a 4 |
+| la lista de los otros ramos | Intérprete | M2 | 169 | +5 | 1 a 6 | 162 | 2 a 6 |
+| la regla del verbo | Intérprete | M2 | 164 | 0 | 0 a 0 | 158 | 0 a 0 |
+| citar la frase del período antes de decidirlo | Intérprete | M3 | 159 | −5 | 9 a 4 | 141 | 21 a 4 |
+| citar la mención y el período antes de comparar | Verificador | M2, M3 | 164 | 0 | 0 a 0 | 158 | 0 a 0 |
+| los 2 ejemplos del Verificador | Verificador | M2 | 164 | 0 | 0 a 0 | 158 | 0 a 0 |
+| el Verificador entero | Verificador | M2, M3 | 164 | 0 | 0 a 0 | 158 | 0 a 0 |
+| el Resolvedor (se toma el primer candidato de T1, diagnóstico) | Resolvedor | M1 | 168 | +4 | 0 a 4 | 162 | 0 a 4 |
+
+McNemar exacto: sin T1 p = 1,1·10⁻¹⁹; sin ejemplos p = 0,004; sin citas del Intérprete p = 0,27
+(estricto p = 0,0009); sin lista de otros y top-1 p = 0,125. Por mecanismo:
+
+| | exacto, M1 (72) | abreviado (34) | otro ramo antes, M2 (38) | período (180) | redactadas (60) |
+|---|---|---|---|---|---|
+| completo | 70 | 33 | 36 | 173 | 55 |
+| sin T1 | 47 | 9 | 24 | 160 | 37 |
+| sin ejemplos | 62 | 32 | 27 | 166 | 54 |
+| sin lista de otros | 71 | 34 | 38 | 172 | 57 |
+| sin citas del Intérprete | 69 | 33 | 35 | 154 | 54 |
+| top-1 | 72 | 34 | 38 | 172 | 56 |
+
+La mejora la explican T1, que saca al modelo de copiar códigos y además resuelve las
+abreviaturas (9 contra 33), y los ejemplos del Intérprete, que atacan M2 (27 contra 36). Citar
+la frase del período protege M3: sin la cita el período baja de 173 a 154, pero el acierto
+conjunto casi no lo nota porque muchas reglas no dependen del período. Quitar la regla del verbo
+cambió la salida del Intérprete en 10 casos y ningún resultado. El Verificador, entero o sin sus
+citas o ejemplos, no cambia ningún resultado de los 180. Quitar la lista de otros ramos y tomar
+el top-1 suben 5 y 4 casos, sin significancia. El baseline zero-shot acierta 11 de 180.
+
+La primera medición, sobre los 150 de la corrida del 20 de octubre, apuntaba a lo mismo:
+
 | sin... | acierto (150) | Δ |
 |---|---|---|
 | la búsqueda T1 (el Resolvedor recibe el catálogo completo) | 75 | −57 |
@@ -584,13 +626,10 @@ casos que repiten el problema o la pregunta de un caso anterior, 34 a 4. Las cif
 | el Verificador | 133 | +1 |
 | el Resolvedor (se toma el primer candidato de T1) | 133 | +1 |
 
-Las ablaciones son de la corrida de los 150 y no se repitieron en la réplica. La fila de
-descomposición quita dos instrucciones a la vez. Copiar la frase de la pregunta antes de decidir
-(`frase_periodo`, `cita_ramo`) y los 2 ejemplos del Verificador no se ablacionaron.
+Esa fila de descomposición quitaba dos instrucciones a la vez, y las citas y los ejemplos del
+Verificador no se habían medido. Por eso se repitió sobre los 180, una técnica a la vez.
 
-La mejora la explican T1, que saca al modelo de copiar códigos, y los ejemplos, que atacan M2
-(sin ellos M2 baja de 34 a 26 y el período sube de 137 a 141). El Resolvedor y el Verificador
-no aportan, y las trazas muestran por qué. El Resolvedor se apartó del primer candidato de T1 en
+El Resolvedor y el Verificador no aportan, y las trazas muestran por qué. El Resolvedor se apartó del primer candidato de T1 en
 8 casos de los 150 y en 8 de los 180, y acertó en 1 de esos 16; en 8 el primero era el correcto.
 Un rechazo del Verificador vuelve al Intérprete: si su mención estaba bien la repite, T1 devuelve
 lo mismo y el Resolvedor elige lo mismo. Por eso 4 de los 5 casos con rechazo de cada corrida
