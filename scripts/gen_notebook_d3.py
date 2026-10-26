@@ -205,7 +205,7 @@ files.download('/content/resultados_d3.zip')"""),
 SALIDA_DEMO = BASE / "demo_d3_colab.ipynb"
 
 # El notebook del video. Las celdas 1 a 3 se corren antes de grabar: cargar Phi toma minutos
-# y el video sería una barra de progreso. Se graba solo la celda 4, que tarda menos de un minuto.
+# y el video sería una barra de progreso. Se graban las celdas 4 y 5; la 6 baja la traza en vivo.
 CELDAS_DEMO = [
     md("""# Demostración del Deliverable 3 · sistema de agentes con Phi-3.5-mini
 
@@ -213,13 +213,15 @@ Corre en vivo los tres casos que eligió la regla de `PROTOCOLO_D3.md` y muestra
 entre agentes y herramientas. Cada salida del modelo se compara con la corrida final guardada
 en `trazas/`: con generación greedy tiene que decir `= guardada`.
 
-**Antes de grabar:** T4 GPU, y correr las celdas 1, 2 y 3. **Se graba solo la celda 4.**
+**Antes de grabar:** T4 GPU, y correr las celdas 1, 2 y 3. **Se graban las celdas 4 y 5.**
+Después de grabar, la celda 6 baja la traza de la pregunta en vivo para subirla al repositorio.
 Grabar a 1920x1080 para que el texto monoespaciado se lea.
 """),
     code(f"""# 1 · repositorio y dependencias
 # El commit de la demo: los prompts, los agentes y las herramientas son los de la corrida final
-# (9158550), y trae scripts/demo_d3.py con la pregunta en vivo. Con '' clona main.
-COMMIT = 'db40918'
+# (9158550), y trae scripts/demo_d3.py con la pregunta en vivo, que guarda su traza.
+# Con '' clona main.
+COMMIT = '75ed9b2'
 
 %cd /content
 !pip -q install transformers==5.17.0 accelerate==1.14.0 bitsandbytes==0.50.2
@@ -243,10 +245,15 @@ modelo = runner_d3.cargar_modelo('microsoft/Phi-3.5-mini-instruct')
 print('modelo cargado · revisión', getattr(modelo.modelo.config, '_commit_hash', '?'))"""),
     code("""# 4 · DEMOSTRACIÓN: grabar esta celda
 demo_d3.video(modelo)"""),
-    code("""# 5 · una pregunta escrita en el momento, sobre el historial de un estudiante de la prueba
+    code("""# 5 · una pregunta escrita en el momento, sobre el historial del redactado 0
 # (grabar también). No tiene etiqueta: se ve la decisión del sistema, sin acierto ni falla.
 PREGUNTA = '¿puedo tomar estadística este semestre si ya pasé cálculo 2?'
 demo_d3.en_vivo(modelo, PREGUNTA)"""),
+    code("""# 6 · después de grabar: baja la traza y la fila de la pregunta en vivo (no se graba).
+# Se dejan en trazas/ y resultados/ del repositorio y se suben con el PDF.
+from google.colab import files
+files.download('/content/proyecto/trazas/en_vivo.jsonl')
+files.download('/content/proyecto/resultados/en_vivo.raw.jsonl')"""),
 ]
 
 
