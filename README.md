@@ -629,15 +629,28 @@ La primera medición, sobre los 150 de la corrida del 20 de octubre, apuntaba a 
 Esa fila de descomposición quitaba dos instrucciones a la vez, y las citas y los ejemplos del
 Verificador no se habían medido. Por eso se repitió sobre los 180, una técnica a la vez.
 
-El Resolvedor y el Verificador no aportan, y las trazas muestran por qué. El Resolvedor se apartó del primer candidato de T1 en
-8 casos de los 150 y en 8 de los 180, y acertó en 1 de esos 16; en 8 el primero era el correcto.
-Un rechazo del Verificador vuelve al Intérprete: si su mención estaba bien la repite, T1 devuelve
-lo mismo y el Resolvedor elige lo mismo. Por eso 4 de los 5 casos con rechazo de cada corrida
+El Resolvedor y el Verificador no suben el acierto, y las trazas muestran por qué. El Resolvedor
+se apartó del primer candidato de T1 en 8 casos de los 150 y en 8 de los 180, y acertó en 1 de
+esos 16. En 8 el primero era el correcto, y en 7 de ellos la pregunta traía un número
+("Cálculo 3", "optimización 1", "opti 1") y el Resolvedor eligió el ramo de número vecino
+(Cálculo II, Optimización II). En 6 de esos 7, T1 había dado coincidencia exacta (puntaje 1,5,
+que es la razón de difflib más 0,5 cuando la mención normalizada está contenida en el nombre).
+`normalizar` ya iguala "3" y "III", así que el error es del Resolvedor y no de T1.
+
+El Verificador sí detecta errores. Sin T1 (ablación `sin_herramienta`), los 21 casos que rechazó
+tenían el ramo o el período mal en el momento del primer rechazo. En la réplica rechazó 5 casos,
+3 con un error real, y dos de ellos eran justo los números mal elegidos por el Resolvedor
+(plantilla A 21 y redactados 29). Pero un rechazo vuelve al Intérprete: si su mención estaba
+bien la repite, T1 devuelve lo mismo y el Resolvedor elige lo mismo. Por eso 4 de los 5 casos con rechazo de cada corrida
 terminan en un tope (en la réplica, 3 por rechazos y 1 por el límite de llamadas). Además el
 Verificador no tiene veto: al llegar a un tope, T2 recibe la última elección aunque esté
 rechazada. En 313 de los 330 casos la respuesta final es el primer candidato de T1 con el
-período de la primera respuesta del Intérprete. El detalle por mecanismo y caso está en [`PLAN_D3.md`](PLAN_D3.md), en los registros del
-20 y 21 de octubre.
+período de la primera respuesta del Intérprete. La v5 y la v5b mandaban el rechazo del ramo al Resolvedor y T1 marcaba la coincidencia
+exacta. Esa pieza arregló dos de estos casos (originales 40 y 59, "Optimización 1") sin romper
+ninguno, pero otros cambios de esas versiones bajaron el total (ver abajo). El siguiente paso,
+para el D4, es probar esa corrección sola, con el código aceptando la coincidencia exacta sin
+pasar por el Resolvedor, con protocolo y casos sellados nuevos. El detalle por mecanismo y caso
+está en [`PLAN_D3.md`](PLAN_D3.md), en los registros del 20, 21 y 25 de octubre.
 
 **Caso de falla.** "...ando cursando administración y quería tomar marketing el otro
 semestre, en marzo". El Intérprete leyó bien el período; el Verificador lo rechazó diciendo que
@@ -716,7 +729,9 @@ de 30 casos originales ([`scripts/preparar_redactados.py`](scripts/preparar_reda
 CSV registra autor y revisión de cada una. La etiqueta de esos casos es la del caso original,
 porque depende del historial y no de la redacción. El equipo las leyó, y Claude, que conocía el
 sistema, corrigió la redacción de 3 (filas 4, 18 y 20). Las 60 redactadas de la réplica se
-hicieron igual, las leyó Lucas antes de sellarlas y Claude no las ha leído.
+hicieron igual y las leyó Lucas antes de sellarlas. Claude no las leyó hasta después de la
+réplica y las ablaciones: el 25 de octubre, al analizar los fallos, leyó las de los casos
+11, 16, 29, 39 y 53.
 
 Límites que encontró la auditoría del 21 de octubre:
 

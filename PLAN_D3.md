@@ -558,6 +558,32 @@ Borrador del correo:
 
 ## Registro de decisiones
 
+**25 oct 2026, noche — Segunda auditoría del documento y diagnóstico de los fallos de la
+réplica.** Tres revisores independientes (cifras, rúbrica, escritura y defensa). Las cifras
+cuadran. Errores corregidos: "cuatro agentes", la fila M2 sangrada como subconjunto de los
+abreviados (23 de los 35 traen el nombre exacto), "una versión 5 sacó 194" (era la v5b; la v5
+sacó 186), "223 de desarrollo" sin decir que son los 150 más 73, citas del Verificador
+presentadas como tomadas de la pregunta (38/180 fuera), costo sin decir que es de los 150, la
+corrección de 3 redactadas por Claude, y "46 contra 35" (con `normalizar` da 48 de 60 contra 39
+y 35). Cambios por rúbrica: prompt y versión de cada agente en la tabla, la decisión del
+Intérprete incluye corregir su lectura tras un rechazo, "ReAct" pasa a "uso de herramienta"
+(quitar T1 quita la recuperación; la re-búsqueda ocurre en 4 de 180), aristas de otros y
+período en el grafo. Se rechazó escribir que M1 es la E3 del D1: la E3 era deformar
+identificadores al copiarlos, y M1 es elegir el código equivocado.
+
+Diagnóstico nuevo, hecho después de la réplica y las ablaciones mirando los 16 fallos de la v4
+en los 180 (Claude leyó 5 redactadas selladas: 11, 16, 29, 39 y 53). De los 16 desvíos del
+Resolvedor en los 330 casos, en 8 el primer candidato era el correcto y en 7 de esos la pregunta
+traía un número; en 6, T1 había dado coincidencia exacta (1,5) y el Resolvedor eligió el ramo de
+número vecino. `normalizar` ya iguala "3" y "III": el error es del Resolvedor. El Verificador sí
+detecta: sin T1, sus 21 casos rechazados tenían ramo o período mal en el primer rechazo, y en la
+réplica rechazó dos de los números (plantilla A 21, redactados 29), pero el rechazo vuelve al
+Intérprete. La pieza de la v5 que mandaba el rechazo al Resolvedor con la coincidencia exacta
+marcada arregló 2 y no rompió ninguno (originales 40 y 59). Decisión con Lucas: el D3 entrega
+la v4 sin cambios, con este diagnóstico en el documento; el D4 prueba esa corrección sola (el
+código acepta la coincidencia exacta) con protocolo y casos sellados nuevos. La demo guarda la
+traza de la pregunta en vivo (`trazas/en_vivo.jsonl`), que el enunciado pide versionar.
+
 **25 oct 2026 — Ablaciones de una sola técnica sobre los 180, según el protocolo.** Corridas el
 22 (cortadas por cupo de GPU) y el 25 con `ablaciones_v4_colab.ipynb`, que retomó desde Drive.
 Resultados en `be528fb`. Verificado: los 1.620 registros traen el commit `6d8a18b` y los hashes

@@ -18,6 +18,7 @@ salir igual, y la marca `= guardada` lo muestra mensaje por mensaje.
 
 import json
 import sys
+import tempfile
 from pathlib import Path
 
 import orquestador as O
@@ -80,9 +81,12 @@ def video(modelo):
     return iguales == len(todas)
 
 
-def en_vivo(modelo, pregunta, historial_de=0):
+def en_vivo(modelo, pregunta, historial_de=0, destino=RAIZ):
     """Una pregunta escrita en el momento, sobre el historial de un caso redactado. No hay
-    etiqueta para esa pregunta, así que se muestra la decisión sin marcar acierto ni falla."""
+    etiqueta para esa pregunta, así que se muestra la decisión sin marcar acierto ni falla.
+
+    La traza queda en `trazas/en_vivo.jsonl` y la fila en `resultados/en_vivo.raw.jsonl`, con el
+    mismo formato del runner, para versionar lo que muestra el video. Cada llamada las reemplaza."""
     casos = _casos()
     caso = dict(casos[historial_de], id="en_vivo", pregunta_prosa=pregunta)
     print("=" * 110)
@@ -99,6 +103,14 @@ def en_vivo(modelo, pregunta, historial_de=0):
     pred = fila["prediccion"]
     print(f"\n    sistema: {pred['decision']} / {pred['regla']}   ·   "
           f"{fila['llamadas']} llamadas, {fila['segundos_total']:.1f} s\n")
+    destino = Path(destino)
+    (destino / "trazas").mkdir(parents=True, exist_ok=True)
+    (destino / "resultados").mkdir(parents=True, exist_ok=True)
+    with open(destino / "trazas" / "en_vivo.jsonl", "w", encoding="utf-8") as f:
+        for m in mensajes:
+            f.write(json.dumps({"caso": "en_vivo", **m}, ensure_ascii=False) + "\n")
+    with open(destino / "resultados" / "en_vivo.raw.jsonl", "w", encoding="utf-8") as f:
+        f.write(json.dumps(dict(fila, historial_de=historial_de), ensure_ascii=False) + "\n")
     return fila
 
 
@@ -123,6 +135,20 @@ def _pruebas():
         crudos = [m["crudo"] for m in V.leer(TRAZA, i) if m.get("crudo")]
         marcas = correr(ModeloRepetidor(crudos), i, titulo, v, casos, prompts)
         ok &= all(m in ("", "= guardada") for m in marcas)
+    # en_vivo escribe su traza: con la pregunta del redactado 0 y sus salidas guardadas, la
+    # traza escrita tiene que tener las mismas salidas del modelo
+    with tempfile.TemporaryDirectory() as tmp:
+        crudos = [m["crudo"] for m in V.leer(TRAZA, 0) if m.get("crudo")]
+        en_vivo(ModeloRepetidor(crudos), casos[0]["pregunta_prosa"], 0, destino=tmp)
+        escritos = [json.loads(l) for l in open(Path(tmp) / "trazas" / "en_vivo.jsonl",
+                                                encoding="utf-8")]
+        fila = json.loads(open(Path(tmp) / "resultados" / "en_vivo.raw.jsonl",
+                               encoding="utf-8").readline())
+        guardar_ok = ([m["crudo"] for m in escritos if m.get("crudo")] == crudos
+                      and all(m["caso"] == "en_vivo" for m in escritos)
+                      and fila["historial_de"] == 0)
+        print("en_vivo guarda su traza" if guardar_ok else "[FALLA] en_vivo no guarda su traza")
+        ok &= guardar_ok
     print("TODO EN ORDEN" if ok else "[FALLA] la demo no reproduce las trazas guardadas")
     return 0 if ok else 1
 
