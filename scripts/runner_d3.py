@@ -20,6 +20,7 @@ Uso:
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
@@ -151,6 +152,34 @@ def commit_actual():
         return "desconocido"
 
 
+def _leer_retomable(salida, traza):
+    """Las filas ya guardadas. Si un corte dejó la última línea a medio escribir, la descarta, y
+    deja en la traza solo los mensajes de casos que tienen su fila completa (la traza se escribe
+    antes que la fila, así que un caso cortado puede tener mensajes sin fila)."""
+    lineas = [l for l in open(salida, encoding="utf-8").read().split("\n") if l.strip()]
+    filas = []
+    for k, l in enumerate(lineas):
+        try:
+            filas.append(json.loads(l))
+        except json.JSONDecodeError:
+            if k != len(lineas) - 1:
+                raise
+            print(f"{salida.name}: la última línea quedó cortada; se descarta y se repite ese caso")
+    salida.write_text("".join(json.dumps(x, ensure_ascii=False) + "\n" for x in filas),
+                      encoding="utf-8")
+    if traza.exists():
+        hechos = {str(x["id"]) for x in filas}
+        buenas = []
+        for l in open(traza, encoding="utf-8").read().split("\n"):
+            try:
+                if l.strip() and str(json.loads(l)["caso"]) in hechos:
+                    buenas.append(l + "\n")
+            except json.JSONDecodeError:
+                pass
+        traza.write_text("".join(buenas), encoding="utf-8")
+    return filas
+
+
 def correr(modelo, casos, v, config, salida, traza):
     """Retoma solo si los prompts y el código son los mismos de lo que ya está guardado.
 
@@ -164,8 +193,7 @@ def correr(modelo, casos, v, config, salida, traza):
     commit = commit_actual()
     hechos = set()
     if salida.exists():
-        with open(salida, encoding="utf-8") as f:
-            filas = [json.loads(l) for l in f if l.strip()]
+        filas = _leer_retomable(salida, traza)
         distintas = [x["id"] for x in filas
                      if x["prompts"] != actuales or x.get("commit") != commit]
         if distintas:
@@ -187,6 +215,9 @@ def correr(modelo, casos, v, config, salida, traza):
             fs.write(json.dumps(fila, ensure_ascii=False) + "\n")
             ft.flush()
             fs.flush()
+            # En Drive, flush solo llega al sistema operativo; fsync lo baja al archivo.
+            os.fsync(ft.fileno())
+            os.fsync(fs.fileno())
             ramas = fila["ramas"]
             marca = "OK " if fila["acierto_conjunto"] else "   "
             print(f"[{marca}] {i + 1:3}/{len(casos)} n{caso['nivel']} "
@@ -393,8 +424,10 @@ def _pruebas():
              "aprobada" in m.llamadas[1][1]["content"]), (True, True, True))
 
     m, f, t = corre_con([A_OK, B_OK, C_OK], "v6_resolvedor_sin_historial", {"503203": "aprobada"})
-    chequea("v6 sin historial: el Resolvedor no ve estados",
-            "aprobada" in m.llamadas[1][1]["content"], False)
+    chequea("v6 sin historial: el Resolvedor no ve estados pero sí el semestre",
+            ("aprobada" in m.llamadas[1][1]["content"],
+             bool(re.search(r"^503203 .*semestre \d+\s*$", m.llamadas[1][1]["content"], re.M))),
+            (False, True))
     m, f, t = corre_con([A_OK, B_OK, C_OK], "v6_resolvedor_sin_pregunta", {"503203": "aprobada"})
     chequea("v6 sin pregunta: el Resolvedor no ve la consulta",
             (caso["pregunta_prosa"] in m.llamadas[1][1]["content"],
@@ -407,6 +440,10 @@ def _pruebas():
              f["ramas"]["rechazos_verificador"], len(m.llamadas)), (True, False, 1, 4))
     chequea("v6: el Resolvedor recibe el rechazo",
             "RECHAZÓ" in m.llamadas[2][1]["content"], True)
+    p6 = A.Prompt("resolvedor_v6.md")
+    chequea("v6: los ejemplos del Resolvedor tienen el formato de los candidatos reales",
+            bool(re.search(r"^510150  Física II  \(0\.80\)  semestre 2  no cursada$",
+                           p6.sistema, re.M)), True)
 
     m, f, t = corre([A_OK, C_NO, B_OK, C_NO, B_OK, C_NO], "v6")
     chequea("v6: los rechazos al Resolvedor cuentan para el tope",
@@ -435,6 +472,28 @@ def _pruebas():
     m, f, t = corre([A_OK, B_OK], "v6_sin_herramienta")
     chequea("v6 sin herramienta: no hay atajo ni T1",
             (f["ramas"]["atajo_exacto"], any(x["de"] == "T1" for x in t)), (False, False))
+
+    # Retomar en Drive: un corte puede dejar la última línea a medio escribir.
+    import tempfile
+    casos2 = [json.loads(l) for l in open(CASOS_ORIGINALES, encoding="utf-8")][:2]
+    with tempfile.TemporaryDirectory() as tmp:
+        sal, tra = Path(tmp) / "r.raw.jsonl", Path(tmp) / "r.traza.jsonl"
+        correr(ModeloFalso(), casos2[:1], v, "v6", sal, tra)
+        with open(sal, "a", encoding="utf-8") as f:
+            f.write('{"id": "1", "configuracion": "v6", "pred')
+        with open(tra, "a", encoding="utf-8") as f:
+            f.write('{"caso": "1", "n": 1, "de": "estudiante"}\n')
+        try:
+            correr(ModeloFalso(), casos2, v, "v6", sal, tra)
+            filas = [json.loads(l) for l in open(sal, encoding="utf-8")]
+            traza = [json.loads(l) for l in open(tra, encoding="utf-8")]
+            # la línea de traza del caso cortado no sobrevive: las del caso 1 son las nuevas
+            retoma = ([x["id"] for x in filas],
+                      all("contenido" in x for x in traza if x["caso"] == "1"))
+        except Exception as e:  # noqa: BLE001
+            retoma = repr(e)
+        chequea("retomar con la última línea cortada: la descarta y sigue", retoma,
+                (["0", "1"], True))
 
     m_v6, _, _ = corre([A_OK, B_OK, C_OK], "v6")
     m_c, _, _ = corre([A_OK, B_OK, C_OK])

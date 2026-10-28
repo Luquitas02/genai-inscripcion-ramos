@@ -163,7 +163,7 @@ def correr_caso(modelo, caso, v, config, prompts=None):
         if v6:
             extra = {"pregunta": pregunta if c["pregunta_resolvedor"] else "(no disponible)",
                      "historial": caso["historial"] if c["historial_resolvedor"] else None,
-                     "revision": rev or {}}
+                     "revision": rev or {}, "con_semestre": True}
         hechas = []
         while True:
             b, ll = r.agente(A.resolvedor, prompts["resolvedor"], a["consultado"],

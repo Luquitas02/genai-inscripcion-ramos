@@ -70,6 +70,9 @@ from importlib.metadata import version
 if not version('torch').startswith('{TORCH}'):
     print('instalando torch {TORCH} (Colab trae', version('torch'), ')')
     !pip -q install torch=={TORCH} --index-url https://download.pytorch.org/whl/cu128
+    # torchvision y torchaudio de Colab quedan compilados para el otro torch; el modelo es
+    # solo de texto, así que se quitan para que transformers no los cargue.
+    !pip -q uninstall -y torchvision torchaudio
 !pip -q install transformers==5.17.0 accelerate==1.14.0 bitsandbytes==0.50.2
 !rm -rf /content/proyecto && git clone -q {REPO} /content/proyecto
 import subprocess
