@@ -60,7 +60,7 @@
 {\Large\bfseries Un sistema de tres agentes sobre Phi-3.5-mini (3,8B) acierta 88,0\,\% contra 64,0\,\% del D2 en 150 casos, y 91,1\,\% contra 65,6\,\% en 180 casos sellados}\\[0.8mm]
 {\footnotesize\color{gris}%
 \textbf{Deliverable 3} · Generative Artificial Intelligence (580694) · Universidad de Concepción · 31 de octubre de 2026\\
-\textbf{Equipo:} Joaquín Sepúlveda · Renato Saavedra · Lucas Saldivia \quad\textbullet\quad
+\textbf{Grupo 3:} Joaquín Sepúlveda · Renato Saavedra · Lucas Saldivia \quad\textbullet\quad
 \textbf{Modelo:} \cod{microsoft/Phi-3.5-mini-instruct} (revisión \cod{2fe1924}), 3,8B, NF4, T4 de Colab, en los tres agentes\\
 \textbf{Repositorio:} \href{https://github.com/Luquitas02/genai-inscripcion-ramos}{\cod{github.com/Luquitas02/genai-inscripcion-ramos}} \quad\textbullet\quad
 \textbf{Video:} {\small\url{PEGAR-LINK-AQUI}}}
@@ -138,8 +138,7 @@ período del ramo consultado.\par}
 {\footnotesize\color{gris} Borde naranjo, agentes, cada uno con su prompt en \cod{prompts/<agente>.md}. Borde verde, herramientas. Las vueltas al
 Intérprete, por rechazo o por \cod{ninguno}, suman máx. 2. Al llegar a un tope, o si A responde
 \cod{sin\_ramo} tras un rechazo, T2 recibe la última elección aunque esté rechazada. El
-Verificador no puede bloquear un caso. Las flechas las ejecuta un orquestador en código, que
-lee la decisión que escribe cada agente.\par}
+Verificador no puede bloquear un caso. Un orquestador en código ejecuta la decisión de cada agente.\par}
 
 \vspace{0.6mm}
 {\footnotesize Traza real (nuevos, caso 49). T1 da un puntaje léxico, y 1,50 es coincidencia exacta:\par}
@@ -181,8 +180,11 @@ Verificador da 168 y 164, así que una secuencia fija probablemente rendiría lo
 Resolvedor se apartó del primer candidato de T1 en 16 de 330 casos y acertó en 1. En 7 la
 pregunta traía un número (\q cálculo 3\q) y eligió el ramo vecino. El Verificador rechazó en
 10, y en 5 la propuesta era correcta. Si no lo era, el rechazo volvía al Intérprete, que no ve
-el catálogo. Este diagnóstico se hizo después de medir. La v5 y la v5b mandaban el rechazo al
-Resolvedor y no pasaron su regla (186 y 194 contra 196, en los 150 y 73 de desarrollo).\par}
+el catálogo. Diagnóstico hecho después de medir. La v5 y la v5b mandaban el rechazo al
+Resolvedor y no pasaron su regla (186 y 194 contra 196 en 223 de desarrollo). Una v6 le dio al
+Resolvedor el historial y la pregunta (rama \cod{v6-codigo}). En 403 casos ya usados acertó el
+ramo en 108 de los 147 que decidió, y el primer candidato aún inscribible en 124. Ese rol lo
+cubre una regla en código.\par}
 
 % ================================================================ COLUMNA 2
 \columnbreak

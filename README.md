@@ -652,6 +652,20 @@ para el D4, es probar esa corrección sola, con el código aceptando la coincide
 pasar por el Resolvedor, con protocolo y casos sellados nuevos. El detalle por mecanismo y caso
 está en [`PLAN_D3.md`](PLAN_D3.md), en los registros del 20, 21 y 25 de octubre.
 
+**La v6, que se detuvo en desarrollo (28 oct).** Probó esa corrección junto con darle al
+Resolvedor el historial del estudiante y la pregunta completa, para que decidiera las menciones
+ambiguas como "gestión" o "mecánica" con algo que T1 no ve (diseño en
+[`PLAN_V6.md`](PLAN_V6.md), código en la rama
+[`v6-codigo`](https://github.com/Luquitas02/genai-inscripcion-ramos/tree/v6-codigo)). En los 403
+casos ya usados acertó 363 contra 360 de la v4 (9 a 6, p = 0,61). La coincidencia exacta aceptada
+en código corrigió los errores de número. El Resolvedor no usó el historial: en 28 de los 147
+casos que decidió eligió un ramo ya aprobado o inscrito, aunque el estado venía escrito al lado.
+Su primera elección acertó el ramo en 108 de esos 147, y una regla en código (el primer
+candidato que el estudiante todavía puede inscribir, sobre las mismas búsquedas) en 124. Con eso
+la corrida final no tenía cómo mostrar un aporte del agente, y el D3 entrega la v4. Resultados
+en `resultados/v6_desarrollo.zip` de esa rama; cifras con
+`python scripts/resolvedor_dev_v6.py <carpeta del zip>`.
+
 **Caso de falla.** "...ando cursando administración y quería tomar marketing el otro
 semestre, en marzo". El Intérprete leyó bien el período; el Verificador lo rechazó diciendo que
 "el otro semestre" es el actual, el Intérprete cambió y el caso falló.
