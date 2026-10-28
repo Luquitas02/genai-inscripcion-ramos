@@ -1,6 +1,6 @@
 # Plan de la v6 — que el Resolvedor y el Verificador tengan un rol que se pueda medir
 
-Borrador del 28 de octubre de 2026, para que lo revise el equipo antes de tocar código. Nada de
+Borrador del 28 de octubre de 2026, para que Lucas lo apruebe antes de tocar código. Nada de
 lo que está aquí cambia el sistema entregado: la v4 sigue en `main` y su documento corregido
 (commit `7c002ba`) es la entrega de respaldo.
 
@@ -118,37 +118,52 @@ El Intérprete, T1, T2, los topes, el modelo y la configuración de generación.
 
 ### Conjunto sellado nuevo
 
-- **Plantilla:** casos generados con el mismo `generador.py` y una semilla nueva, sin repetir
-  historial ni pregunta de ningún conjunto anterior. La exclusión va en el protocolo, no en el
-  análisis. Tamaño: ver la pregunta abierta 1.
-- **Redactadas:** 60, escritas por Joaquín y Renato sin ver los prompts. Reciben el ramo
-  (nombre oficial), el período como "2026-2" o "2027-1" (no como frase, para que no la copien),
-  y el estado de los otros ramos del caso. La instrucción que reciben se commitea antes de que
-  escriban. Se les pide nombrar el ramo como lo haría un estudiante: sigla, apodo o nombre
-  incompleto.
+- **Plantilla: 300 casos** generados con el mismo `generador.py` y una semilla nueva, sin
+  repetir historial ni pregunta de ningún conjunto anterior. La exclusión va en el protocolo,
+  no en el análisis. Se mantiene la mezcla de niveles del generador.
+- **Redactadas: 60.** El ramo, el historial y el período salen del generador. Las escribe un
+  subagente de Claude que no ve los prompts ni el código. Su instrucción se commitea antes de
+  generarlas, y en ella el período va como "2026-2" o "2027-1", no como frase, para que no la
+  copie. Se le pide nombrar el ramo como lo haría un estudiante: sigla, apodo o nombre
+  incompleto. Lucas las lee antes de sellar y solo puede quitar las que estén mal escritas, sin
+  reescribirlas.
 - Todo se sella con sha256 en un `SELLO.txt` antes de cualquier corrida.
 
-### Corridas, todas sobre el mismo conjunto
+### Corridas, en orden de prioridad
 
-1. Baseline zero-shot y few-shot, sistema del D2, regla fija. Las exige la rúbrica.
-2. v4 completa.
-3. v6 completa.
-4. Ablaciones de la v6, una pieza a la vez:
-   - `top1`: sin Resolvedor;
-   - `regla_codigo`: el primer candidato sin cursar, en código. Es la alternativa sin agente:
-     si iguala a la v6, el rol del Resolvedor lo cubre el código, y se reporta así;
-   - Resolvedor sin historial;
-   - Resolvedor sin la pregunta completa;
-   - sin Verificador;
-   - Verificador con el enrutamiento de la v4;
-   - las técnicas de prompt de la v4 (sin T1, sin ejemplos, sin citas del Intérprete, sin
-     lista de otros, sin regla del verbo).
+Todo corre en una sola cuenta gratuita de Colab. El notebook guarda cada caso en Drive apenas
+termina y retoma desde ahí si la sesión se cae. Fija la versión de torch y, antes de medir,
+corre 10 casos de control de la v4 que deben coincidir con las trazas guardadas.
+
+Unos 7 s por caso con agentes: cada configuración sobre los 360 casos toma unos 45 minutos.
+
+**Nivel 1, imprescindible (unas 5 horas de GPU).** Sin esto no hay v6 que entregar.
+- baseline zero-shot y few-shot, y sistema del D2 (los pide la rúbrica);
+- v4 completa y v6 completa;
+- `top1`: la v6 sin Resolvedor;
+- `regla_codigo`: la v6 con el primer candidato sin cursar, elegido en código. Es la
+  alternativa sin agente. Si iguala a la v6, el rol del Resolvedor lo cubre el código, y se
+  reporta así;
+- sin Verificador.
+
+La regla fija corre en local, sin GPU.
+
+**Nivel 2 (unas 2,5 horas).** Qué parte del Resolvedor y del Verificador explica el efecto.
+- Resolvedor sin historial;
+- Resolvedor sin la pregunta completa;
+- Verificador con el enrutamiento de la v4.
+
+**Nivel 3 (unas 4 horas).** Las técnicas de la v4 repetidas sobre la v6: sin T1, sin ejemplos,
+sin citas del Intérprete, sin lista de otros, sin regla del verbo. Si no alcanza el cupo, el
+documento usa las ablaciones de la v4 sobre los 180, que miden las mismas piezas del
+Intérprete y de T1 (la v6 no las cambia), y declara que no se repitieron en el conjunto nuevo.
 
 ### Regla de aceptación, escrita antes de correr
 
 La v6 se entrega si en el conjunto nuevo acierta más que la v4 con McNemar exacto p < 0,05. Si
-no, se entrega la v4 con el documento de `7c002ba`, y la v6 va como límite medido. La regla no
-se cambia después de ver resultados.
+no, se entrega la v4 con el documento de `7c002ba`, y la v6 va como límite medido. Si
+`regla_codigo` iguala a la v6, la v6 se entrega igual (es la que mejor acierta) y el documento
+lo dice. La regla no se cambia después de ver resultados.
 
 ### Datos de desarrollo
 
@@ -158,34 +173,29 @@ prompts), ya no se toca.
 
 ## Orden
 
-1. El equipo revisa este plan y responde las preguntas abiertas.
+1. Lucas aprueba este plan.
 2. Código y pruebas sin GPU: orquestador, prompt v3 del Resolvedor, `regla_codigo`, las
-   ablaciones nuevas y los generadores de notebook.
-3. Corrida de desarrollo en Colab sobre los 403 casos. Se ajusta el prompt solo con esos casos.
-4. Se congela la v6. Protocolo con la regla de aceptación. Se genera el conjunto de plantilla y
-   se commitea la instrucción para las redactadas.
-5. Joaquín y Renato escriben las 60 redactadas. Se sella todo.
-6. Corridas finales.
-7. Análisis, documento según la regla de aceptación, video, auditoría y Canvas.
+   ablaciones nuevas, el notebook con guardado por caso y los casos de control. Lo hace Claude.
+3. Corrida de desarrollo en Colab sobre los 403 casos (unos 50 minutos). Se ajusta el prompt
+   solo con esos casos.
+4. Se congela la v6. Protocolo con la regla de aceptación. Se genera el conjunto de plantilla,
+   se commitea la instrucción del redactor, se generan las 60 redactadas, Lucas las lee y se
+   sella todo.
+5. Corridas finales: nivel 1, después nivel 2 y nivel 3 si hay cupo.
+6. Análisis, documento según la regla de aceptación, video, auditoría y Canvas.
 
-Si algo de esto no alcanza antes del 31 a las 23:59, se entrega la v4.
+Para dejar el sábado 31 libre para el documento y el video, el nivel 1 tiene que terminar el
+viernes 30. Si no termina, se entrega la v4, que ya está lista.
 
-## Preguntas abiertas para el equipo
+## Decisiones tomadas por Claude, para revisar
 
-1. **¿Cuántas horas de GPU tienen?** La v4 tarda unos 7 s por caso. Con 300 de plantilla y 60
-   redactadas, cada configuración de agentes son unos 45 minutos de T4, y el plan tiene unas
-   14. Son unas 10 horas, más los baselines. En los 330 anteriores, los cambios recuperarían
-   unos 13 aciertos conjuntos (4 %). Con 300 casos nuevos serían unos 12 a favor de la v6, y
-   p < 0,05 se alcanza si pierde pocos. Con 500 hay más margen. Si no alcanza la GPU, hay que
-   achicar el conjunto o
-   dejar las técnicas de la v4 sin repetir. Las técnicas sin repetir le costarían puntos al
-   criterio de técnicas, porque la rúbrica pide todo sobre el mismo conjunto.
-2. **¿Joaquín y Renato pueden escribir 60 preguntas cada uno, o 30 cada uno?** Si no pueden, la
-   alternativa es un subagente con instrucción versionada, que es lo que la auditoría criticó.
-3. **¿El Verificador queda solo con el enrutamiento?** La alternativa es que su revisión del
-   ramo sea más fuerte: rechazar cuando la cita no se parece al nombre elegido, como en los
-   casos de PCP y EDO. Eso es un tercer cambio con su propio riesgo, y la lección de la v5 es no
-   juntar cambios.
-4. **¿Aceptan declarar que la regla "pregunta por un ramo sin cursar" calza con cómo genera los
-   casos el generador?** En la realidad, un estudiante también pregunta por un ramo reprobado
-   para repetirlo. El generador nunca hace eso, así que ese caso queda sin medir.
+1. **El Verificador queda solo con el enrutamiento.** Un Verificador que también compare la
+   cita con el nombre elegido (los casos de PCP y EDO) sería un tercer cambio, y la v5 falló
+   por juntar cambios. El documento dirá que su aporte esperado es bajo.
+2. **La regla "pregunta por un ramo que todavía puede inscribir" se declara como apoyada en el
+   generador.** En la realidad un estudiante también pregunta por un ramo reprobado para
+   repetirlo, y la v6 lo acepta, pero el generador nunca produce ese caso, así que queda sin
+   medir.
+3. **Con 300 casos de plantilla** se esperan unos 12 aciertos a favor de la v6 (4 % de los
+   casos, según los 330 anteriores). Alcanza para p < 0,05 si pierde pocos casos. Más casos
+   darían más margen, pero no caben en una cuenta gratuita.
