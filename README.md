@@ -684,7 +684,7 @@ el tope deja pasar ese período y la decisión sale correcta solo porque la regl
 él) y el caso de falla. Cada salida del modelo se marca `= guardada` si coincide con la traza de
 la corrida final en [`trazas/`](trazas/). Al final, la celda 5 corre una pregunta escrita en el
 momento sobre el historial de un estudiante de la prueba; como no tiene etiqueta, muestra la
-decisión sin marcar acierto. El notebook clona el commit `db40918`, que tiene los mismos prompts,
+decisión sin marcar acierto. El notebook clona el commit `75ed9b2`, que tiene los mismos prompts,
 agentes y herramientas de la corrida final. Las celdas 1 a 3 se corren antes de grabar; se
 graban la 4 y la 5.
 
