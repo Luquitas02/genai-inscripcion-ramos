@@ -23,7 +23,8 @@ diagnóstico (`top1`) que reemplaza al Resolvedor por el primer candidato de T1.
 """
 
 import agentes as A
-from herramientas import buscar_ramo, motor_de_reglas, CATALOGO
+from herramientas import (buscar_ramo, motor_de_reglas, CATALOGO, estado_en_historial,
+                          inscribible)
 
 MAX_RECHAZOS = 2
 MAX_BUSQUEDAS = 2
@@ -59,13 +60,41 @@ CONFIGURACIONES = {
                                  "prompt_verificador": "ablaciones/verificador_sin_ejemplos.md"},
 }
 
+# v6 (PLAN_V6.md). Dos cambios sobre la v4:
+#   1. el código acepta la coincidencia exacta de T1 si el ramo se puede inscribir, y el
+#      Resolvedor decide el resto con la pregunta completa y el estado de cada candidato;
+#   2. un rechazo de ramo del Verificador vuelve al Resolvedor, no al Intérprete.
+# Cada `v6_*` es la v6 con una sola diferencia. Las banderas que no aparecen valen como en la v4.
+_V6 = {"interprete": "interprete.md", "ejemplos": True, "resolvedor": "agente",
+       "verificador": True, "atajo_exacto": True, "historial_resolvedor": True,
+       "pregunta_resolvedor": True, "rechazo_ramo_a": "resolvedor",
+       "prompt_resolvedor": "resolvedor_v6.md"}
+CONFIGURACIONES.update({
+    "v6": _V6,
+    "v6_top1": dict(_V6, resolvedor="top1"),
+    "v6_regla_codigo": dict(_V6, resolvedor="regla_codigo"),
+    "v6_sin_verificador": dict(_V6, verificador=False),
+    "v6_resolvedor_sin_historial": dict(_V6, historial_resolvedor=False),
+    "v6_resolvedor_sin_pregunta": dict(_V6, pregunta_resolvedor=False),
+    "v6_enrutamiento_v4": dict(_V6, rechazo_ramo_a="interprete"),
+    # Sin T1 no hay candidatos ni atajo: el Resolvedor recibe el catálogo, como en la v4.
+    "v6_sin_herramienta": dict(_V6, resolvedor="catalogo", atajo_exacto=False),
+    "v6_sin_ejemplos": dict(_V6, ejemplos=False),
+    "v6_sin_citas_interprete": dict(_V6, interprete="ablaciones/interprete_sin_citas.md"),
+    "v6_sin_lista_otros": dict(_V6, interprete="ablaciones/interprete_sin_lista_otros.md"),
+    "v6_sin_regla_verbo": dict(_V6, interprete="ablaciones/interprete_sin_regla_verbo.md"),
+})
+
+EXACTA = 1.5    # similitud de T1 cuando la mención normalizada es igual al nombre
+
 
 def cargar_prompts(config):
     c = CONFIGURACIONES[config]
     return {
         "interprete": A.Prompt(c["interprete"], con_ejemplos=c["ejemplos"]),
         "resolvedor": A.Prompt("ablaciones/resolvedor_catalogo.md"
-                               if c["resolvedor"] == "catalogo" else "resolvedor.md"),
+                               if c["resolvedor"] == "catalogo"
+                               else c.get("prompt_resolvedor", "resolvedor.md")),
         "verificador": A.Prompt(c.get("prompt_verificador", "verificador.md")),
     }
 
@@ -85,7 +114,8 @@ class Corrida:
         self.segundos = 0.0
         self.ramas = {"rechazos_verificador": 0, "ninguno_resolvedor": 0, "busquedas_extra": 0,
                       "sin_ramo": False, "tope_rechazos": False, "tope_llamadas": False,
-                      "ilegibles": 0, "codigo_fuera": 0, "citas_fuera": 0}
+                      "ilegibles": 0, "codigo_fuera": 0, "citas_fuera": 0,
+                      "atajo_exacto": False}
         self.ultima = None          # {"codigo", "nombre", "periodo", "otros"}
 
     def anotar(self, de, para, tipo, contenido, llamada=None):
@@ -122,61 +152,92 @@ def correr_caso(modelo, caso, v, config, prompts=None):
     r.anotar("estudiante", "interprete", "entrada", {"pregunta": pregunta})
 
     revision, rechazos, aceptada, t1_inicial = None, 0, False, None
+    v6 = c.get("prompt_resolvedor") is not None
+    al_resolvedor = c.get("rechazo_ramo_a") == "resolvedor" and c["resolvedor"] == "agente"
+    rev_resolvedor = None    # rechazo de ramo que vuelve al Resolvedor sin pasar por A
+    a = periodo = otros = candidatos = None
+
+    def resolver(candidatos, rev):
+        """El bucle del Resolvedor con T1. Devuelve el código elegido o None (`ninguno`)."""
+        extra = {}
+        if v6:
+            extra = {"pregunta": pregunta if c["pregunta_resolvedor"] else "(no disponible)",
+                     "historial": caso["historial"] if c["historial_resolvedor"] else None,
+                     "revision": rev or {}}
+        hechas = []
+        while True:
+            b, ll = r.agente(A.resolvedor, prompts["resolvedor"], a["consultado"],
+                             otros, candidatos, hechas, MAX_BUSQUEDAS, **extra)
+            r.ramas["codigo_fuera"] += "codigo_fuera" in b
+            if b["accion"] == "buscar" and len(hechas) < MAX_BUSQUEDAS:
+                r.anotar("resolvedor", "T1", "agente", _publica(b), ll)
+                hechas.append(b["consulta"])
+                r.ramas["busquedas_extra"] += 1
+                candidatos = buscar_ramo(b["consulta"])
+                r.anotar("T1", "resolvedor", "herramienta",
+                         {"consulta": b["consulta"], "candidatos": candidatos})
+                continue
+            if b["accion"] == "elegir":
+                r.anotar("resolvedor", "verificador", "agente", _publica(b), ll)
+                return b["codigo"]
+            # `ninguno`, o pidió buscar sin búsquedas disponibles
+            r.anotar("resolvedor", "interprete", "agente", dict(_publica(b), accion="ninguno"), ll)
+            return None
+
     try:
         while True:
-            # --- A. Intérprete ---
-            a, ll = r.agente(A.interprete, prompts["interprete"], pregunta, revision)
-            if a["accion"] == "sin_ramo":
-                r.ramas["sin_ramo"] = True
-                r.anotar("interprete", "fin", "agente", _publica(a), ll)
-                break
-            periodo = a["periodo"] or "actual"
-            a_pub = dict(_publica(a), periodo=periodo,
-                         periodo_por_defecto=a["periodo"] is None)
-            r.anotar("interprete", "T1" if c["resolvedor"] != "catalogo" else "resolvedor",
-                     "agente", a_pub, ll)
-            otros = a["otros"]
-
-            # --- B. Resolvedor (o lo que lo reemplaza en las ablaciones) ---
             elegido = None
-            if c["resolvedor"] == "catalogo":
-                b, ll = r.agente(A.resolvedor, prompts["resolvedor"], a["consultado"], otros,
-                                 None, [], 0, catalogo=[(cod, nom) for cod, nom, _ in CATALOGO])
-                r.anotar("resolvedor", "verificador" if b["accion"] == "elegir" else "interprete",
-                         "agente", _publica(b), ll)
-                r.ramas["codigo_fuera"] += "codigo_fuera" in b
-                if b["accion"] == "elegir":
-                    elegido = b["codigo"]
+            if rev_resolvedor is not None:
+                # --- v6: el rechazo de ramo vuelve al Resolvedor con los mismos candidatos ---
+                elegido = resolver(candidatos, rev_resolvedor)
+                rev_resolvedor = None
             else:
-                candidatos = buscar_ramo(a["consultado"])
-                if t1_inicial is None:
-                    t1_inicial = [x["codigo"] for x in candidatos]
-                r.anotar("T1", "resolvedor", "herramienta",
-                         {"consulta": a["consultado"], "candidatos": candidatos})
-                if c["resolvedor"] == "top1":
-                    elegido = candidatos[0]["codigo"]
+                # --- A. Intérprete ---
+                a, ll = r.agente(A.interprete, prompts["interprete"], pregunta, revision)
+                if a["accion"] == "sin_ramo":
+                    r.ramas["sin_ramo"] = True
+                    r.anotar("interprete", "fin", "agente", _publica(a), ll)
+                    break
+                periodo = a["periodo"] or "actual"
+                a_pub = dict(_publica(a), periodo=periodo,
+                             periodo_por_defecto=a["periodo"] is None)
+                r.anotar("interprete", "T1" if c["resolvedor"] != "catalogo" else "resolvedor",
+                         "agente", a_pub, ll)
+                otros = a["otros"]
+
+                # --- B. Resolvedor (o lo que lo reemplaza en las ablaciones) ---
+                if c["resolvedor"] == "catalogo":
+                    b, ll = r.agente(A.resolvedor, prompts["resolvedor"], a["consultado"], otros,
+                                     None, [], 0,
+                                     catalogo=[(cod, nom) for cod, nom, _ in CATALOGO])
+                    r.anotar("resolvedor",
+                             "verificador" if b["accion"] == "elegir" else "interprete",
+                             "agente", _publica(b), ll)
+                    r.ramas["codigo_fuera"] += "codigo_fuera" in b
+                    if b["accion"] == "elegir":
+                        elegido = b["codigo"]
                 else:
-                    hechas = []
-                    while True:
-                        b, ll = r.agente(A.resolvedor, prompts["resolvedor"], a["consultado"],
-                                         otros, candidatos, hechas, MAX_BUSQUEDAS)
-                        r.ramas["codigo_fuera"] += "codigo_fuera" in b
-                        if b["accion"] == "buscar" and len(hechas) < MAX_BUSQUEDAS:
-                            r.anotar("resolvedor", "T1", "agente", _publica(b), ll)
-                            hechas.append(b["consulta"])
-                            r.ramas["busquedas_extra"] += 1
-                            candidatos = buscar_ramo(b["consulta"])
-                            r.anotar("T1", "resolvedor", "herramienta",
-                                     {"consulta": b["consulta"], "candidatos": candidatos})
-                            continue
-                        if b["accion"] == "elegir":
-                            r.anotar("resolvedor", "verificador", "agente", _publica(b), ll)
-                            elegido = b["codigo"]
-                        else:
-                            # `ninguno`, o pidió buscar sin búsquedas disponibles
-                            r.anotar("resolvedor", "interprete", "agente",
-                                     dict(_publica(b), accion="ninguno"), ll)
-                        break
+                    candidatos = buscar_ramo(a["consultado"])
+                    if t1_inicial is None:
+                        t1_inicial = [x["codigo"] for x in candidatos]
+                    r.anotar("T1", "resolvedor", "herramienta",
+                             {"consulta": a["consultado"], "candidatos": candidatos})
+                    primero = candidatos[0]
+                    if (c.get("atajo_exacto") and primero["similitud"] >= EXACTA
+                            and inscribible(estado_en_historial(caso["historial"],
+                                                                primero["codigo"]))):
+                        elegido = primero["codigo"]
+                        r.ramas["atajo_exacto"] = True
+                        r.anotar("orquestador", "verificador", "atajo",
+                                 {"codigo": elegido, "motivo": "coincidencia exacta inscribible"})
+                    elif c["resolvedor"] == "top1":
+                        elegido = primero["codigo"]
+                    elif c["resolvedor"] == "regla_codigo":
+                        elegido = next((x["codigo"] for x in candidatos if inscribible(
+                            estado_en_historial(caso["historial"], x["codigo"]))),
+                            primero["codigo"])
+                    else:
+                        elegido = resolver(candidatos, None)
 
             if elegido is None:
                 r.ramas["ninguno_resolvedor"] += 1
@@ -204,14 +265,20 @@ def correr_caso(modelo, caso, v, config, prompts=None):
                 r.anotar("verificador", "T2", "agente", _publica(cv), ll)
                 aceptada = True
                 break
-            r.anotar("verificador", "interprete", "agente", _publica(cv), ll)
+            hacia_b = al_resolvedor and cv["problema"] == "ramo"
+            r.anotar("verificador", "resolvedor" if hacia_b else "interprete", "agente",
+                     _publica(cv), ll)
             r.ramas["rechazos_verificador"] += 1
-            revision = {"consultado": a["consultado"], "periodo": periodo,
-                        "problema": cv["problema"], "motivo": cv["motivo"]}
             rechazos += 1
             if rechazos > MAX_RECHAZOS:
                 r.ramas["tope_rechazos"] = True
                 break
+            if hacia_b:
+                rev_resolvedor = {"codigo": elegido, "nombre": nombre,
+                                  "cita_ramo": cv.get("cita_ramo", ""), "motivo": cv["motivo"]}
+            else:
+                revision = {"consultado": a["consultado"], "periodo": periodo,
+                            "problema": cv["problema"], "motivo": cv["motivo"]}
     except _Topado:
         r.ramas["tope_llamadas"] = True
 

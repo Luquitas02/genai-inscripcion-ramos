@@ -76,6 +76,23 @@ def buscar_ramo(texto, k=K_CANDIDATOS):
             for s, c, nombre in puntajes[:k]]
 
 
+_SEMESTRE = {a["codigo"]: a["semestre"] for a in _MALLA["asignaturas"]}
+
+
+def estado_en_historial(historial, codigo):
+    """El estado del ramo en el historial: aprobada, inscrita, reprobada o no_cursada."""
+    return historial.get(codigo, "no_cursada")
+
+
+def semestre_de(codigo):
+    return _SEMESTRE[codigo]
+
+
+def inscribible(estado):
+    """Un ramo aprobado o inscrito no se puede inscribir. Uno reprobado sí (se repite)."""
+    return estado not in ("aprobada", "inscrita")
+
+
 def motor_de_reglas(v, caso, codigo, periodo):
     """T2. La ficha y la decisión del D2, con el historial y los créditos del caso."""
     ficha = construir_ficha(v, caso["historial"], codigo, periodo,

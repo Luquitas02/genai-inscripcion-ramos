@@ -155,21 +155,41 @@ def interprete(modelo, prompt, pregunta, revision=None):
 
 # --------------------------------------------------------------- B. Resolvedor
 
-def _render_candidatos(candidatos):
-    return "\n".join(f"{c['codigo']}  {c['nombre']}  ({c['similitud']:.2f})" for c in candidatos)
+def _render_candidatos(candidatos, historial=None):
+    if historial is None:
+        return "\n".join(f"{c['codigo']}  {c['nombre']}  ({c['similitud']:.2f})"
+                         for c in candidatos)
+    from herramientas import estado_en_historial, semestre_de
+    return "\n".join(f"{c['codigo']}  {c['nombre']}  ({c['similitud']:.2f})  "
+                     f"semestre {semestre_de(c['codigo'])}  "
+                     f"{estado_en_historial(historial, c['codigo']).replace('_', ' ')}"
+                     for c in candidatos)
 
 
 def resolvedor(modelo, prompt, consultado, otros, candidatos, busquedas_hechas, busquedas_max,
-               catalogo=None):
+               catalogo=None, pregunta=None, historial=None, revision=None):
     """Devuelve (accion, llamada).
 
     Con `catalogo` es la ablación sin herramienta: recibe las 61 asignaturas en vez de los
     candidatos y no puede buscar. El código elegido se valida contra lo que vio.
+
+    v6: `pregunta` llena {{pregunta}}, `historial` agrega a cada candidato su semestre y su
+    estado, y `revision` es el rechazo del Verificador que le devuelve el caso. Sin ellos, los
+    mensajes son los mismos de la v4.
     """
+    extra = {}
+    if pregunta is not None:
+        extra["pregunta"] = pregunta
+    if revision is not None:
+        extra["revision"] = "" if not revision else (
+            "\n=== EL VERIFICADOR RECHAZÓ TU ELECCIÓN ===\n"
+            f"Elegiste: {revision['codigo']} {revision['nombre']}.\n"
+            f"Lo que dice la consulta: \"{revision.get('cita_ramo', '')}\".\n"
+            f"Motivo: {revision['motivo']}\n")
     if catalogo is not None:
         mensajes = prompt.mensajes(
             consultado=consultado, otros=_lista(otros),
-            catalogo="\n".join(f"{c}  {n}" for c, n in catalogo))
+            catalogo="\n".join(f"{c}  {n}" for c, n in catalogo), **extra)
         validos = {c for c, _ in catalogo}
     else:
         quedan = busquedas_max - len(busquedas_hechas)
@@ -180,8 +200,8 @@ def resolvedor(modelo, prompt, consultado, otros, candidatos, busquedas_hechas, 
         bloque += (f"Te quedan {quedan} búsquedas." if quedan > 0
                    else "No te quedan búsquedas: elige o responde ninguno.")
         mensajes = prompt.mensajes(consultado=consultado, otros=_lista(otros),
-                                   candidatos=_render_candidatos(candidatos),
-                                   busquedas="\n" + bloque + "\n")
+                                   candidatos=_render_candidatos(candidatos, historial),
+                                   busquedas="\n" + bloque + "\n", **extra)
         validos = {c["codigo"] for c in candidatos}
     crudo, tokens, segundos = llamar(modelo, mensajes)
     d, _ = _extraer_json(crudo)

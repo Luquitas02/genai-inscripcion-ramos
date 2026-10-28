@@ -366,6 +366,81 @@ def _pruebas():
     chequea("los prompts no dejan marcas sin reemplazar",
             any("{{" in msg["content"] for msg in sum(m2.llamadas, [])), False)
 
+    # --- v6 (PLAN_V6.md) ---
+    from herramientas import estado_en_historial
+    chequea("estado: aprobada", estado_en_historial({"541271": "aprobada"}, "541271"), "aprobada")
+    chequea("estado: sin entrada es no_cursada", estado_en_historial({}, "541340"), "no_cursada")
+
+    def corre_con(respuestas, config, historial_extra=None, **cambios):
+        c = dict(caso, historial=dict(caso["historial"], **(historial_extra or {})), **cambios)
+        m = ModeloGuion(respuestas)
+        fila, traza = O.correr_caso(m, c, v, config)
+        return m, fila, traza
+
+    m, f, t = corre([A_OK, C_OK], "v6")
+    chequea("v6: coincidencia exacta sin cursar no llama al Resolvedor",
+            (len(m.llamadas), f["ramas"]["atajo_exacto"], f["extraccion"]["ramo"],
+             f["acierto_conjunto"]), (2, True, "503203", True))
+    chequea("v6: el atajo queda en la traza",
+            ("orquestador", "verificador") in [(x["de"], x["para"]) for x in t], True)
+
+    m, f, t = corre_con([A_OK, B_OK, C_OK], "v6", {"503203": "aprobada"})
+    chequea("v6: coincidencia exacta con el ramo aprobado pasa al Resolvedor",
+            (len(m.llamadas), f["ramas"]["atajo_exacto"]), (3, False))
+    chequea("v6: el Resolvedor ve la pregunta completa y el estado de cada candidato",
+            ("PREGUNTA COMPLETA" in m.llamadas[1][1]["content"],
+             caso["pregunta_prosa"] in m.llamadas[1][1]["content"],
+             "aprobada" in m.llamadas[1][1]["content"]), (True, True, True))
+
+    m, f, t = corre_con([A_OK, B_OK, C_OK], "v6_resolvedor_sin_historial", {"503203": "aprobada"})
+    chequea("v6 sin historial: el Resolvedor no ve estados",
+            "aprobada" in m.llamadas[1][1]["content"], False)
+    m, f, t = corre_con([A_OK, B_OK, C_OK], "v6_resolvedor_sin_pregunta", {"503203": "aprobada"})
+    chequea("v6 sin pregunta: el Resolvedor no ve la consulta",
+            (caso["pregunta_prosa"] in m.llamadas[1][1]["content"],
+             "(no disponible)" in m.llamadas[1][1]["content"]), (False, True))
+
+    m, f, t = corre([A_OK, C_NO, B_OK, C_OK], "v6")
+    pares = [(x["de"], x["para"]) for x in t]
+    chequea("v6: un rechazo de ramo vuelve al Resolvedor, no al Intérprete",
+            (("verificador", "resolvedor") in pares, ("verificador", "interprete") in pares,
+             f["ramas"]["rechazos_verificador"], len(m.llamadas)), (True, False, 1, 4))
+    chequea("v6: el Resolvedor recibe el rechazo",
+            "RECHAZÓ" in m.llamadas[2][1]["content"], True)
+
+    m, f, t = corre([A_OK, C_NO, B_OK, C_NO, B_OK, C_NO], "v6")
+    chequea("v6: los rechazos al Resolvedor cuentan para el tope",
+            (len(m.llamadas), f["ramas"]["tope_rechazos"]), (6, True))
+
+    C_PER = '{"accion": "rechazar", "problema": "periodo", "motivo": "Dice el próximo."}'
+    m, f, t = corre([A_OK, C_PER, A_OK, C_OK], "v6")
+    chequea("v6: un rechazo de período vuelve al Intérprete",
+            ("verificador", "interprete") in [(x["de"], x["para"]) for x in t], True)
+
+    m, f, t = corre([A_OK, C_NO, A_OK, C_OK], "v6_enrutamiento_v4")
+    chequea("v6 con enrutamiento v4: el rechazo de ramo vuelve al Intérprete",
+            ("verificador", "interprete") in [(x["de"], x["para"]) for x in t], True)
+
+    A_GEST = ('{"accion": "entregar", "consultado": "gestión", "otros": [], '
+              '"periodo": "actual"}')
+    m, f, t = corre_con([A_GEST, C_OK], "v6_regla_codigo",
+                        {"580423": "aprobada", "580120": "aprobada"})
+    chequea("regla en código: el primer candidato inscribible, sin llamar al modelo",
+            (len(m.llamadas), f["extraccion"]["ramo"]), (2, "580415"))
+    todos = {c: "aprobada" for c in ("580423", "580120", "580415", "580514", "580413")}
+    m, f, t = corre_con([A_GEST, C_OK], "v6_regla_codigo", todos)
+    chequea("regla en código: sin candidatos inscribibles, el primero de T1",
+            f["extraccion"]["ramo"], "580423")
+
+    m, f, t = corre([A_OK, B_OK], "v6_sin_herramienta")
+    chequea("v6 sin herramienta: no hay atajo ni T1",
+            (f["ramas"]["atajo_exacto"], any(x["de"] == "T1" for x in t)), (False, False))
+
+    m_v6, _, _ = corre([A_OK, B_OK, C_OK], "v6")
+    m_c, _, _ = corre([A_OK, B_OK, C_OK])
+    chequea("completo después de v6: mismos mensajes que completo solo",
+            m_c.llamadas, m2.llamadas)
+
     fallas = [(n, o, e) for n, o, e in chequeos if o != e]
     for n, o, e in fallas:
         print(f"[FALLA] {n}\n        esperado: {e!r}\n        obtenido: {o!r}")
