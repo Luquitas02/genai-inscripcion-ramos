@@ -743,7 +743,7 @@ de 30 casos originales ([`scripts/preparar_redactados.py`](scripts/preparar_reda
 CSV registra autor y revisión de cada una. La etiqueta de esos casos es la del caso original,
 porque depende del historial y no de la redacción. Lucas las leyó después de la corrida, y Claude,
 que conocía el sistema, corrigió la redacción de 3 (filas 4, 18 y 20). El texto exacto de la
-instrucción al modelo no se guardó; el docstring del script describe lo que recibió. Las 60 redactadas de la réplica se
+instrucción al modelo no se guardó. El docstring del script describe lo que recibió. Las 60 redactadas de la réplica se
 hicieron igual y las leyó Lucas antes de sellarlas. Claude no las leyó hasta después de la
 réplica y las ablaciones: el 25 de octubre, al analizar los fallos, leyó las de los casos
 11, 16, 29, 39 y 53.
