@@ -57,6 +57,13 @@ CONFIGURACIONES = {
     "sin_ejemplos_verificador": {"interprete": "interprete.md", "ejemplos": True,
                                  "resolvedor": "agente", "verificador": True,
                                  "prompt_verificador": "ablaciones/verificador_sin_ejemplos.md"},
+    # Las dos reglas del Resolvedor, una a la vez (PROTOCOLO_ABLACIONES_B.md, 29 oct).
+    "sin_regla_siglas":   {"interprete": "interprete.md", "ejemplos": True,
+                           "resolvedor": "agente", "verificador": True,
+                           "prompt_resolvedor": "ablaciones/resolvedor_sin_regla_siglas.md"},
+    "sin_regla_numeros":  {"interprete": "interprete.md", "ejemplos": True,
+                           "resolvedor": "agente", "verificador": True,
+                           "prompt_resolvedor": "ablaciones/resolvedor_sin_regla_numeros.md"},
 }
 
 
@@ -65,7 +72,8 @@ def cargar_prompts(config):
     return {
         "interprete": A.Prompt(c["interprete"], con_ejemplos=c["ejemplos"]),
         "resolvedor": A.Prompt("ablaciones/resolvedor_catalogo.md"
-                               if c["resolvedor"] == "catalogo" else "resolvedor.md"),
+                               if c["resolvedor"] == "catalogo"
+                               else c.get("prompt_resolvedor", "resolvedor.md")),
         "verificador": A.Prompt(c.get("prompt_verificador", "verificador.md")),
     }
 

@@ -19,6 +19,7 @@ La v4 completa es la de la réplica (`agentes__...__completo__{conjunto}`). Impr
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -37,7 +38,12 @@ CONFIGS = [
     ("sin_ejemplos_verificador", "2 ejemplos (few-shot)", "C", "M2"),
     ("sin_verificador", "el Verificador entero", "C", "M2, M3"),
     ("top1", "el Resolvedor, reemplazado por el top-1", "B", "M1"),
+    # Agregadas el 29 oct con PROTOCOLO_ABLACIONES_B.md, antes de correrlas.
+    ("sin_regla_siglas", "regla de siglas (claro y directo)", "B", "M1"),
+    ("sin_regla_numeros", "regla de números (claro y directo)", "B", "M1"),
 ]
+# Un ramo "con número" termina en un número arábigo o romano (Cálculo III, Electiva 2).
+CON_NUMERO = re.compile(r"\b(I|II|III|IV|V|VI|\d)\s*$")
 DATOS = RAIZ / "datos" / "prueba_v5"
 
 
@@ -154,6 +160,20 @@ def main():
             g = global_(config)
             red = sum(v for k, v in g.items() if k.startswith("redactados:"))
             print(f"  {config:26} {sum(g.values()):3}/180   redactadas {red}/60")
+
+    print()
+    print("=" * 100)
+    print("5 · ACIERTO DE RAMO CUANDO EL RAMO CONSULTADO LLEVA NÚMERO (PROTOCOLO_ABLACIONES_B.md)")
+    print("=" * 100)
+    numerados = {f"{conj}:{i}" for _, conj in CONJUNTOS for i, c in enumerate(casos[conj])
+                 if CON_NUMERO.search(c["ramo_objetivo"]["nombre"])}
+    print(f"  {len(numerados)} de 180 casos")
+    for config in ("completo", "sin_regla_numeros", "sin_regla_siglas", "top1"):
+        if config in completas:
+            ramo = global_(config, lambda x: x["acierto_ramo"])
+            print(f"  {config:26} ramo {sum(ramo[k] for k in numerados):3}/{len(numerados)}   "
+                  f"resto {sum(v for k, v in ramo.items() if k not in numerados):3}"
+                  f"/{180 - len(numerados)}")
     return 0
 
 

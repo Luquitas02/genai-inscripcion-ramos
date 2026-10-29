@@ -13,8 +13,10 @@ sistema completo no se tocan.
     interprete_sin_citas.md          sin "frase_periodo": decide el período sin copiar la frase
     verificador_sin_citas.md         sin "cita_ramo" y "cita_periodo": compara sin copiar
     verificador_sin_ejemplos.md      sin sus 2 ejemplos
+    resolvedor_sin_regla_siglas.md   sin la regla de siglas (PROTOCOLO_ABLACIONES_B.md, 29 oct)
+    resolvedor_sin_regla_numeros.md  sin la regla de números (ídem)
 
-    python gen_ablaciones_v4.py           escribe los cinco archivos en prompts/ablaciones/
+    python gen_ablaciones_v4.py           escribe los archivos en prompts/ablaciones/
     python gen_ablaciones_v4.py --check   comprueba que los archivos guardados son los generados
 """
 
@@ -118,7 +120,27 @@ def verificador_sin_ejemplos(t):
     return t[:inicio] + t[fin:]
 
 
+def resolvedor_sin_regla_siglas(t):
+    t = cabecera(t, "<!-- agente: resolvedor, ABLACIÓN sin la regla de siglas · v2\n"
+                    "     Igual a prompts/resolvedor.md salvo el párrafo que dice qué hacer con una\n"
+                    "     sigla o abreviación. La acción \"buscar\" y su ejemplo se mantienen. Lo\n"
+                    "     genera scripts/gen_ablaciones_v4.py (PROTOCOLO_ABLACIONES_B.md). -->")
+    return reemplazar(t, "Si el estudiante usó una sigla o una abreviación y ningún candidato "
+                         "contiene esas letras o palabras, no elijas el más parecido: busca de nuevo "
+                         "escribiendo el nombre completo que crees que significa.\n\n", "")
+
+
+def resolvedor_sin_regla_numeros(t):
+    t = cabecera(t, "<!-- agente: resolvedor, ABLACIÓN sin la regla de números · v2\n"
+                    "     Igual a prompts/resolvedor.md salvo el párrafo sobre los números. Lo\n"
+                    "     genera scripts/gen_ablaciones_v4.py (PROTOCOLO_ABLACIONES_B.md). -->")
+    return reemplazar(t, "Fíjate en los números: \"2\", \"II\" y \"dos\" son lo mismo, y una "
+                         "asignatura 1 no es la misma que su 2.\n\n", "")
+
+
 ABLACIONES = {
+    "resolvedor_sin_regla_siglas.md": ("resolvedor.md", resolvedor_sin_regla_siglas),
+    "resolvedor_sin_regla_numeros.md": ("resolvedor.md", resolvedor_sin_regla_numeros),
     "interprete_sin_lista_otros.md": ("interprete.md", interprete_sin_lista_otros),
     "interprete_sin_regla_verbo.md": ("interprete.md", interprete_sin_regla_verbo),
     "interprete_sin_citas.md": ("interprete.md", interprete_sin_citas),
