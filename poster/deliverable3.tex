@@ -124,6 +124,8 @@ período del ramo consultado.\par}
 % los otros ramos y el período pasan del Intérprete a B y C
 \draw[fl,dashed] ($(a.west)+(0,1.2mm)$) -- ++(-9mm,0) |- ($(c.west)+(0,1.2mm)$);
 \draw[fl,dashed] ($(a.west)+(-9mm,1.2mm)$) |- ($(b.west)+(0,1.2mm)$);
+\node[et,anchor=south,inner sep=0.4mm] at ($(b.west)+(-6mm,1.2mm)$) {otros};
+\node[et,anchor=south east,inner sep=0.4mm] at ($(c.west)+(-0.8mm,1.2mm)$) {otros,\\ período};
 \draw[fl,dashed] (a) -- node[above,et]{sin\_ramo} (fin);
 % la pregunta también llega al Verificador
 \draw[fl] (q.east) -- ++(26mm,0) |- node[pos=0.2,left,et,align=right]{pregunta} ($(c.east)+(0,1.2mm)$);
