@@ -199,7 +199,7 @@ significancia (v6: 363 contra 360, $p=0{,}61$).\par}
 
 \seccion{Resultados}
 
-{\footnotesize
+{\footnotesize Casos con decisión y regla correctas; redact.: preguntas escritas fuera de las plantillas.\\
 \begin{tabular}{@{}lrrrrrr@{}}
 \toprule
 & \multicolumn{3}{c}{corrida del 20 oct (120 + 30)} & \multicolumn{3}{c}{réplica, sellados (120 + 60)} \\
@@ -274,10 +274,10 @@ y 2 ejemplos. No se quitaron el rol, la salida JSON ni las reglas de B (su proto
 Holm, calculada después, siguen significativos T1 ($p<0{,}001$) y los ejemplos (ajustado
 $p=0{,}035$), que también restaron en los 150 (9 a 0).
 
-Sin T1 el Resolvedor elige entre los 61 ramos y acierta el abreviado en 9 de 34, contra 33. Sin ejemplos,
-el Intérprete acierta 27 de 38 preguntas que nombran otro ramo antes, contra 36. Sin citar el
-período lo acierta en 154 contra 173 (con ramo y período bien, 21 a 4, $p<0{,}001$), pero
-muchas reglas no dependen de él.\par}
+Sin T1 el Resolvedor acierta el abreviado en 9 de 34, contra 33. Sin ejemplos,
+el Intérprete acierta 27 de 38 que nombran otro ramo antes, contra 36. Sin citar el
+período lo acierta en 154 contra 173 (con ramo y período bien, 21 a 4, $p<0{,}001$); muchas
+reglas no dependen de él.\par}
 
 \seccion{Caso de falla}
 
@@ -294,7 +294,7 @@ Es el único de los 150 en que el Verificador cambió el resultado.\par}
 \textbf{Conjuntos.} Originales, los 60 casos del D1. Nuevos, 60 del D2. Ambos con preguntas
 de plantilla del generador. Redactados, preguntas escritas fuera de ellas: 30 en la corrida del 20 de octubre y 60 entre los 180 sellados el 21 de
 octubre. Las escribió un subagente de Claude sin acceso a los prompts, con el ramo, el período
-y el ramo de contexto de cada caso. Lucas leyó las 60 antes de sellarlas y las 30 después de la
+y el ramo de contexto de cada caso. Uno de nosotros leyó las 60 antes de sellarlas y las 30 después de la
 corrida. Claude corrigió la redacción de 3 de las 30, que repiten los problemas de 30
 originales con otra prosa. Su instrucción exacta no se guardó (la describe
 \cod{preparar\_redactados.py}). Los 180 tienen su sha256 en
