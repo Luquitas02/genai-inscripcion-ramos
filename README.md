@@ -249,7 +249,9 @@ datos/
 │                            21 de desarrollo redactados, el chequeo de robustez
 ├── redactados.csv, desarrollo_redactados.csv
 │                            autor y revisión de cada pregunta redactada
-└── *_modelo.json            las respuestas del agente que las redactó
+├── *_modelo.json            las respuestas del agente que las redactó
+└── prueba_v5/               los 180 casos sellados de la réplica (plantilla A, B y 60
+                             redactados), con su sha256 en SELLO.txt desde el 21 oct
 
 scripts/
 │   ── Deliverable 1, congelado: produjo las cifras del baseline ──
@@ -281,13 +283,22 @@ scripts/
 ├── preparar_redactados.py   elige los casos a redactar y arma el conjunto
 ├── ver_traza.py             muestra una traza como conversación entre agentes
 ├── demo_d3.py               lo del video del D3
-└── gen_notebook_d3.py       genera corrida_d3_colab.ipynb y demo_d3_colab.ipynb
+├── gen_notebook_d3.py       genera corrida_d3_colab.ipynb y demo_d3_colab.ipynb
+├── preparar_prueba_v5.py    arma los 180 casos sellados de datos/prueba_v5/
+├── analisis_replica_v4.py   las cifras de la réplica sobre los 180
+├── gen_ablaciones_v4.py     los prompts sin cada técnica (prompts/ablaciones/)
+├── analisis_ablaciones_v4.py
+│                            las cifras de las ablaciones sobre los 180
+├── gen_notebook_replica_v4.py, gen_notebook_ablaciones_v4.py
+│                            generan los notebooks de la réplica y las ablaciones
+└── oportunidades_v6.py      dónde podría aportar un B y un C rediseñados (v6)
 
 prompts/                     un archivo por agente, con versión en la cabecera
 └── ablaciones/              las versiones sin cada técnica
 
 trazas/                      cada mensaje entre agentes de cada corrida del D3, con
-                             el hash del prompt que lo produjo
+                             el hash del prompt que lo produjo; en_vivo.jsonl es la
+                             pregunta en vivo del video
 
 resultados/
 ├── Mistral-*.raw.jsonl      baseline del D1
@@ -301,14 +312,16 @@ resultados/
 ├── corrida_2_prompt_v2/     segunda corrida, no mejoró (se conserva)
 ├── corrida_3_final/         copia idéntica de pipeline__*, archivada junto a
 │                            las otras dos para compararlas
-└── agentes__*.raw.jsonl     el D3: una fila por caso y configuración
+├── agentes__*.raw.jsonl     el D3: una fila por caso y configuración
+└── en_vivo.raw.jsonl        la fila de la pregunta en vivo del video
 
 poster/
 ├── poster.tex               el entregable del D1, una página apaisada
 ├── Deliverable_1.pdf        el D1 compilado
 ├── deliverable2.tex         el entregable del D2, una página vertical
 ├── Deliverable_2.pdf        el D2 compilado
-└── deliverable3.tex         el entregable del D3, una página vertical
+├── deliverable3.tex         el entregable del D3, una página vertical
+└── Deliverable_3.pdf        el D3 compilado en Overleaf
 
 PLAN.md                      el plan del D1
 Hallazgos del baseline - Deliverable 1.docx
@@ -325,6 +338,14 @@ PLAN_D3.md                   el diseño del D3 y su registro de decisiones
 PROTOCOLO_D3.md              las reglas de la corrida final, subidas antes de correrla
 corrida_d3_colab.ipynb       notebook del D3: desarrollo y corrida final
 demo_d3_colab.ipynb          solo la demo del video del D3
+PROTOCOLO_REPLICA_V4.md      las reglas de la réplica sobre los 180, antes de correrla
+replica_v4_colab.ipynb       notebook de la réplica
+PROTOCOLO_ABLACIONES_V4.md   las reglas de las ablaciones sobre los 180
+ablaciones_v4_colab.ipynb    notebook de esas ablaciones
+PROTOCOLO_ABLACIONES_B.md    las ablaciones de las dos reglas del Resolvedor (no se
+ablaciones_b_colab.ipynb     corrieron; ver "Qué explica la mejora") y su notebook
+PLAN_V6.md, PLAN_V6_TAREAS.md
+                             el diseño de la v6, detenida en desarrollo
 ```
 
 ### Reproducir
@@ -582,7 +603,9 @@ sellados. El protocolo [`PROTOCOLO_ABLACIONES_V4.md`](PROTOCOLO_ABLACIONES_V4.md
 de correr (commit `6d8a18b`) y fijaba el mecanismo al que apunta cada técnica. Resultados en el
 commit `be528fb`, cifras con `python scripts/analisis_ablaciones_v4.py`. "Pares" son los casos
 que gana el completo y los que gana la ablación. Las diferencias de 3 casos o menos se reportan
-como ruido. Son comparaciones exploratorias, sin corrección por comparaciones múltiples.
+como ruido. Son comparaciones exploratorias, sin corrección por comparaciones múltiples en el
+protocolo. Con la corrección de Holm, calculada después sobre las 9 filas (top-1 incluida),
+siguen significativos T1 (p < 0,001) y los ejemplos del Intérprete (p ajustado = 0,035).
 
 | sin... | agente | apunta a | acierto (180) | Δ | pares | estricto | pares estricto |
 |---|---|---|---|---|---|---|---|
@@ -608,13 +631,33 @@ McNemar exacto: sin T1 p = 1,1·10⁻¹⁹; sin ejemplos p = 0,004; sin citas de
 | sin citas del Intérprete | 69 | 33 | 35 | 154 | 54 |
 | top-1 | 72 | 34 | 38 | 172 | 56 |
 
-La mejora la explican T1, que saca al modelo de copiar códigos y además resuelve las
+La mejora la explican T1, que saca al modelo de elegir códigos de una lista y además resuelve las
 abreviaturas (9 contra 33), y los ejemplos del Intérprete, que atacan M2 (27 contra 36). Citar
 la frase del período protege M3: sin la cita el período baja de 173 a 154, pero el acierto
 conjunto casi no lo nota porque muchas reglas no dependen del período. Quitar la regla del verbo
 cambió la salida del Intérprete en 10 casos y ningún resultado. El Verificador, entero o sin sus
 citas o ejemplos, no cambia ningún resultado de los 180. Quitar la lista de otros ramos y tomar
 el top-1 suben 5 y 4 casos, sin significancia. El baseline zero-shot acierta 11 de 180.
+
+Dos precisiones sobre la tabla. T1 no la llama el Resolvedor: el orquestador la corre con la
+mención del Intérprete antes de que B decida nada, y B solo puede pedir otra búsqueda. Quitar T1
+le da a B el catálogo completo y le quita la acción de buscar, así que esa fila cambia dos
+cosas. Y sin la lista de otros ramos, B y C tampoco la reciben.
+
+**Un camino fijo acierta lo mismo o más.** Calculado después de las ablaciones, desde las
+trazas: la primera lectura del Intérprete, el primer candidato de T1 y T2, sin B ni C, acierta
+134 de 150 y 168 de 180, contra 132 y 164 del sistema. Es lo que dan juntas las filas top-1 y
+sin Verificador. En los 330 casos ningún rechazo del Verificador arregló un caso y uno causó el
+caso de falla. Sin T1, los agentes sacan 100 de 180, bajo el D2 (118): la mejora sobre el D2
+la explican la búsqueda en código y el Intérprete, no B ni C. El documento lo presenta así.
+
+**Las ablaciones de las dos reglas del Resolvedor no se corrieron.**
+[`PROTOCOLO_ABLACIONES_B.md`](PROTOCOLO_ABLACIONES_B.md) (commit `96b98c2`, 29 oct) fijaba
+quitar la regla de siglas y la de números del prompt de B, y el notebook
+`ablaciones_b_colab.ipynb` está listo, pero no se corrió antes del plazo que fijaba el propio
+protocolo (30 oct, 18:00). Según esa cláusula, el documento se entregó sin esas dos filas. Lo
+que ya se sabía antes de escribirlo: en los 33 casos cuyo ramo lleva número, el completo acierta
+el ramo en 25 y el top-1 en 29.
 
 La primera medición, sobre los 150 de la corrida del 20 de octubre, apuntaba a lo mismo:
 
@@ -710,21 +753,30 @@ pregunta. El notebook clona el commit `75ed9b2`, que tiene los mismos prompts, a
 herramientas de la corrida final. Las celdas 1 a 3 se corrieron antes de grabar y en el video
 se ven ya ejecutadas; se grabó la ejecución de la 4 y la 5.
 
-## Reproducir
+## Reproducir el D3
 
-Sin GPU, en cualquier máquina con Python 3:
+Sin GPU, en cualquier máquina con Python 3, desde la raíz del repositorio y sin instalar nada:
 
 ```bash
 python scripts/herramientas.py          # 8/8: T1 y T2 (T2 reproduce las 60 etiquetas)
 python scripts/runner_d3.py --pruebas   # 29/29: cada rama del grafo con un modelo de guion
-python scripts/demo_d3.py --pruebas     # la demo reproduce las trazas guardadas
+python scripts/demo_d3.py --pruebas     # las trazas del video: los casos 0, 3 y 16 y la
+                                        # pregunta en vivo
 python scripts/analisis_d3.py           # las cifras de los 150 casos
 python scripts/analisis_replica_v4.py   # las cifras de la réplica sobre los 180
+python scripts/analisis_ablaciones_v4.py  # las ablaciones sobre los 180 (avisa que faltan
+                                        # las de B, que no se corrieron)
 python scripts/diagnostico_d3.py        # el diagnóstico del paso 1 del D2 por mecanismo
-python scripts/runner_d3.py --modelo-falso --casos datos/casos_redactados.jsonl --dir-salida /tmp/regla_fija
-                                        # regla fija, idéntica a la guardada fila por fila
+python scripts/runner_d3.py --modelo-falso --casos datos/casos_redactados.jsonl --dir-salida salida_regla_fija
+                                        # regla fija: mismas filas que la guardada salvo
+                                        # segundos_total, y la misma traza
 python scripts/ver_traza.py trazas/agentes__Phi-3.5-mini-instruct__completo__casos_redactados.jsonl 16
+python scripts/ver_traza.py trazas/en_vivo.jsonl en_vivo
 ```
+
+`demo_d3.py --pruebas` le pasa al sistema las salidas del modelo guardadas en la traza, sin
+GPU: prueba que el código y los prompts actuales rehacen cada mensaje del video. Que Phi vuelva a
+generar esas mismas salidas lo muestra el video, con la marca `= guardada` en cada una.
 
 Con Phi, en una T4 de Colab: [`corrida_d3_colab.ipynb`](corrida_d3_colab.ipynb) clona el
 repositorio en el commit de la corrida final (`COMMIT = '9158550'`, ya puesto) y corre el desarrollo (sección 5) o la etapa final
@@ -733,6 +785,9 @@ commit. Las salidas quedan en `resultados/agentes__*.raw.jsonl` y `trazas/agente
 El clon ya trae esos archivos, y con el mismo commit el runner los retoma sin volver a correr:
 para repetir la medición desde cero hay que borrarlos antes en el clon de Colab, junto con
 los `*__casos_redactados.raw.jsonl` del baseline y del D2.
+
+Los notebooks de la corrida, la réplica y las ablaciones guardan su avance en Google Drive y
+piden autorizarlo al empezar; la demo del video no lo usa.
 
 La réplica se corre con [`replica_v4_colab.ipynb`](replica_v4_colab.ipynb)
 ([abrir en Colab](https://colab.research.google.com/github/Luquitas02/genai-inscripcion-ramos/blob/main/replica_v4_colab.ipynb)),

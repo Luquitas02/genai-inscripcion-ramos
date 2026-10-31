@@ -558,6 +558,22 @@ Borrador del correo:
 
 ## Registro de decisiones
 
+**31 oct 2026 — Auditoría final con tres revisores a ciegas.** Un revisor con la rúbrica, uno
+adversario y uno que siguió el README desde un clon limpio, sin acceso a este registro; cada
+hallazgo se comprobó contra los archivos antes de aceptarlo. Todas las cifras del documento
+cuadran y todo se reproduce. Lo que cambió el documento: (1) el camino fijo (primera lectura
+del Intérprete, primer candidato de T1, T2), calculado después desde las trazas, acierta 134/150
+y 168/180 contra 132 y 164; ningún rechazo del Verificador arregló un caso y uno causó el caso
+de falla; sin T1 los agentes quedan bajo el D2 (100 contra 118). "Por qué tres" pasa a decir
+para qué se diseñó cada agente y qué mostró la medición. (2) M1 es elegir un código de otro
+ramo, no copiarlo mal. (3) Columna de herramientas en la tabla de agentes; tope de llamadas y
+cierre sin ramo en la leyenda del grafo. (4) "21 rechazos fundados" son de los 180; la v6 sacó
+363 contra 360 (p = 0,61), no "no superó". (5) Límites nuevos: 8 preguntas repetidas en los 150
+y citas del Verificador fuera de la pregunta (38/180). Las ablaciones de las reglas de B
+(`PROTOCOLO_ABLACIONES_B.md`) no se corrieron antes del plazo del protocolo y el documento lo
+dice. `demo_d3.py --pruebas` ahora también rehace la traza de la pregunta en vivo, y
+`ver_traza.py` la abre. Descartado: archivos `.bak` y zips sueltos (no están versionados).
+
 **25 oct 2026, noche — Segunda auditoría del documento y diagnóstico de los fallos de la
 réplica.** Tres revisores independientes (cifras, rúbrica, escritura y defensa). Las cifras
 cuadran. Errores corregidos: "cuatro agentes", la fila M2 sangrada como subconjunto de los

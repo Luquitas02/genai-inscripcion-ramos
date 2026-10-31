@@ -149,6 +149,20 @@ def _pruebas():
                       and fila["historial_de"] == 0)
         print("en_vivo guarda su traza" if guardar_ok else "[FALLA] en_vivo no guarda su traza")
         ok &= guardar_ok
+    # la pregunta en vivo del video: con sus salidas guardadas, en_vivo rehace la misma traza
+    # (sin contar tiempos ni tokens, que el repetidor no tiene)
+    guardada = [json.loads(l) for l in open(RAIZ / "trazas" / "en_vivo.jsonl", encoding="utf-8")]
+    fila_g = json.loads(open(RAIZ / "resultados" / "en_vivo.raw.jsonl", encoding="utf-8").readline())
+    clave = lambda m: (m["de"], m["para"], m["tipo"], m["contenido"], m.get("crudo"))  # noqa: E731
+    with tempfile.TemporaryDirectory() as tmp:
+        en_vivo(ModeloRepetidor([m["crudo"] for m in guardada if m.get("crudo")]),
+                guardada[0]["contenido"]["pregunta"], fila_g["historial_de"], destino=tmp)
+        rehecha = [json.loads(l) for l in open(Path(tmp) / "trazas" / "en_vivo.jsonl",
+                                               encoding="utf-8")]
+    vivo_ok = [clave(m) for m in rehecha] == [clave(m) for m in guardada]
+    print("la traza de la pregunta en vivo del video se reproduce" if vivo_ok
+          else "[FALLA] la traza en vivo guardada no se reproduce")
+    ok &= vivo_ok
     print("TODO EN ORDEN" if ok else "[FALLA] la demo no reproduce las trazas guardadas")
     return 0 if ok else 1
 

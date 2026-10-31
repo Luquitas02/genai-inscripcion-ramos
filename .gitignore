@@ -30,3 +30,6 @@ resultados.zip
 
 # Artefactos de prueba local del runner del D2
 resultados/pipeline__falso__*
+
+# Salida local del comando de la regla fija del README
+salida_regla_fija/

@@ -63,7 +63,7 @@ def mostrar(ruta, caso, crudo=False):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("traza")
-    ap.add_argument("caso", type=int)
+    ap.add_argument("caso", help="número del caso, o en_vivo para trazas/en_vivo.jsonl")
     ap.add_argument("--crudo", action="store_true")
     a = ap.parse_args()
     return mostrar(a.traza, a.caso, a.crudo)
