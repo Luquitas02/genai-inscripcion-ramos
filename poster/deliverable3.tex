@@ -127,7 +127,7 @@ período del ramo consultado.\par}
 \draw[fl,dashed] ($(a.west)+(-9mm,1.2mm)$) |- ($(b.west)+(0,1.2mm)$);
 \node[et,anchor=south,inner sep=0.4mm] at ($(b.west)+(-6mm,1.2mm)$) {otros};
 \node[et,anchor=south east,inner sep=0.4mm] at ($(c.west)+(-0.8mm,1.2mm)$) {otros,\\ período};
-\draw[fl,dashed] (a) -- node[above,et]{sin\_ramo} (fin);
+\draw[fl,dashed] (a) -- node[above,et]{sin\_ramo} node[below,et]{o tope} (fin);
 % la pregunta también llega al Verificador
 \draw[fl] (q.east) -- ++(26mm,0) |- node[pos=0.2,left,et,align=right]{pregunta} ($(c.east)+(0,1.2mm)$);
 % bucle del Resolvedor con T1
@@ -206,7 +206,7 @@ significancia (v6: 363 contra 360, $p=0{,}61$).\par}
 \cmidrule(lr){2-4}\cmidrule(l){5-7}
 acierto conjunto & plantilla & redact. & \textbf{150} & plantilla & redact. & \textbf{180} \\
 \midrule
-baseline zero-shot (D1)  &  -- & -- &  -- &   7 &  4 &  11 \\
+baseline zero-shot (D1)  &   5 &  0 &   5 &   7 &  4 &  11 \\
 baseline few-shot (D1)   &  28 &  7 &  35 &  30 & 13 &  43 \\
 sistema del D2           &  72 & 24 &  96 &  76 & 42 & 118 \\
 regla fija, sin modelo   &  83 &  7 &  90 &  77 & 25 & 102 \\
@@ -222,8 +222,8 @@ regla fija, sin modelo   &  83 &  7 &  90 &  77 & 25 & 102 \\
 \vspace{0.6mm}
 {\footnotesize
 La regla fija toma el texto tras \q inscribir\q, \q tomar\q\ o \q meter\q, lo busca con T1 y
-supone el semestre actual. En las redactadas cae a 7 de 30 y 25 de 60. El zero-shot se agregó
-en la réplica. Por mecanismo, en los 105 de plantilla no ambiguos del 20 de octubre:\par}
+supone el semestre actual. En las redactadas cae a 7 de 30 y 25 de 60. El zero-shot de los 150 se
+corrió al final, el 31 de octubre. Por mecanismo, en los 105 de plantilla no ambiguos del 20 de octubre:\par}
 
 \vspace{0.3mm}
 {\footnotesize

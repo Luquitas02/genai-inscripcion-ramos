@@ -573,6 +573,12 @@ y citas del Verificador fuera de la pregunta (38/180). Las ablaciones de las reg
 (`PROTOCOLO_ABLACIONES_B.md`) no se corrieron antes del plazo del protocolo y el documento lo
 dice. `demo_d3.py --pruebas` ahora también rehace la traza de la pregunta en vivo, y
 `ver_traza.py` la abre. Descartado: archivos `.bak` y zips sueltos (no están versionados).
+Después, para cerrar el único hueco literal del enunciado (baseline directo sobre el mismo
+conjunto), se corrió el zero-shot sobre los 60 nuevos y las 30 redactadas con
+`zero_shot_150_colab.ipynb` (mismo `runner.py`, Phi revisión `2fe1924`; preguntas y etiquetas
+iguales fila por fila a las del few-shot de esos conjuntos): 2/60 y 0/30, que con los 3/60 del
+D1 dan 5/150. `analisis_d3.py` lo agrega como fila `zero_shot` sin cambiar el resto. En el
+grafo, la flecha a "fin sin ramo" dice ahora "sin_ramo o tope".
 
 **25 oct 2026, noche — Segunda auditoría del documento y diagnóstico de los fallos de la
 réplica.** Tres revisores independientes (cifras, rúbrica, escritura y defensa). Las cifras

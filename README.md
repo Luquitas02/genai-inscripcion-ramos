@@ -346,6 +346,7 @@ PROTOCOLO_ABLACIONES_B.md    las ablaciones de las dos reglas del Resolvedor (no
 ablaciones_b_colab.ipynb     corrieron; ver "Qué explica la mejora") y su notebook
 PLAN_V6.md, PLAN_V6_TAREAS.md
                              el diseño de la v6, detenida en desarrollo
+zero_shot_150_colab.ipynb    el baseline zero-shot sobre los nuevos y los redactados (31 oct)
 ```
 
 ### Reproducir
@@ -537,6 +538,13 @@ leerse como efectos firmes. Por eso el sistema se midió además en 60 casos nue
 
 # Deliverable 3 · Tres agentes sobre el mismo modelo
 
+> **Para revisar el D3.** Documento: [`poster/Deliverable_3.pdf`](poster/Deliverable_3.pdf).
+> Video: https://youtu.be/UYir4ZV0sjM, que corre [`demo_d3_colab.ipynb`](demo_d3_colab.ipynb)
+> en el commit `75ed9b2` (tag `d3-video`). Prompts: [`prompts/`](prompts/). Trazas del video y
+> del caso de falla: [`trazas/`](trazas/) (ver [Lo que muestra el video](#lo-que-muestra-el-video-1)).
+> Para reproducir sin GPU: `python scripts/demo_d3.py --pruebas` y los comandos de
+> [Reproducir el D3](#reproducir-el-d3).
+
 ## Qué hace
 
 El sistema del D2 se reconstruye como tres agentes que usan el mismo Phi-3.5-mini y dos
@@ -562,10 +570,15 @@ antes de correr (commit `9158550`). Acierto conjunto, decisión y regla, el crit
 
 | | originales (60) | nuevos (60) | redactados (30) | **150** |
 |---|---|---|---|---|
+| baseline zero-shot (D1)* | 3 | 2 | 0 | 5 |
 | baseline few-shot (D1) | 10 | 18 | 7 | 35 |
 | sistema del D2 | 35 | 37 | 24 | 96 |
 | regla fija, sin modelo | 42 | 41 | 7 | 90 |
 | **tres agentes** | **52** | **51** | **29** | **132** |
+
+(*) El zero-shot de los originales es la corrida del D1; el de los nuevos y los redactados se
+corrió el 31 de octubre, al final, con [`zero_shot_150_colab.ipynb`](zero_shot_150_colab.ipynb)
+y el mismo `runner.py`, para tener el baseline directo sobre los mismos 150 casos.
 
 Contra el D2, en los casos donde difieren, los agentes ganan 39 y pierden 3 (McNemar exacto,
 p = 5,6·10⁻⁹). En los 30 redactados la diferencia es 6 a 1 (p = 0,125). La regla fija toma el

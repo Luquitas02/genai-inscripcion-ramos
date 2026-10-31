@@ -36,6 +36,9 @@ def _archivo_base(fila, conj):
     sufijo = "" if conj == "casos" else f"__{conj}"
     if fila == "baseline":
         return RES / f"{MODELO}__few_shot__prosa{sufijo}.raw.jsonl"
+    if fila == "zero_shot":
+        # originales: la corrida del D1; nuevos y redactados: zero_shot_150_colab.ipynb (31 oct)
+        return RES / f"{MODELO}__zero_shot__prosa{sufijo}.raw.jsonl"
     if fila == "d2":
         return RES / f"pipeline__{MODELO}__codigo__encadenado{sufijo}.raw.jsonl"
     if fila == "regla_fija":
@@ -86,7 +89,7 @@ def pct(n, d):
 def main():
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
-    filas_tabla = ["baseline", "d2", "regla_fija"] + CONFIGS
+    filas_tabla = ["zero_shot", "baseline", "d2", "regla_fija"] + CONFIGS
 
     print("=" * 96)
     print("1 · ACIERTO CONJUNTO")
