@@ -18,7 +18,7 @@ Prof. Carlos Navarrete, PhD
 sobre el mismo Phi-3.5-mini sube el acierto conjunto de **64,0 % a 88,0 %** en 150 casos, y de
 **65,6 % a 91,1 %** en una réplica sobre 180 casos sellados que nadie había usado. Detalle
 en [la sección del D3](#deliverable-3--tres-agentes-sobre-el-mismo-modelo). Documento técnico:
-[`poster/Deliverable_3.pdf`](poster/Deliverable_3.pdf). Video: [`demo_d3_colab.ipynb`](demo_d3_colab.ipynb).
+[`poster/Deliverable_3.pdf`](poster/Deliverable_3.pdf). Video: https://youtu.be/UYir4ZV0sjM (1:59).
 
 **Deliverable 2 completo** (30 de septiembre de 2026). Sistema de tres pasos funcionando
 sobre los mismos 60 casos, con el acierto conjunto subiendo de **16,7 % a 58,3 %** y usando
@@ -690,17 +690,25 @@ conjunto no llega al de la v4. Ninguna de las dos se aceptó. El código quedó 
 
 ## Lo que muestra el video
 
+Video: https://youtu.be/UYir4ZV0sjM (1:59, grabado el 31 de octubre). Corre el commit `75ed9b2`,
+marcado con el tag [`d3-video`](https://github.com/Luquitas02/genai-inscripcion-ramos/tree/d3-video).
+
 [`demo_d3_colab.ipynb`](demo_d3_colab.ipynb)
 ([abrir en Colab](https://colab.research.google.com/github/Luquitas02/genai-inscripcion-ramos/blob/main/demo_d3_colab.ipynb))
 corre en vivo tres preguntas redactadas, elegidas por la regla del protocolo: "progra" (sin
 bucles), "inglés básico 1" (el Verificador rechaza tres veces, con razón, un período mal leído;
 el tope deja pasar ese período y la decisión sale correcta solo porque la regla no depende de
 él) y el caso de falla. Cada salida del modelo se marca `= guardada` si coincide con la traza de
-la corrida final en [`trazas/`](trazas/). Al final, la celda 5 corre una pregunta escrita en el
-momento sobre el historial de un estudiante de la prueba; como no tiene etiqueta, muestra la
-decisión sin marcar acierto. El notebook clona el commit `75ed9b2`, que tiene los mismos prompts,
-agentes y herramientas de la corrida final. Las celdas 1 a 3 se corren antes de grabar; se
-graban la 4 y la 5.
+la corrida final en [`trazas/`](trazas/). Al final, la celda 5 corre una pregunta que no está en
+ningún conjunto de prueba ("¿puedo tomar estadística este semestre si ya pasé cálculo 2?"),
+escrita en el notebook antes de grabar, sobre el historial del redactado 0. Como no tiene
+etiqueta, muestra la decisión sin marcar acierto: `no`, regla `525140` (Álgebra I, reprobada),
+en 3 llamadas. Su traza está en [`trazas/en_vivo.jsonl`](trazas/en_vivo.jsonl) y su fila en
+[`resultados/en_vivo.raw.jsonl`](resultados/en_vivo.raw.jsonl); esa fila hereda la etiqueta del
+redactado 0 (Programación), así que sus campos `esperado` y `acierto_*` no valen para esta
+pregunta. El notebook clona el commit `75ed9b2`, que tiene los mismos prompts, agentes y
+herramientas de la corrida final. Las celdas 1 a 3 se corrieron antes de grabar y en el video
+se ven ya ejecutadas; se grabó la ejecución de la 4 y la 5.
 
 ## Reproducir
 
