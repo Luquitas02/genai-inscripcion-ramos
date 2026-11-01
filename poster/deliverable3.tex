@@ -113,7 +113,7 @@ período del ramo consultado.\par}
 \node[herr,below=of c] (t2) {\textbf{T2 · motor de reglas}\\ el código del D2};
 \node[caja,fill=fondo,below=of t2] (out) {\textbf{fin} · decisión y regla};
 \node[caja,draw=gris,dashed,text width=12mm,right=9mm of a] (fin) {\textbf{fin} sin ramo};
-\node[caja,fill=fondo,text width=10mm,right=9mm of t2] (hist) {historial};
+\node[caja,fill=fondo,text width=10mm,right=9mm of t2,yshift=-2.8mm] (hist) {historial};
 
 \draw[fl] (q) -- node[right,et]{texto} (a);
 \draw[fl] (a) -- node[right,et]{la mención consultada\\ (la busca el orquestador)} (t1);
@@ -121,7 +121,7 @@ período del ramo consultado.\par}
 \draw[fl] (b) -- node[right,et]{elige: código} (c);
 \draw[fl] (c) -- node[right,et]{acepta: código, período} (t2);
 \draw[fl] (t2) -- node[right,et]{decisión y regla} (out);
-\draw[fl] (hist) -- node[below,et]{estados} (t2);
+\draw[fl] (hist.west) -- node[below,et]{estados} (hist.west -| t2.east);
 % los otros ramos y el período pasan del Intérprete a B y C
 \draw[fl,dashed] ($(a.west)+(0,1.2mm)$) -- ++(-9mm,0) |- ($(c.west)+(0,1.2mm)$);
 \draw[fl,dashed] ($(a.west)+(-9mm,1.2mm)$) |- ($(b.west)+(0,1.2mm)$);
@@ -136,7 +136,7 @@ período del ramo consultado.\par}
 \draw[fl,dashed] ($(c.east)+(0,-1.2mm)$) -- ++(4.5mm,0) |- node[pos=0.25,right,et]{tope (3.er rechazo\\ o 12 llamadas):\\ última elección} (t2.east);
 % rechazo del Verificador al Intérprete
 \draw[fl] (c.west) -- ++(-15mm,0) |- node[pos=0.3,left,et,align=right]{rechaza:\\ problema\\ y motivo;\\ vuelve\\ máx. 2} (a.west);
-\draw[fl] (b.west) -- ++(-3mm,0) |- node[pos=0.25,et,rotate=90,anchor=south,inner sep=0.4mm]{ninguno} ($(a.west)+(0,-1.2mm)$);
+\draw[fl] ($(b.west)+(0,-1.6mm)$) -- ++(-3mm,0) |- node[pos=0.25,et,rotate=90,anchor=south,inner sep=0.4mm]{ninguno} ($(a.west)+(0,-1.2mm)$);
 \end{tikzpicture}
 \end{center}
 
