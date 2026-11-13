@@ -17,7 +17,7 @@ from pathlib import Path
 BASE = Path(__file__).resolve().parent.parent
 SALIDA = BASE / "piloto_d4_colab.ipynb"
 REPO = "https://github.com/Luquitas02/genai-inscripcion-ramos"
-COMMIT = ""   # se llena en un commit aparte, después de subir el piloto
+COMMIT = "c68a777"   # el commit que sube el piloto
 
 
 def md(t):
