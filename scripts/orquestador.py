@@ -64,6 +64,10 @@ CONFIGURACIONES = {
     "sin_regla_numeros":  {"interprete": "interprete.md", "ejemplos": True,
                            "resolvedor": "agente", "verificador": True,
                            "prompt_resolvedor": "ablaciones/resolvedor_sin_regla_numeros.md"},
+    # D4, piloto: el control. El prompt v3 del Intérprete con 40 ejemplos más del mismo tipo
+    # que los de entrenamiento (scripts/gen_prompt_control_d4.py). El resto, igual.
+    "control_muchos_ejemplos": {"interprete": "d4/interprete_muchos_ejemplos.md", "ejemplos": True,
+                                "resolvedor": "agente", "verificador": True},
 }
 
 
