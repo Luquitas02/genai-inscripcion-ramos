@@ -1,0 +1,38 @@
+{
+ "modelo_base": "microsoft/Phi-3.5-mini-instruct",
+ "revision_base": "2fe192450127e6a83f7441aef6e3ca586c338b77",
+ "cuantizacion": "NF4, cómputo fp16, sin doble cuantización",
+ "lora": {
+  "r": 16,
+  "alpha": 32,
+  "dropout": 0.05,
+  "modulos": "all-linear"
+ },
+ "epocas": 1.0,
+ "lr": 0.0002,
+ "batch": 2,
+ "acumulacion": 4,
+ "batch_efectivo": 8,
+ "max_length": 2048,
+ "semilla": 20261114,
+ "precision": "fp16",
+ "perdida": "solo la respuesta (prompt-completion)",
+ "n_entrenamiento": 450,
+ "n_validacion": 50,
+ "pasos": 57,
+ "segundos": 1485.5,
+ "memoria_max_gb": 3.5,
+ "gpu": "Tesla T4",
+ "parametros_entrenables": 25165824,
+ "parametros_total": 2034306048,
+ "perdida_validacion_final": 0.0010542096570134163,
+ "versiones": {
+  "torch": "2.14.1+cu130",
+  "transformers": "5.17.0",
+  "peft": "0.21.2",
+  "trl": "1.17.1",
+  "bitsandbytes": "0.50.2",
+  "accelerate": "1.14.0",
+  "datasets": "4.8.5"
+ }
+}
