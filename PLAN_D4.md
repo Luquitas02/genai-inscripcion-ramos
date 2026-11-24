@@ -315,3 +315,41 @@ Caso de falla. Límites.
   entrenar con prosa variada etiquetada, control bajo 3.600 tokens, y elegir época en el piloto.
 - **13 nov.** La prueba sellada sube de 180 a 240 casos: con 180 la potencia era 0,53 en el
   escenario conservador (cifra corregida; el primer borrador decía 0,9 sin haberla calculado).
+- **24 nov.** Se retoma tras 11 días sin avance. Lucas confirma que el tiempo no es restricción:
+  se mantiene el plan completo (1.200 pares de prosa, 240 sellados, hasta 2 épocas). El
+  calendario de arriba queda corrido; las fechas nuevas van en `ROADMAP.md`.
+- **24 nov.** Prueba sellada armada con `scripts/preparar_prueba_d4.py` antes de cualquier dato
+  de entrenamiento: 60 de plantilla (semilla 20261124) y 180 para redactar (semilla 20261125;
+  60 `_c_inscrita_actual`, 60 `_c_inscrita_proximo`, 60 de otros constructores en la proporción
+  del piloto), filtrados contra D1 a D3, la prueba de la v5, el desarrollo y el piloto. La prosa
+  la escriben tres subagentes con la instrucción del piloto (misma distribución, así elegir la
+  época en el piloto no mira la prueba), y escriben directo a archivo: Claude no lee los
+  mensajes. Antes de sellar los lee una persona del equipo.
+- **24 nov.** La verificación independiente de la prueba encontró que 13 de los 60 casos de
+  plantilla (todos de nivel 1) repetían un problema o una pregunta de un conjunto anterior, y 7
+  se repetían dentro de la prueba. Venía heredado del filtro escalonado de la v5: en el nivel 1
+  el generador solo produce unos 10 problemas distintos con "sí" o "condicional". Decisión de
+  Lucas: rehacer la plantilla solo con casos nuevos (`preparar_prueba_d4.py rehacer_plantilla`).
+  El nivel 1 ya no tiene ningún caso nuevo con "sí" ni "condicional": queda con 7 "no", y los 13
+  que faltan van a los niveles 2 y 3. Resultado: 0 repetidos con conjuntos anteriores y 0 dentro
+  de la prueba. Decisión 21/21/18 igual que antes; el balance por nivel cambia (n1 7, n2 27,
+  n3 26) y se declara. Los 180 redactados no cambiaron (sha256 idéntico antes y después).
+- **24 nov.** Lectura de las 180 redactadas: en vez de una persona leyéndolas todas con la
+  etiqueta a la vista (decisión de Lucas), un lector automático a ciegas (subagente de Claude,
+  solo id y mensaje más la lista de 61 ramos) dice qué ramo y semestre entiende, y un script lo
+  compara con la etiqueta (`scripts/lector_prueba_d4.py`). Una persona lee todos los desacuerdos
+  y 30 acuerdos al azar (semilla 20261127). Si marca uno de esos 30 como no `ok`, lee 30 más; si
+  aparece otro, lee todos. Regla escrita aquí antes de lanzar al lector. Límite declarado: lector
+  y redactores son el mismo modelo, por eso la muestra humana de acuerdos.
+- **24 nov.** Lectura cerrada: 177 acuerdos y 3 desacuerdos (los 3 por duda del lector, 1 además
+  por semestre). Lucas leyó los 3 desacuerdos (2 `ok`, 1 `descartada`) y los 30 acuerdos al azar
+  (30 `ok`), así que por la regla no se amplió la muestra. La prueba queda en 239 casos: 60 de
+  plantilla y 179 redactados.
+- **24 nov. Límite que se declara: oferta semestral.** El sistema (desde el D1) no modela en qué
+  semestre se dicta cada ramo. Lucas registró la oferta real de los 61 ramos en
+  `datos/OFERTA_RAMOS.xlsx`: 25 se dictan ambos semestres, 19 solo en el segundo y 17 solo en el
+  primero. En la prueba sellada, 104 de 239 casos piden un ramo en un semestre en que no se dicta,
+  y 52 de las 129 etiquetas afirmativas ("sí" o "condicional") serían en realidad "no se dicta".
+  Decisión: no se agrega la regla, para no cambiar la tarea respecto de D1 a D3 (continuidad) y
+  porque sería una regla de código, no algo que el fine-tuning del Intérprete deba aprender. Se
+  declara en los límites del documento con esta cifra.

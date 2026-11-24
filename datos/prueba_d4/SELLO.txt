@@ -1,0 +1,10 @@
+sha256 de cada archivo con saltos de línea LF, escrito antes de generar cualquier
+dato de entrenamiento del D4. Para comprobarlo:
+git show <commit>:datos/prueba_d4/<archivo> | sha256sum
+c10637092feb5c860beec4637a7137769e586f8729b7524a6fc4bee7854de979  plantilla.jsonl  semilla 20261124
+19515973c328c6a29ca7cd5baf4799c3fe121689cf8c85c1e906db29dc7c9543  base_redactados.jsonl  semilla 20261125, orden 20261126
+4ab6a3a22efa3c213ac92d2fd491c8de18c30bc620b17610e548c38f2ad9aa5f  redactor_1.json  mensajes del redactor a ciegas, antes de la lectura
+ff96076c1e3bad5a335cdbc3678393e05f703208ebee1289e119787d6a4c969b  redactor_2.json  mensajes del redactor a ciegas, antes de la lectura
+1a48b35fd55bbe0fab6cd596917bff7068b596527966be03e022846d645d7fda  redactor_3.json  mensajes del redactor a ciegas, antes de la lectura
+08f61038c04a46a9744eaf03676bcbc7882c761fae19c45b38a7fc0822327a7e  lectura.csv  lectura del equipo
+ac3fde5c3e91c2697141e76e997103c9d7d03184dd676c51e8d40730608f3448  redactados.jsonl  las redactadas tras la lectura
