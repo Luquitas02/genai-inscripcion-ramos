@@ -1,0 +1,542 @@
+[
+ {
+  "id": "1140",
+  "ramo": "Diseño de Sistemas de Producción",
+  "cuando": "PROXIMO",
+  "otro_ramo": "Optimización I",
+  "estado_otro": "la está cursando ahora, este semestre",
+  "periodo_estilo": "relativo",
+  "ramo_estilo": "nombre"
+ },
+ {
+  "id": "1141",
+  "ramo": "Termodinámica",
+  "cuando": "PROXIMO",
+  "otro_ramo": "",
+  "estado_otro": "",
+  "periodo_estilo": "calendario",
+  "ramo_estilo": "nombre"
+ },
+ {
+  "id": "1142",
+  "ramo": "Optimización I",
+  "cuando": "PROXIMO",
+  "otro_ramo": "",
+  "estado_otro": "",
+  "periodo_estilo": "implicito",
+  "ramo_estilo": "nombre"
+ },
+ {
+  "id": "1143",
+  "ramo": "Termodinámica",
+  "cuando": "PROXIMO",
+  "otro_ramo": "",
+  "estado_otro": "",
+  "periodo_estilo": "relativo",
+  "ramo_estilo": "apodo"
+ },
+ {
+  "id": "1144",
+  "ramo": "Máquinas Eléctricas",
+  "cuando": "ACTUAL",
+  "otro_ramo": "Ecuaciones Diferenciales",
+  "estado_otro": "la está cursando ahora, este semestre",
+  "periodo_estilo": "calendario",
+  "ramo_estilo": "apodo"
+ },
+ {
+  "id": "1145",
+  "ramo": "Gestión Estratégica y Control de Gestión",
+  "cuando": "PROXIMO",
+  "otro_ramo": "Administración",
+  "estado_otro": "la está cursando ahora, este semestre",
+  "periodo_estilo": "implicito",
+  "ramo_estilo": "apodo"
+ },
+ {
+  "id": "1146",
+  "ramo": "Cálculo III",
+  "cuando": "ACTUAL",
+  "otro_ramo": "Cálculo II",
+  "estado_otro": "la reprobó",
+  "periodo_estilo": "relativo",
+  "ramo_estilo": "nombre"
+ },
+ {
+  "id": "1147",
+  "ramo": "Gestión de Personas y Comportamiento Organizacional",
+  "cuando": "ACTUAL",
+  "otro_ramo": "",
+  "estado_otro": "",
+  "periodo_estilo": "calendario",
+  "ramo_estilo": "nombre"
+ },
+ {
+  "id": "1148",
+  "ramo": "Procesos Industriales",
+  "cuando": "ACTUAL",
+  "otro_ramo": "",
+  "estado_otro": "",
+  "periodo_estilo": "implicito",
+  "ramo_estilo": "nombre"
+ },
+ {
+  "id": "1149",
+  "ramo": "Cálculo III",
+  "cuando": "PROXIMO",
+  "otro_ramo": "Álgebra II",
+  "estado_otro": "la está cursando ahora, este semestre",
+  "periodo_estilo": "relativo",
+  "ramo_estilo": "apodo"
+ },
+ {
+  "id": "1150",
+  "ramo": "Gestión de Personas y Comportamiento Organizacional",
+  "cuando": "PROXIMO",
+  "otro_ramo": "Administración",
+  "estado_otro": "la está cursando ahora, este semestre",
+  "periodo_estilo": "calendario",
+  "ramo_estilo": "apodo"
+ },
+ {
+  "id": "1151",
+  "ramo": "Ingeniería Económica",
+  "cuando": "ACTUAL",
+  "otro_ramo": "Contabilidad General y de Costos",
+  "estado_otro": "la está cursando ahora, este semestre",
+  "periodo_estilo": "implicito",
+  "ramo_estilo": "apodo"
+ },
+ {
+  "id": "1152",
+  "ramo": "Evaluación de Proyectos",
+  "cuando": "ACTUAL",
+  "otro_ramo": "Ingeniería Económica",
+  "estado_otro": "la está cursando ahora, este semestre",
+  "periodo_estilo": "relativo",
+  "ramo_estilo": "nombre"
+ },
+ {
+  "id": "1153",
+  "ramo": "Ecuaciones Diferenciales",
+  "cuando": "ACTUAL",
+  "otro_ramo": "Cálculo II",
+  "estado_otro": "la está cursando ahora, este semestre",
+  "periodo_estilo": "calendario",
+  "ramo_estilo": "nombre"
+ },
+ {
+  "id": "1154",
+  "ramo": "Contabilidad General y de Costos",
+  "cuando": "PROXIMO",
+  "otro_ramo": "",
+  "estado_otro": "",
+  "periodo_estilo": "implicito",
+  "ramo_estilo": "nombre"
+ },
+ {
+  "id": "1155",
+  "ramo": "Análisis Estadístico Multivariado",
+  "cuando": "ACTUAL",
+  "otro_ramo": "",
+  "estado_otro": "",
+  "periodo_estilo": "relativo",
+  "ramo_estilo": "apodo"
+ },
+ {
+  "id": "1156",
+  "ramo": "Logística",
+  "cuando": "ACTUAL",
+  "otro_ramo": "Simulación",
+  "estado_otro": "la está cursando ahora, este semestre",
+  "periodo_estilo": "calendario",
+  "ramo_estilo": "apodo"
+ },
+ {
+  "id": "1157",
+  "ramo": "Termodinámica",
+  "cuando": "ACTUAL",
+  "otro_ramo": "Física II",
+  "estado_otro": "la está cursando ahora, este semestre",
+  "periodo_estilo": "implicito",
+  "ramo_estilo": "apodo"
+ },
+ {
+  "id": "1158",
+  "ramo": "Cálculo III",
+  "cuando": "ACTUAL",
+  "otro_ramo": "Álgebra II",
+  "estado_otro": "la está cursando ahora, este semestre",
+  "periodo_estilo": "relativo",
+  "ramo_estilo": "nombre"
+ },
+ {
+  "id": "1159",
+  "ramo": "Contabilidad General y de Costos",
+  "cuando": "ACTUAL",
+  "otro_ramo": "Administración",
+  "estado_otro": "la está cursando ahora, este semestre",
+  "periodo_estilo": "calendario",
+  "ramo_estilo": "nombre"
+ },
+ {
+  "id": "1160",
+  "ramo": "Termodinámica",
+  "cuando": "ACTUAL",
+  "otro_ramo": "",
+  "estado_otro": "",
+  "periodo_estilo": "implicito",
+  "ramo_estilo": "nombre"
+ },
+ {
+  "id": "1161",
+  "ramo": "Cálculo III",
+  "cuando": "PROXIMO",
+  "otro_ramo": "Álgebra II",
+  "estado_otro": "la reprobó",
+  "periodo_estilo": "relativo",
+  "ramo_estilo": "apodo"
+ },
+ {
+  "id": "1162",
+  "ramo": "Ingeniería Económica",
+  "cuando": "ACTUAL",
+  "otro_ramo": "Contabilidad General y de Costos",
+  "estado_otro": "la está cursando ahora, este semestre",
+  "periodo_estilo": "calendario",
+  "ramo_estilo": "apodo"
+ },
+ {
+  "id": "1163",
+  "ramo": "Diseño de Sistemas de Producción",
+  "cuando": "PROXIMO",
+  "otro_ramo": "",
+  "estado_otro": "",
+  "periodo_estilo": "implicito",
+  "ramo_estilo": "apodo"
+ },
+ {
+  "id": "1164",
+  "ramo": "Marketing",
+  "cuando": "PROXIMO",
+  "otro_ramo": "Administración",
+  "estado_otro": "la está cursando ahora, este semestre",
+  "periodo_estilo": "relativo",
+  "ramo_estilo": "nombre"
+ },
+ {
+  "id": "1165",
+  "ramo": "Contabilidad General y de Costos",
+  "cuando": "PROXIMO",
+  "otro_ramo": "Administración",
+  "estado_otro": "la está cursando ahora, este semestre",
+  "periodo_estilo": "calendario",
+  "ramo_estilo": "nombre"
+ },
+ {
+  "id": "1166",
+  "ramo": "Taller de Emprendimiento",
+  "cuando": "ACTUAL",
+  "otro_ramo": "Evaluación de Proyectos",
+  "estado_otro": "la está cursando ahora, este semestre",
+  "periodo_estilo": "implicito",
+  "ramo_estilo": "nombre"
+ },
+ {
+  "id": "1167",
+  "ramo": "Procesos Industriales",
+  "cuando": "ACTUAL",
+  "otro_ramo": "",
+  "estado_otro": "",
+  "periodo_estilo": "relativo",
+  "ramo_estilo": "apodo"
+ },
+ {
+  "id": "1168",
+  "ramo": "Gestión de Personas y Comportamiento Organizacional",
+  "cuando": "ACTUAL",
+  "otro_ramo": "",
+  "estado_otro": "",
+  "periodo_estilo": "calendario",
+  "ramo_estilo": "apodo"
+ },
+ {
+  "id": "1169",
+  "ramo": "Procesos Industriales",
+  "cuando": "ACTUAL",
+  "otro_ramo": "Transferencia de Calor",
+  "estado_otro": "la está cursando ahora, este semestre",
+  "periodo_estilo": "implicito",
+  "ramo_estilo": "apodo"
+ },
+ {
+  "id": "1170",
+  "ramo": "Estadística",
+  "cuando": "PROXIMO",
+  "otro_ramo": "Álgebra I",
+  "estado_otro": "la está cursando ahora, este semestre",
+  "periodo_estilo": "relativo",
+  "ramo_estilo": "nombre"
+ },
+ {
+  "id": "1171",
+  "ramo": "Ecuaciones Diferenciales",
+  "cuando": "PROXIMO",
+  "otro_ramo": "",
+  "estado_otro": "",
+  "periodo_estilo": "calendario",
+  "ramo_estilo": "nombre"
+ },
+ {
+  "id": "1172",
+  "ramo": "Programación",
+  "cuando": "ACTUAL",
+  "otro_ramo": "",
+  "estado_otro": "",
+  "periodo_estilo": "implicito",
+  "ramo_estilo": "nombre"
+ },
+ {
+  "id": "1173",
+  "ramo": "Cálculo III",
+  "cuando": "ACTUAL",
+  "otro_ramo": "Álgebra II",
+  "estado_otro": "la está cursando ahora, este semestre",
+  "periodo_estilo": "relativo",
+  "ramo_estilo": "apodo"
+ },
+ {
+  "id": "1174",
+  "ramo": "Cálculo III",
+  "cuando": "ACTUAL",
+  "otro_ramo": "Cálculo II",
+  "estado_otro": "la está cursando ahora, este semestre",
+  "periodo_estilo": "calendario",
+  "ramo_estilo": "apodo"
+ },
+ {
+  "id": "1175",
+  "ramo": "Inferencia Estadística y Muestreo",
+  "cuando": "PROXIMO",
+  "otro_ramo": "",
+  "estado_otro": "",
+  "periodo_estilo": "implicito",
+  "ramo_estilo": "apodo"
+ },
+ {
+  "id": "1176",
+  "ramo": "Contabilidad General y de Costos",
+  "cuando": "ACTUAL",
+  "otro_ramo": "",
+  "estado_otro": "",
+  "periodo_estilo": "relativo",
+  "ramo_estilo": "nombre"
+ },
+ {
+  "id": "1177",
+  "ramo": "Diseño de Sistemas de Producción",
+  "cuando": "PROXIMO",
+  "otro_ramo": "",
+  "estado_otro": "",
+  "periodo_estilo": "calendario",
+  "ramo_estilo": "nombre"
+ },
+ {
+  "id": "1178",
+  "ramo": "Electiva 5",
+  "cuando": "ACTUAL",
+  "otro_ramo": "",
+  "estado_otro": "",
+  "periodo_estilo": "implicito",
+  "ramo_estilo": "nombre"
+ },
+ {
+  "id": "1179",
+  "ramo": "Termodinámica",
+  "cuando": "PROXIMO",
+  "otro_ramo": "",
+  "estado_otro": "",
+  "periodo_estilo": "relativo",
+  "ramo_estilo": "apodo"
+ },
+ {
+  "id": "1180",
+  "ramo": "Gestión Estratégica y Control de Gestión",
+  "cuando": "ACTUAL",
+  "otro_ramo": "",
+  "estado_otro": "",
+  "periodo_estilo": "calendario",
+  "ramo_estilo": "apodo"
+ },
+ {
+  "id": "1181",
+  "ramo": "Contabilidad General y de Costos",
+  "cuando": "PROXIMO",
+  "otro_ramo": "",
+  "estado_otro": "",
+  "periodo_estilo": "implicito",
+  "ramo_estilo": "apodo"
+ },
+ {
+  "id": "1182",
+  "ramo": "Análisis Estadístico Multivariado",
+  "cuando": "ACTUAL",
+  "otro_ramo": "Inferencia Estadística y Muestreo",
+  "estado_otro": "la está cursando ahora, este semestre",
+  "periodo_estilo": "relativo",
+  "ramo_estilo": "nombre"
+ },
+ {
+  "id": "1183",
+  "ramo": "Complementaria 1",
+  "cuando": "ACTUAL",
+  "otro_ramo": "",
+  "estado_otro": "",
+  "periodo_estilo": "calendario",
+  "ramo_estilo": "nombre"
+ },
+ {
+  "id": "1184",
+  "ramo": "Gestión Estratégica y Control de Gestión",
+  "cuando": "PROXIMO",
+  "otro_ramo": "",
+  "estado_otro": "",
+  "periodo_estilo": "implicito",
+  "ramo_estilo": "nombre"
+ },
+ {
+  "id": "1185",
+  "ramo": "Inferencia Estadística y Muestreo",
+  "cuando": "PROXIMO",
+  "otro_ramo": "",
+  "estado_otro": "",
+  "periodo_estilo": "relativo",
+  "ramo_estilo": "apodo"
+ },
+ {
+  "id": "1186",
+  "ramo": "Introducción a la Sustentabilidad en Ingeniería",
+  "cuando": "ACTUAL",
+  "otro_ramo": "",
+  "estado_otro": "",
+  "periodo_estilo": "calendario",
+  "ramo_estilo": "apodo"
+ },
+ {
+  "id": "1187",
+  "ramo": "Marketing",
+  "cuando": "ACTUAL",
+  "otro_ramo": "",
+  "estado_otro": "",
+  "periodo_estilo": "implicito",
+  "ramo_estilo": "apodo"
+ },
+ {
+  "id": "1188",
+  "ramo": "Microeconomía",
+  "cuando": "PROXIMO",
+  "otro_ramo": "Estadística",
+  "estado_otro": "la está cursando ahora, este semestre",
+  "periodo_estilo": "relativo",
+  "ramo_estilo": "nombre"
+ },
+ {
+  "id": "1189",
+  "ramo": "Planificación y Control de Producción",
+  "cuando": "PROXIMO",
+  "otro_ramo": "",
+  "estado_otro": "",
+  "periodo_estilo": "calendario",
+  "ramo_estilo": "nombre"
+ },
+ {
+  "id": "1190",
+  "ramo": "Gestión de Personas y Comportamiento Organizacional",
+  "cuando": "PROXIMO",
+  "otro_ramo": "Administración",
+  "estado_otro": "la está cursando ahora, este semestre",
+  "periodo_estilo": "implicito",
+  "ramo_estilo": "nombre"
+ },
+ {
+  "id": "1191",
+  "ramo": "Electiva 3",
+  "cuando": "ACTUAL",
+  "otro_ramo": "",
+  "estado_otro": "",
+  "periodo_estilo": "relativo",
+  "ramo_estilo": "apodo"
+ },
+ {
+  "id": "1192",
+  "ramo": "Optimización II",
+  "cuando": "ACTUAL",
+  "otro_ramo": "Optimización I",
+  "estado_otro": "la está cursando ahora, este semestre",
+  "periodo_estilo": "calendario",
+  "ramo_estilo": "apodo"
+ },
+ {
+  "id": "1193",
+  "ramo": "Mecánica de Fluidos",
+  "cuando": "PROXIMO",
+  "otro_ramo": "Termodinámica",
+  "estado_otro": "la está cursando ahora, este semestre",
+  "periodo_estilo": "implicito",
+  "ramo_estilo": "apodo"
+ },
+ {
+  "id": "1194",
+  "ramo": "Ingeniería Económica",
+  "cuando": "ACTUAL",
+  "otro_ramo": "Contabilidad General y de Costos",
+  "estado_otro": "la está cursando ahora, este semestre",
+  "periodo_estilo": "relativo",
+  "ramo_estilo": "nombre"
+ },
+ {
+  "id": "1195",
+  "ramo": "Inferencia Estadística y Muestreo",
+  "cuando": "PROXIMO",
+  "otro_ramo": "Estadística",
+  "estado_otro": "la está cursando ahora, este semestre",
+  "periodo_estilo": "calendario",
+  "ramo_estilo": "nombre"
+ },
+ {
+  "id": "1196",
+  "ramo": "Optimización II",
+  "cuando": "PROXIMO",
+  "otro_ramo": "Optimización I",
+  "estado_otro": "la reprobó",
+  "periodo_estilo": "implicito",
+  "ramo_estilo": "nombre"
+ },
+ {
+  "id": "1197",
+  "ramo": "Transferencia de Calor",
+  "cuando": "ACTUAL",
+  "otro_ramo": "Cálculo Numérico",
+  "estado_otro": "la reprobó",
+  "periodo_estilo": "relativo",
+  "ramo_estilo": "apodo"
+ },
+ {
+  "id": "1198",
+  "ramo": "Diseño de Sistemas de Producción",
+  "cuando": "ACTUAL",
+  "otro_ramo": "",
+  "estado_otro": "",
+  "periodo_estilo": "calendario",
+  "ramo_estilo": "apodo"
+ },
+ {
+  "id": "1199",
+  "ramo": "Gestión Estratégica y Control de Gestión",
+  "cuando": "PROXIMO",
+  "otro_ramo": "",
+  "estado_otro": "",
+  "periodo_estilo": "implicito",
+  "ramo_estilo": "apodo"
+ }
+]

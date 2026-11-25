@@ -353,3 +353,32 @@ Caso de falla. Límites.
   Decisión: no se agrega la regla, para no cambiar la tarea respecto de D1 a D3 (continuidad) y
   porque sería una regla de código, no algo que el fine-tuning del Intérprete deba aprender. Se
   declara en los límites del documento con esta cifra.
+- **24 nov. Datos de entrenamiento armados después del sello** (`scripts/preparar_entrenamiento_d4.py`):
+  1.260 casos nuevos (semilla 20261128) filtrados contra la prueba sellada, el piloto y todo lo
+  anterior; `_c_especial` solo dio 36 casos nuevos y los 27 restantes pasaron a
+  `_c_prerrequisito`. 21 subagentes con instrucción propia (`datos/entrenamiento_d4/INSTRUCCION.md`;
+  el lote 01 se redactó sin la regla de no copiar los ejemplos, agregada después). 1.260 de
+  1.260 pasaron el control de palabras literales. 471 frases de período distintas en los
+  primeros 660. Total 1.430 pares (1.200 prosa, 60 revisión, 150 plantilla, 20 sin ramo):
+  1.287 de entrenamiento y 143 de validación (10 % por bloque, semilla 20261130).
+- **24 nov. Separación** (`scripts/separacion_d4.py`): la primera unión dejó 9 plantillas de
+  entrenamiento casi iguales (difflib > 0,85) a preguntas de la prueba, porque el generador
+  tiene pocas frases. Se descartaron del lado del entrenamiento (10 candidatas) sin tocar la
+  prueba. Resultado final: 0 problemas repetidos, 0 preguntas iguales, 0 casi iguales (máximo
+  0,848), y 7,3 % de los 6-gramas de la prueba aparecen en el entrenamiento, contra 8,5 % en el
+  resto de la propia prueba.
+- **24 nov. Revisión de etiquetas de entrenamiento** (`scripts/lector_entrenamiento_d4.py`, regla
+  en su encabezado antes de correr): lector automático a ciegas sobre los 1.260 redactados;
+  Claude lee los desacuerdos; el equipo revisa a mano 60 pares al azar (exigido por el
+  enunciado), 30 por persona; con 2 o más etiquetas mal se revisan 60 más.
+- **25 nov. Primera revisión manual** (60 pares al azar, semilla 20261201): Renato 30/30
+  correctas, Joaquín 23/30 (7 incorrectas). La regla (2 o más) se activó. 6 de las 7 son del
+  estilo apodo: 4 apodos que un estudiante no usaría ("estratégica", "calidad"; "calidad" ya
+  venía del generador del D1) y 3 frases difíciles de entender. En las 7 la etiqueta copia
+  literalmente las palabras del mensaje, que es lo que el Intérprete debe hacer; lo que falla
+  es la naturalidad del mensaje. Decisión de Lucas: no cambiar la instrucción ni regenerar, y
+  cumplir la otra parte de la regla con una segunda muestra de 60 (los siguientes 60 del mismo
+  orden al azar) con tres opciones: correcta, "suena raro pero se entiende" (no cuenta como
+  error de etiqueta) e incorrecta. Si hay 2 o más incorrectas en la segunda, se corrige la
+  instrucción y se regenera. Límite que se declara: parte de los apodos los inventó el modelo
+  redactor. Los dos revisores aplicaron criterios distintos en la primera vuelta.

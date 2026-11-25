@@ -1,0 +1,459 @@
+[
+ {
+  "id_ent": 39,
+  "motivos": [
+   "ramo",
+   "duda"
+  ],
+  "mensaje": "ayudante una duda, la práctica la puedo inscribir ya mismo o tengo que esperar?",
+  "etiqueta": {
+   "ramo": "Práctica Laboral",
+   "periodo": "actual",
+   "salida": {
+    "accion": "entregar",
+    "consultado": "la práctica",
+    "otros": [],
+    "frase_periodo": "ya mismo",
+    "periodo": "actual"
+   }
+  },
+  "lector": {
+   "ramo": "Práctica Profesional",
+   "semestre": "actual",
+   "otros": [],
+   "duda": true
+  }
+ },
+ {
+  "id_ent": 60,
+  "motivos": [
+   "duda"
+  ],
+  "mensaje": "hola, una consulta: se puede tomar innovacion el semestre siguiente o hay que tener algun requisito antes?",
+  "etiqueta": {
+   "ramo": "Innovación",
+   "periodo": "proximo",
+   "salida": {
+    "accion": "entregar",
+    "consultado": "innovacion",
+    "otros": [],
+    "frase_periodo": "el semestre siguiente",
+    "periodo": "proximo"
+   }
+  },
+  "lector": {
+   "ramo": "Innovación",
+   "semestre": "proximo",
+   "otros": [],
+   "duda": true
+  }
+ },
+ {
+  "id_ent": 88,
+  "motivos": [
+   "ramo",
+   "duda"
+  ],
+  "mensaje": "Hola, ¿me dejan inscribir la práctica todavía en este segundo semestre? Ya tengo empresa.",
+  "etiqueta": {
+   "ramo": "Práctica Laboral",
+   "periodo": "actual",
+   "salida": {
+    "accion": "entregar",
+    "consultado": "la práctica",
+    "otros": [],
+    "frase_periodo": "en este segundo semestre",
+    "periodo": "actual"
+   }
+  },
+  "lector": {
+   "ramo": "Práctica Profesional",
+   "semestre": "actual",
+   "otros": [],
+   "duda": true
+  }
+ },
+ {
+  "id_ent": 101,
+  "motivos": [
+   "ramo",
+   "duda"
+  ],
+  "mensaje": "¿Se puede inscribir la práctica aunque ya hayan pasado varias semanas de clases? la empresa me la aprobó recién",
+  "etiqueta": {
+   "ramo": "Práctica Laboral",
+   "periodo": "actual",
+   "salida": {
+    "accion": "entregar",
+    "consultado": "la práctica",
+    "otros": [],
+    "frase_periodo": "aunque ya hayan pasado varias semanas de clases",
+    "periodo": "actual"
+   }
+  },
+  "lector": {
+   "ramo": "Práctica Profesional",
+   "semestre": "actual",
+   "otros": [],
+   "duda": true
+  }
+ },
+ {
+  "id_ent": 242,
+  "motivos": [
+   "duda"
+  ],
+  "mensaje": "profe una consulta, ¿me dejan agregar innovacion a la carga que tengo inscrita o ya se pasó el plazo?",
+  "etiqueta": {
+   "ramo": "Innovación",
+   "periodo": "actual",
+   "salida": {
+    "accion": "entregar",
+    "consultado": "innovacion",
+    "otros": [],
+    "frase_periodo": "a la carga que tengo inscrita o ya se pasó el plazo",
+    "periodo": "actual"
+   }
+  },
+  "lector": {
+   "ramo": "Innovación",
+   "semestre": "actual",
+   "otros": [],
+   "duda": true
+  }
+ },
+ {
+  "id_ent": 264,
+  "motivos": [
+   "duda"
+  ],
+  "mensaje": "mecanica la puedo inscribir en el que estamos o tengo que esperar al otro?",
+  "etiqueta": {
+   "ramo": "Mecánica",
+   "periodo": "actual",
+   "salida": {
+    "accion": "entregar",
+    "consultado": "mecanica",
+    "otros": [],
+    "frase_periodo": "en el que estamos",
+    "periodo": "actual"
+   }
+  },
+  "lector": {
+   "ramo": "Mecánica",
+   "semestre": "actual",
+   "otros": [],
+   "duda": true
+  }
+ },
+ {
+  "id_ent": 304,
+  "motivos": [
+   "duda"
+  ],
+  "mensaje": "Profe, ¿alcanzo a meter inno en el 2026-2 o ya pasó la fecha?",
+  "etiqueta": {
+   "ramo": "Innovación",
+   "periodo": "actual",
+   "salida": {
+    "accion": "entregar",
+    "consultado": "inno",
+    "otros": [],
+    "frase_periodo": "en el 2026-2",
+    "periodo": "actual"
+   }
+  },
+  "lector": {
+   "ramo": "Innovación",
+   "semestre": "actual",
+   "otros": [],
+   "duda": true
+  }
+ },
+ {
+  "id_ent": 308,
+  "motivos": [
+   "duda"
+  ],
+  "mensaje": "Como este semestre ya está por cerrar, ¿me conviene esperar a la siguiente inscripción para tomar la electiva 3?",
+  "etiqueta": {
+   "ramo": "Electiva 3",
+   "periodo": "proximo",
+   "salida": {
+    "accion": "entregar",
+    "consultado": "electiva 3",
+    "otros": [],
+    "frase_periodo": "esperar a la siguiente inscripción",
+    "periodo": "proximo"
+   }
+  },
+  "lector": {
+   "ramo": "Electiva 3",
+   "semestre": "proximo",
+   "otros": [],
+   "duda": true
+  }
+ },
+ {
+  "id_ent": 417,
+  "motivos": [
+   "duda"
+  ],
+  "mensaje": "Me eché administracion, ¿puedo tomar costos de todas formas hoy mismo?",
+  "etiqueta": {
+   "ramo": "Contabilidad General y de Costos",
+   "periodo": "actual",
+   "salida": {
+    "accion": "entregar",
+    "consultado": "costos",
+    "otros": [
+     "administracion"
+    ],
+    "frase_periodo": "hoy mismo",
+    "periodo": "actual"
+   }
+  },
+  "lector": {
+   "ramo": "Contabilidad General y de Costos",
+   "semestre": "actual",
+   "otros": [
+    "Administración"
+   ],
+   "duda": true
+  }
+ },
+ {
+  "id_ent": 571,
+  "motivos": [
+   "duda"
+  ],
+  "mensaje": "estoy cursando calculo 2 y quería saber si puedo inscribir calculo 3 antes de que termine noviembre",
+  "etiqueta": {
+   "ramo": "Cálculo III",
+   "periodo": "actual",
+   "salida": {
+    "accion": "entregar",
+    "consultado": "calculo 3",
+    "otros": [
+     "calculo 2"
+    ],
+    "frase_periodo": "antes de que termine noviembre",
+    "periodo": "actual"
+   }
+  },
+  "lector": {
+   "ramo": "Cálculo III",
+   "semestre": "actual",
+   "otros": [
+    "Cálculo II"
+   ],
+   "duda": true
+  }
+ },
+ {
+  "id_ent": 791,
+  "motivos": [
+   "duda"
+  ],
+  "mensaje": "¿alguien sabe si a calidad uno todavía se puede meter con la segunda prueba ya hecha?",
+  "etiqueta": {
+   "ramo": "Gestión y Control de la Calidad",
+   "periodo": "actual",
+   "salida": {
+    "accion": "entregar",
+    "consultado": "calidad",
+    "otros": [],
+    "frase_periodo": "todavía se puede meter con la segunda prueba ya hecha",
+    "periodo": "actual"
+   }
+  },
+  "lector": {
+   "ramo": "Gestión y Control de la Calidad",
+   "semestre": "actual",
+   "otros": [],
+   "duda": true
+  }
+ },
+ {
+  "id_ent": 996,
+  "motivos": [
+   "duda"
+  ],
+  "mensaje": "oigan, innovacion se puede tomar en este momento o ya no?",
+  "etiqueta": {
+   "ramo": "Innovación",
+   "periodo": "actual",
+   "salida": {
+    "accion": "entregar",
+    "consultado": "innovacion",
+    "otros": [],
+    "frase_periodo": "en este momento",
+    "periodo": "actual"
+   }
+  },
+  "lector": {
+   "ramo": "Innovación",
+   "semestre": "actual",
+   "otros": [],
+   "duda": true
+  }
+ },
+ {
+  "id_ent": 1017,
+  "motivos": [
+   "ramo",
+   "duda"
+  ],
+  "mensaje": "¿la práctica la puedo inscribir ahorita o ya es tarde?",
+  "etiqueta": {
+   "ramo": "Práctica Profesional",
+   "periodo": "actual",
+   "salida": {
+    "accion": "entregar",
+    "consultado": "práctica",
+    "otros": [],
+    "frase_periodo": "ahorita",
+    "periodo": "actual"
+   }
+  },
+  "lector": {
+   "ramo": "Práctica Laboral",
+   "semestre": "actual",
+   "otros": [],
+   "duda": true
+  }
+ },
+ {
+  "id_ent": 1025,
+  "motivos": [
+   "duda"
+  ],
+  "mensaje": "Voy en programación este semestre y me quedó un hueco en el horario; ¿me dejan sumar opti en la toma extraordinaria que abrieron?",
+  "etiqueta": {
+   "ramo": "Optimización I",
+   "periodo": "actual",
+   "salida": {
+    "accion": "entregar",
+    "consultado": "opti",
+    "otros": [
+     "programación"
+    ],
+    "frase_periodo": "en la toma extraordinaria que abrieron",
+    "periodo": "actual"
+   }
+  },
+  "lector": {
+   "ramo": "Optimización I",
+   "semestre": "actual",
+   "otros": [
+    "Programación"
+   ],
+   "duda": true
+  }
+ },
+ {
+  "id_ent": 1043,
+  "motivos": [
+   "ramo",
+   "duda"
+  ],
+  "mensaje": "¿Todavía alcanzo a inscribir la práctica si ya tengo empresa y parto la próxima semana?",
+  "etiqueta": {
+   "ramo": "Práctica Profesional",
+   "periodo": "actual",
+   "salida": {
+    "accion": "entregar",
+    "consultado": "la práctica",
+    "otros": [],
+    "frase_periodo": "si ya tengo empresa y parto la próxima semana",
+    "periodo": "actual"
+   }
+  },
+  "lector": {
+   "ramo": "Práctica Laboral",
+   "semestre": "actual",
+   "otros": [],
+   "duda": true
+  }
+ },
+ {
+  "id_ent": 1070,
+  "motivos": [
+   "duda"
+  ],
+  "mensaje": "Reprobé optimizacion; ¿igual me dejan agregar diseño de sistemas de produccion a la carga que tengo inscrita?",
+  "etiqueta": {
+   "ramo": "Diseño de Sistemas de Producción",
+   "periodo": "actual",
+   "salida": {
+    "accion": "entregar",
+    "consultado": "diseño de sistemas de produccion",
+    "otros": [
+     "optimizacion"
+    ],
+    "frase_periodo": "a la carga que tengo inscrita",
+    "periodo": "actual"
+   }
+  },
+  "lector": {
+   "ramo": "Diseño de Sistemas de Producción",
+   "semestre": "actual",
+   "otros": [
+    "Optimización I"
+   ],
+   "duda": true
+  }
+ },
+ {
+  "id_ent": 1135,
+  "motivos": [
+   "duda"
+  ],
+  "mensaje": "¿Alcanzo a inscribir simulacion para el semestre de agosto?",
+  "etiqueta": {
+   "ramo": "Simulación",
+   "periodo": "actual",
+   "salida": {
+    "accion": "entregar",
+    "consultado": "simulacion",
+    "otros": [],
+    "frase_periodo": "para el semestre de agosto",
+    "periodo": "actual"
+   }
+  },
+  "lector": {
+   "ramo": "Simulación",
+   "semestre": "actual",
+   "otros": [],
+   "duda": true
+  }
+ },
+ {
+  "id_ent": 1211,
+  "motivos": [
+   "duda"
+  ],
+  "mensaje": "voy en algebra 1 todavia, si la apruebo me dejan tomar estadis en la toma de ramos de verano??",
+  "etiqueta": {
+   "ramo": "Estadística",
+   "periodo": "proximo",
+   "salida": {
+    "accion": "entregar",
+    "consultado": "estadis",
+    "otros": [
+     "algebra 1"
+    ],
+    "frase_periodo": "en la toma de ramos de verano",
+    "periodo": "proximo"
+   }
+  },
+  "lector": {
+   "ramo": "Estadística",
+   "semestre": "proximo",
+   "otros": [
+    "Álgebra I"
+   ],
+   "duda": true
+  }
+ }
+]

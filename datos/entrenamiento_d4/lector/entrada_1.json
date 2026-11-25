@@ -1,0 +1,1262 @@
+[
+ {
+  "id": "0",
+  "mensaje": "hola, alcanzo a meterme a finanzas ahora mismo o ya cerraron todo?"
+ },
+ {
+  "id": "1",
+  "mensaje": "Estimada jefatura, quisiera saber si puedo inscribir termodinamica para el primer semestre de 2027. Gracias."
+ },
+ {
+  "id": "2",
+  "mensaje": "Una consulta: ¿planificacion y control de produccion lo puedo dejar listo para la próxima toma de ramos, o tengo que esperar a que publiquen la oferta?"
+ },
+ {
+  "id": "3",
+  "mensaje": "oye ayudante, la compl 1 se puede tomar en este semestre todavia o ya no?"
+ },
+ {
+  "id": "4",
+  "mensaje": "Chiquillos alguien sabe si todavía se puede inscribir Fina en este segundo semestre? me la quiero echar antes de diciembre"
+ },
+ {
+  "id": "5",
+  "mensaje": "Estoy con Opti 1 ahora y quería saber si alcanzo a sumar DSP con la modificación de carga que está abierta."
+ },
+ {
+  "id": "6",
+  "mensaje": "Profe, quiero inscribir planificacion y control de produccion de inmediato, ¿se puede todavía?"
+ },
+ {
+  "id": "7",
+  "mensaje": "buenas, quería preguntar si se puede inscribir estadistica en lo que queda del 2026."
+ },
+ {
+  "id": "8",
+  "mensaje": "Hola! Ahora estoy cursando calculo 2 y me preguntaba si todavía estoy a tiempo de agregar estadistica, ¿o ya pasó el plazo de modificación?"
+ },
+ {
+  "id": "9",
+  "mensaje": "consulta rápida, ¿DSP lo puedo inscribir pal próximo semestre?"
+ },
+ {
+  "id": "10",
+  "mensaje": "Señores, estoy tomando Admin este semestre y quiero saber si puedo inscribir Conta también en el 2026-2."
+ },
+ {
+  "id": "11",
+  "mensaje": "alguien sabe si la elec 3 todavía se puede agregar antes de que cierren las modificaciones? no quiero quedar con carga baja"
+ },
+ {
+  "id": "12",
+  "mensaje": "Reprobé calculo II y quería saber si igual puedo inscribir ecuaciones diferenciales el próximo semestre."
+ },
+ {
+  "id": "13",
+  "mensaje": "Buenas tardes, quisiera consultar si es posible inscribir gestion y control de calidad cuando vuelvan las clases en marzo."
+ },
+ {
+  "id": "14",
+  "mensaje": "hola, sigue abierta la inscripcion para calculo 3 o ya es muy tarde para meterlo?"
+ },
+ {
+  "id": "15",
+  "mensaje": "Inge Eco se puede inscribir al tiro o ya se cerró?"
+ },
+ {
+  "id": "16",
+  "mensaje": "Como estoy cursando Adm ahora, ¿me dejan inscribir Conta para el 2027-1?"
+ },
+ {
+  "id": "17",
+  "mensaje": "Reprobé Administración, ¿Mkt lo puedo dejar planificado para la toma de ramos del próximo año?"
+ },
+ {
+  "id": "18",
+  "mensaje": "me fue mal en transferencia de calor (la reprobe) y queria ver si puedo meter procesos industriales ahora en este semestre"
+ },
+ {
+  "id": "19",
+  "mensaje": "Estimados, reprobé termodinamica pero me gustaría inscribir mecanica de fluidos este segundo semestre 2026, ¿es posible?"
+ },
+ {
+  "id": "20",
+  "mensaje": "Ando cursando administracion y me di cuenta tarde de marketing, ¿alcanzo a agregarlo con el período de modificación que sigue abierto?"
+ },
+ {
+  "id": "21",
+  "mensaje": "Ahora estoy con Fisica 2, ¿Termo la puedo tomar el siguiente semestre?"
+ },
+ {
+  "id": "22",
+  "mensaje": "Hola, voy en Alge 2 este semestre. Quisiera saber si puedo inscribir Cal 3 también en este 2026-2."
+ },
+ {
+  "id": "23",
+  "mensaje": "Como ya estoy tomando fis 2, ¿todavía me aceptan agregar termo a la carga que tengo inscrita?"
+ },
+ {
+  "id": "24",
+  "mensaje": "estoy en evaluacion de proyectos ahora, me conviene tomar taller de emprendimiento pal otro semestre? se puede?"
+ },
+ {
+  "id": "25",
+  "mensaje": "Jefatura: ¿puedo inscribir gestion estrategica y control de gestion en el primer semestre del 2027?"
+ },
+ {
+  "id": "26",
+  "mensaje": "Disculpen, ¿gestion de personas y comportamiento organizacional todavía se puede sumar con los cupos que quedan en la modificación?"
+ },
+ {
+  "id": "27",
+  "mensaje": "Pregunta: ¿DCP se puede inscribir el semestre siguiente o hay que pedir algo especial?"
+ },
+ {
+  "id": "28",
+  "mensaje": "Voy en Estadística ahora, ¿me dejan inscribir Micro en el semestre de agosto-diciembre todavía?"
+ },
+ {
+  "id": "29",
+  "mensaje": "chicos, modela ya cerró o todavía alcanzo a meterlo antes del cierre de modificaciones?"
+ },
+ {
+  "id": "30",
+  "mensaje": "Hola profe, estoy tomando simulacion este semestre y quería ver si planificacion y control de produccion lo puedo inscribir el que viene."
+ },
+ {
+  "id": "31",
+  "mensaje": "Buenas, ¿es posible inscribir termodinámica en el 2026-2, aunque ya vamos en noviembre?"
+ },
+ {
+  "id": "32",
+  "mensaje": "Me quiero inscribir en mecanica, ¿llego todavía o el sistema ya no deja agregar ramos?"
+ },
+ {
+  "id": "33",
+  "mensaje": "Reprobé multivariado y ahora quiero meter Calidad en este mismo semestre, ¿se puede?"
+ },
+ {
+  "id": "34",
+  "mensaje": "Se puede inscribir Meca para marzo del 2027? pregunto pa ir armando el horario"
+ },
+ {
+  "id": "35",
+  "mensaje": "¿Alguien sabe si a esta altura todavía dejan agregar Transfe? Me quedó espacio en el horario."
+ },
+ {
+  "id": "36",
+  "mensaje": "Estimado, curso evaluacion de proyectos actualmente y quisiera inscribir direccion y control de proyectos ahora también, ¿es posible?"
+ },
+ {
+  "id": "37",
+  "mensaje": "Hola, estoy en mecanica de fluidos y quisiera inscribir transferencia de calor en este segundo semestre del 2026."
+ },
+ {
+  "id": "38",
+  "mensaje": "Tengo calculo II en curso. ¿Se puede todavía sumar estadistica a la toma que ya hice?"
+ },
+ {
+  "id": "39",
+  "mensaje": "ayudante una duda, la práctica la puedo inscribir ya mismo o tengo que esperar?"
+ },
+ {
+  "id": "40",
+  "mensaje": "¿Termo se puede inscribir todavía este año, o sea en lo que queda del segundo semestre?"
+ },
+ {
+  "id": "41",
+  "mensaje": "Estoy cursando Inge Económica, entonces Evalu la quiero dejar armada para cuando abra la próxima inscripción, ¿se puede?"
+ },
+ {
+  "id": "42",
+  "mensaje": "logistica se puede tomar en el semestre que sigue?"
+ },
+ {
+  "id": "43",
+  "mensaje": "Buen día, quisiera inscribir modelacion de sistemas en 2027, en el primer semestre. ¿Me pueden orientar?"
+ },
+ {
+  "id": "44",
+  "mensaje": "¿Taller de emprendimiento se abre en la próxima oferta de ramos? lo quiero tomar apenas se pueda inscribir de nuevo"
+ },
+ {
+  "id": "45",
+  "mensaje": "reprobe simu, igual puedo meter PCP al tiro este semestre?"
+ },
+ {
+  "id": "46",
+  "mensaje": "Hola, ¿todavía se puede inscribir PCP en el segundo semestre de este año?"
+ },
+ {
+  "id": "47",
+  "mensaje": "Voy en Admi y quería saber si me alcanza el plazo de modificación para agregar Personas."
+ },
+ {
+  "id": "48",
+  "mensaje": "Estoy cursando administracion ahora, y quería consultar si gestion estrategica y control de gestion también la puedo inscribir en este semestre mismo."
+ },
+ {
+  "id": "49",
+  "mensaje": "Buenas tardes, ¿es posible inscribir gestion de personas y comportamiento organizacional en el segundo semestre 2026?"
+ },
+ {
+  "id": "50",
+  "mensaje": "Como estoy con estadistica ahora, ¿se puede agregar inferencia estadistica y muestreo a lo que ya tengo inscrito o ya no se aceptan cambios?"
+ },
+ {
+  "id": "51",
+  "mensaje": "toy en algebra 2, se puede inscribir cal3 ahora o ya fue?"
+ },
+ {
+  "id": "52",
+  "mensaje": "Reprobé Cálculo 2, ¿puedo igual inscribir Estadis en el 2027-1?"
+ },
+ {
+  "id": "53",
+  "mensaje": "Estoy terminando Simulación, ¿Logis lo puedo dejar inscrito para cuando abran la inscripción del año que viene?"
+ },
+ {
+  "id": "54",
+  "mensaje": "hola, reprobe fisica 2, igual podria tomar mecanica el proximo semestre?"
+ },
+ {
+  "id": "55",
+  "mensaje": "Estimada coordinación: actualmente curso evaluacion de proyectos y deseo inscribir direccion y control de proyectos en el 2027-1. ¿Es factible?"
+ },
+ {
+  "id": "56",
+  "mensaje": "estoy tomando optimizacion 1 y quería ver si diseño de sistemas de produccion lo alcanzo a agregar antes de que cierre la modificación de ramos"
+ },
+ {
+  "id": "57",
+  "mensaje": "Ando en meca ahora, pero quiero meter Fluidos de una, en este mismo semestre. ¿Se puede?"
+ },
+ {
+  "id": "58",
+  "mensaje": "Holi, ¿modela se puede inscribir para este 2026-2 o ya es tarde?"
+ },
+ {
+  "id": "59",
+  "mensaje": "¿Todavía me dejan agregar MecFlu o ya cerró el período de cambios?"
+ },
+ {
+  "id": "60",
+  "mensaje": "hola, una consulta: se puede tomar innovacion el semestre siguiente o hay que tener algun requisito antes?"
+ },
+ {
+  "id": "61",
+  "mensaje": "Estimada jefatura: quisiera saber si aún puedo inscribir logistica para el 2026-2. Quedé con créditos disponibles."
+ },
+ {
+  "id": "62",
+  "mensaje": "oigan alguien sabe si la jefatura sigue aceptando que uno agregue marketing a la carga que ya tiene? o ya cerraron eso"
+ },
+ {
+  "id": "63",
+  "mensaje": "profe, reprobé programación y no sé si eso me bloquea opti 1 pal próximo semestre, ¿me deja tomarlo igual?"
+ },
+ {
+  "id": "64",
+  "mensaje": "Buenas, estoy en administración ahora y quería saber si con eso me alcanza para inscribir control de gestión en marzo del 2027."
+ },
+ {
+  "id": "65",
+  "mensaje": "ayudante pregunta rapida, alcanzo a entrar a procesos aunque las clases ya van por la mitad? o el profe no acepta gente tarde"
+ },
+ {
+  "id": "66",
+  "mensaje": "Hola! Estoy cursando contabilidad general y costos este semestre. ¿Me dejarían tomar finanzas apenas pase al próximo?"
+ },
+ {
+  "id": "67",
+  "mensaje": "Estimada jefatura: actualmente curso Evaluación de Proyectos y quisiera inscribir Taller de Emprendimiento durante el primer periodo académico de 2027. ¿Es compatible?"
+ },
+ {
+  "id": "68",
+  "mensaje": "Consulta para el foro: ¿maquinas electricas se dicta solo una vez al año? Quiero dejarla en mi carga para cuando vuelva de vacaciones de verano."
+ },
+ {
+  "id": "69",
+  "mensaje": "Estoy con opti 1 ahora, ¿igual puedo meterme a simu en este mismo semestre o choca con algún requisito?"
+ },
+ {
+  "id": "70",
+  "mensaje": "Hola, ando con álgebra 2 en este momento. Si la apruebo, ¿puedo tomar calc 3 cuando arranque 2027?"
+ },
+ {
+  "id": "71",
+  "mensaje": "Hola, ¿GECG se abre de nuevo después del verano o solo sale una vez al año? Quiero inscribirla apenas se pueda."
+ },
+ {
+  "id": "72",
+  "mensaje": "me eché calculo 2 y quería ver si puedo inscribir estadistica ahora ya, todavía se puede?"
+ },
+ {
+  "id": "73",
+  "mensaje": "Buenas tardes, ¿puedo inscribir contabilidad general y de costos todavía en el semestre agosto-diciembre de 2026?"
+ },
+ {
+  "id": "74",
+  "mensaje": "Ayudante, tengo cálculo 3 en curso; si lo paso, ¿me conviene planificar optimizacion 1 para cuando me toque inscribir de nuevo?"
+ },
+ {
+  "id": "75",
+  "mensaje": "oye estoy con administración, puedo sumar conta de inmediato o hay que esperar?"
+ },
+ {
+  "id": "76",
+  "mensaje": "Profe, mientras termino administración este semestre, quería consultar si mkt se puede tomar en el 2027-1."
+ },
+ {
+  "id": "77",
+  "mensaje": "¿queda algún cupo en multivariado? me gustaría entrar a las clases que quedan antes de los exámenes"
+ },
+ {
+  "id": "78",
+  "mensaje": "Hola, con optimizacion 1 en curso, se puede tomar diseño de sistemas de produccion el semestre entrante?"
+ },
+ {
+  "id": "79",
+  "mensaje": "Buenas, ¿simulacion se dicta entre marzo y julio de 2027? Me gustaría inscribirla."
+ },
+ {
+  "id": "80",
+  "mensaje": "Quiero dejar marketing listo en mi malla para cuando abran la inscripción del año nuevo, ¿se puede?"
+ },
+ {
+  "id": "81",
+  "mensaje": "ando cursando estadística, ¿inferencia la puedo tomar justo después, el semestre que sigue?"
+ },
+ {
+  "id": "82",
+  "mensaje": "Estimado, curso Optimización I en 2026-2. ¿Es posible inscribir DSP para el semestre 2027-1?"
+ },
+ {
+  "id": "83",
+  "mensaje": "chiquillos, ¿alguien ha logrado meterse a taller de empre con las clases ya andando? quiero ver si me aceptan aunque llegue tarde"
+ },
+ {
+  "id": "84",
+  "mensaje": "hola, se puede tomar optimizacion 2 el semestre después de este o tengo que esperar un año?"
+ },
+ {
+  "id": "85",
+  "mensaje": "¿Marketing tiene cupos para el inicio de clases de marzo 2027?"
+ },
+ {
+  "id": "86",
+  "mensaje": "Ahora estoy en simulacion, y quería saber si para la siguiente ronda de inscripción puedo meter planificacion y control de produccion."
+ },
+ {
+  "id": "87",
+  "mensaje": "quiero tomar comportamiento org pa'l semestre próximo, se puede o hay que tener algo aprobado?"
+ },
+ {
+  "id": "88",
+  "mensaje": "Hola, ¿me dejan inscribir la práctica todavía en este segundo semestre? Ya tengo empresa."
+ },
+ {
+  "id": "89",
+  "mensaje": "¿calc 3 lo dictan en la primera inscripción del año que viene? quiero dejarlo como prioridad"
+ },
+ {
+  "id": "90",
+  "mensaje": "Hola, junto con administración que llevo ahora, ¿puedo agregar gestion de personas y comportamiento organizacional de una vez, este semestre?"
+ },
+ {
+  "id": "91",
+  "mensaje": "Estimada coordinación: estoy cursando Optimización 1 y quisiera saber si puedo inscribir Simulacion en el segundo semestre de 2026, que está en curso."
+ },
+ {
+  "id": "92",
+  "mensaje": "Si este año ya no alcanzo, ¿logistica me la dejan para cuando abra la próxima carga académica?"
+ },
+ {
+  "id": "93",
+  "mensaje": "oye, costos lo puedo tomar después, el semestre que se viene, o tiene requisito?"
+ },
+ {
+  "id": "94",
+  "mensaje": "Hola, como tengo administración este semestre, ¿puedo inscribir GPCO también, en este 2026-2?"
+ },
+ {
+  "id": "95",
+  "mensaje": "Estoy llevando transfe de calor; ¿puedo sumarle procesos antes de que cierre el plazo de retiro y agregue?"
+ },
+ {
+  "id": "96",
+  "mensaje": "ya estoy en administracion, quiero meter gestion de personas y comportamiento organizacional ya mismo, sin esperar, se puede?"
+ },
+ {
+  "id": "97",
+  "mensaje": "Buenas noches, curso estadística en este periodo y quisiera inscribir inferencia estadistica y muestreo para el año 2027, primer semestre."
+ },
+ {
+  "id": "98",
+  "mensaje": "Una vez que cierre las notas de algebra II que estoy cursando, ¿puedo pedir calculo 3 en la toma que viene después del receso de verano?"
+ },
+ {
+  "id": "99",
+  "mensaje": "me falta terminar evalu de proyectos, que estoy haciendo ahora. DCP la dejo para el semestre próximo, ¿se puede?"
+ },
+ {
+  "id": "100",
+  "mensaje": "Hola, estoy con estadística y me gustaría agregar micro en lo que resta de 2026."
+ },
+ {
+  "id": "101",
+  "mensaje": "¿Se puede inscribir la práctica aunque ya hayan pasado varias semanas de clases? la empresa me la aprobó recién"
+ },
+ {
+  "id": "102",
+  "mensaje": "termodinamica la puedo tomar el otro semestre? este ya no me da el horario"
+ },
+ {
+  "id": "103",
+  "mensaje": "Reprobé mecánica y no sé si así puedo inscribir mecanica de fluidos en el semestre que empieza en marzo de 2027."
+ },
+ {
+  "id": "104",
+  "mensaje": "llevo administracion y quería saber si puedo sumar contabilidad general y de costos a los ramos que ya estoy llevando"
+ },
+ {
+  "id": "105",
+  "mensaje": "estoy en multivariado y quiero meter simu ahora, en el semestre en curso, se puede?"
+ },
+ {
+  "id": "106",
+  "mensaje": "Una consulta: ¿opti 1 se puede inscribir todavía en el 2do semestre de este 2026?"
+ },
+ {
+  "id": "107",
+  "mensaje": "Reprobé física 2... ¿máquinas la puedo planear para cuando vuelva a abrirse la inscripción o me lo impiden los requisitos?"
+ },
+ {
+  "id": "108",
+  "mensaje": "hola! todavía puedo tomar la complementaria 2 hoy mismo o ya fue?"
+ },
+ {
+  "id": "109",
+  "mensaje": "Estimados, ¿Optimizacion II estará disponible para inscripción en el 1er semestre del 2027?"
+ },
+ {
+  "id": "110",
+  "mensaje": "¿finanzas aún acepta alumnos nuevos a esta altura? me gustaría entrar y ponerme al día con lo que ya pasaron"
+ },
+ {
+  "id": "111",
+  "mensaje": "calc 3 lo quiero tomar el próximo semestre, alguien sabe si hay cupos?"
+ },
+ {
+  "id": "112",
+  "mensaje": "Estoy cursando calc 3 y quería saber si puedo inscribir numérico en paralelo, dentro del 2026-2."
+ },
+ {
+  "id": "113",
+  "mensaje": "Reprobé micro, ¿igual me dejarían agregar macro a lo que ya estoy cursando o tiene requisito?"
+ },
+ {
+  "id": "114",
+  "mensaje": "si apruebo calculo 2 que llevo ahora, ¿puedo tomar ecuaciones diferenciales en seguida, en el semestre que le sigue?"
+ },
+ {
+  "id": "115",
+  "mensaje": "Hola, quiero saber si ingenieria economica tiene secciones en el periodo marzo-julio 2027."
+ },
+ {
+  "id": "116",
+  "mensaje": "¿Hay forma de que me incorporen a direccion y control de proyectos aunque el ramo ya esté en marcha?"
+ },
+ {
+  "id": "117",
+  "mensaje": "puedo inscribir micro de una, en este momento, o ya se cerró?"
+ },
+ {
+  "id": "118",
+  "mensaje": "Hola, estoy en administración este semestre. ¿Puedo dejar conta inscrita para el año académico 2027 desde marzo?"
+ },
+ {
+  "id": "119",
+  "mensaje": "¿la compl 2 todavía me la aceptan aunque ya se pasó la primera evaluación?"
+ },
+ {
+  "id": "120",
+  "mensaje": "Hola, estoy cursando administracion este semestre y quería saber si puedo inscribir gestion de personas y comportamiento organizacional el próximo semestre."
+ },
+ {
+  "id": "121",
+  "mensaje": "Estimada jefatura: reprobé Cálculo II y quisiera saber si aun así puedo inscribir Ecuaciones Diferenciales en este 2026-2. Quedo atenta."
+ },
+ {
+  "id": "122",
+  "mensaje": "Ya se cerraron los cambios de este semestre, ¿logistica la podría tomar en la siguiente inscripción de ramos?"
+ },
+ {
+  "id": "123",
+  "mensaje": "oye ayudante, estoy con algebra 2 ahora, alcanzo a tomar calcu 3 pal semestre que sigue?"
+ },
+ {
+  "id": "124",
+  "mensaje": "¿Queda algún cupo en conta para el semestre agosto-diciembre?"
+ },
+ {
+  "id": "125",
+  "mensaje": "Voy en transferencia de calor y quiero saber si, una vez que la apruebe, puedo inscribir procesos de inmediato o hay otro requisito."
+ },
+ {
+  "id": "126",
+  "mensaje": "Buenas, se puede tomar gestion de personas el semestre siguiente si administración la estoy pasando ahora?"
+ },
+ {
+  "id": "127",
+  "mensaje": "reprobe calculo 3 pero igual quiero meter optimizacion 1 en el 2026-2, se puede o es requisito??"
+ },
+ {
+  "id": "128",
+  "mensaje": "¿Optimización II todavía se puede agregar o ya pasó el plazo de modificación?"
+ },
+ {
+  "id": "129",
+  "mensaje": "profe, puedo inscribir macro a estas alturas del semestre o ya es muy tarde"
+ },
+ {
+  "id": "130",
+  "mensaje": "Estoy en inferencia este semestre. ¿Multivariado lo puedo inscribir para marzo de 2027 o hay que esperar más?"
+ },
+ {
+  "id": "131",
+  "mensaje": "ando con fisica 2, si la saco bien me dejan inscribir termo cuando me toque elegir de nuevo?"
+ },
+ {
+  "id": "132",
+  "mensaje": "Hola! Marketing pide Administración y la estoy cursando ahora, ¿la puedo inscribir para después de este semestre?"
+ },
+ {
+  "id": "133",
+  "mensaje": "Buenas tardes, actualmente curso Simulación y me gustaría inscribir Logística en el 2027-1. ¿Hay algún requisito que me falte?"
+ },
+ {
+  "id": "134",
+  "mensaje": "Estoy en administracion y me sobra un horario, alcanzo a meter contabilidad general y de costos con lo que queda de plazo o ya no?"
+ },
+ {
+  "id": "135",
+  "mensaje": "voy en calculo II, puedo tomar estadis el otro semestre?"
+ },
+ {
+  "id": "136",
+  "mensaje": "Quiero tomar meca en otoño de 2027, ¿se dicta ese semestre o solo en primavera?"
+ },
+ {
+  "id": "137",
+  "mensaje": "Me quedan pocos créditos para egresar y quiero dejar estratégica inscrita para cuando abran las inscripciones de nuevo, ¿se puede?"
+ },
+ {
+  "id": "138",
+  "mensaje": "Hola, curso administración este semestre y quería agregar marketing también ahora, ¿se puede llevar en paralelo?"
+ },
+ {
+  "id": "139",
+  "mensaje": "Señores, escribo para consultar si direccion y control de proyectos se abre en el periodo 2027-1 para poder inscribirla."
+ },
+ {
+  "id": "140",
+  "mensaje": "No alcancé a inscribir gestion de la calidad en la toma de ramos, ¿hay alguna forma de sumarla todavía aunque ya vamos en las últimas semanas de clases?"
+ },
+ {
+  "id": "141",
+  "mensaje": "¿numérico lo puedo inscribir apenas termine este semestre? voy en calculo 3 todavía"
+ },
+ {
+  "id": "142",
+  "mensaje": "Cálculo 2 lo estoy cursando; ¿puedo sumar estadis en este segundo período de 2026?"
+ },
+ {
+  "id": "143",
+  "mensaje": "¿Me pueden agregar a opti 2 aunque ya hayan pasado las primeras pruebas?"
+ },
+ {
+  "id": "144",
+  "mensaje": "Reprobé mecánica, ¿igual puedo inscribir mecanica de fluidos en el semestre actual?"
+ },
+ {
+  "id": "145",
+  "mensaje": "Hola, ¿qué opciones hay para la electiva 4 en 2027-1? Quiero inscribirla ese semestre."
+ },
+ {
+  "id": "146",
+  "mensaje": "Estimado, estoy tomando Administración y quisiera saber si aún es posible incorporar Gestión Estratégica y Control de Gestión a mi carga vigente."
+ },
+ {
+  "id": "147",
+  "mensaje": "termo la puedo tomar el semestre entrante?"
+ },
+ {
+  "id": "148",
+  "mensaje": "¿Simu tiene cupos para el 2-2026? Me faltan créditos y quiero inscribirla."
+ },
+ {
+  "id": "149",
+  "mensaje": "¿me pueden abrir estrategica junto con Administración, que ya estoy cursando?"
+ },
+ {
+  "id": "150",
+  "mensaje": "Voy en contabilidad este semestre. ¿Ingenieria economica me la dejan tomar a la vuelta de vacaciones?"
+ },
+ {
+  "id": "151",
+  "mensaje": "Curso Administración y quiero añadir marketing en lo que resta de 2026, ¿todavía es posible?"
+ },
+ {
+  "id": "152",
+  "mensaje": "Cuando tenga aprobada Administración (la estoy cursando), ¿podría pedir gestión de personas y comportamiento organizacional?"
+ },
+ {
+  "id": "153",
+  "mensaje": "hay chance de entrar al taller de empren durante el semestre en curso?"
+ },
+ {
+  "id": "154",
+  "mensaje": "¿Puedo meter máquinas en el segundo semestre de 2026? Me falta para completar los créditos."
+ },
+ {
+  "id": "155",
+  "mensaje": "me quedé sin elec 6 en la inscripción, se puede agregar tarde o ya fue?"
+ },
+ {
+  "id": "156",
+  "mensaje": "Quiero inscribir estadistica hoy mismo si se puede, ¿a quién le escribo?"
+ },
+ {
+  "id": "157",
+  "mensaje": "oye una pregunta ecuaciones diferenciales se puede agregar en noviembre o el plazo ya cerro antes"
+ },
+ {
+  "id": "158",
+  "mensaje": "Este semestre ya no me cabe nada más; mecánica de fluidos la quiero dejar para cuando arme el horario nuevo. ¿Tiene requisitos?"
+ },
+ {
+  "id": "159",
+  "mensaje": "Jefatura, ¿puedo inscribir opti 1 de inmediato o tengo que esperar respuesta del departamento?"
+ },
+ {
+  "id": "160",
+  "mensaje": "Estoy cursando Estadística y quiero sumar micro este 2do semestre del 2026, ¿choca con algo?"
+ },
+ {
+  "id": "161",
+  "mensaje": "se me pasó la fecha, todavía me pueden inscribir procesos con las clases ya andando?"
+ },
+ {
+  "id": "162",
+  "mensaje": "optimizacion ii se puede inscribir para el próximo período?"
+ },
+ {
+  "id": "163",
+  "mensaje": "Buenos días, ¿aún puedo inscribir Termodinámica en el período académico 2026-2?"
+ },
+ {
+  "id": "164",
+  "mensaje": "Diseño de sistemas de producción pide optimización I, que estoy cursando. ¿Me conviene dejarlo para cuando ya tenga ese ramo aprobado?"
+ },
+ {
+  "id": "165",
+  "mensaje": "voy en inferencia y muestreo, el multi me lo dejan tomar en el semestre posterior a este?"
+ },
+ {
+  "id": "166",
+  "mensaje": "Estoy cursando Administración; ¿puedo tomar estratégica cuando arranque el año académico 2027?"
+ },
+ {
+  "id": "167",
+  "mensaje": "a alguien le aceptaron agregar fluidos fuera de plazo? me falta carga y no quiero quedar con pocos créditos"
+ },
+ {
+  "id": "168",
+  "mensaje": "Reprobé administración. ¿Puedo igual tomar contabilidad general y de costos este semestre mismo?"
+ },
+ {
+  "id": "169",
+  "mensaje": "Estimada coordinación: curso Administración actualmente y deseo saber si es posible inscribir Marketing durante el segundo semestre académico de este año."
+ },
+ {
+  "id": "170",
+  "mensaje": "¿taller de emprendimiento lo puedo pedir apenas cierre las notas de evaluacion de proyectos? la estoy cursando"
+ },
+ {
+  "id": "171",
+  "mensaje": "¿puedo tomar termo ahorita junto con fisica 2 que estoy cursando?"
+ },
+ {
+  "id": "172",
+  "mensaje": "Quisiera cambiarme a opti uno en el semestre que termina en diciembre, ¿todavía se acepta?"
+ },
+ {
+  "id": "173",
+  "mensaje": "EDO me quedó fuera esta vez, la puedo inscribir en la toma de ramos nueva?"
+ },
+ {
+  "id": "174",
+  "mensaje": "Hola, estoy cursando administracion. Gestion estrategica y control de gestion, ¿la puedo inscribir dentro de un semestre?"
+ },
+ {
+  "id": "175",
+  "mensaje": "Ando con estadística este semestre; microeconomia la quiero agregar en el 2026-II, ¿se puede?"
+ },
+ {
+  "id": "176",
+  "mensaje": "Estoy cursando administración. ¿Me dejan inscribir gestion de personas y comportamiento organizacional de forma simultánea, sin esperar a terminarla?"
+ },
+ {
+  "id": "177",
+  "mensaje": "mkt pa la próxima vuelta? estoy con admin, no sé si me dejan"
+ },
+ {
+  "id": "178",
+  "mensaje": "Holi, estoy cursando Administración y quiero tomar mkt en el semestre de marzo, ¿hay que tenerla aprobada?"
+ },
+ {
+  "id": "179",
+  "mensaje": "¿comple 1 se puede sumar a la carga que ya tengo inscrita?"
+ },
+ {
+  "id": "180",
+  "mensaje": "hola, estoy cursando inferencia estadistica ahora y queria saber si puedo tomar analisis multivariado una vez que termine este semestre, o sea en el que sigue"
+ },
+ {
+  "id": "181",
+  "mensaje": "Estimada jefatura: quisiera saber si aún es posible inscribir marketing en el semestre agosto-diciembre. Quedo atenta."
+ },
+ {
+  "id": "182",
+  "mensaje": "oye una consulta, voy en algebra 2 y me sobra un horario, alcanzo a meter ecuaciones diferenciales antes de que cierren los cambios o ya fue?"
+ },
+ {
+  "id": "183",
+  "mensaje": "Profe, ¿se puede inscribir GPCO a estas alturas del semestre? Lo necesito para no atrasarme."
+ },
+ {
+  "id": "184",
+  "mensaje": "gente alguien sabe si todavia se puede tomar mkt en el segundo semestre del 2026 o ya cerraron"
+ },
+ {
+  "id": "185",
+  "mensaje": "Ayudante, se me arregló un tope de horario y quedé con espacio. ¿Me dejan entrar a opti 2 con el curso ya andando?"
+ },
+ {
+  "id": "186",
+  "mensaje": "Buenas, quiero dejar simulacion para el próximo semestre, ¿hay algún problema con inscribirla ahí?"
+ },
+ {
+  "id": "187",
+  "mensaje": "Hola, ¿todavía puedo inscribir calculo 3 en el 2026-2? Me quedó libre el bloque del martes."
+ },
+ {
+  "id": "188",
+  "mensaje": "Reprobé evaluacion de proyectos, ¿igual puedo pedir direccion de proyectos en la inscripción que viene después de las vacaciones?"
+ },
+ {
+  "id": "189",
+  "mensaje": "wena, se puede tomar GECG el otro semestre? o tiene requisito que no tengo"
+ },
+ {
+  "id": "190",
+  "mensaje": "Estoy cursando evaluación de proyectos ahora; ¿puedo inscribir el taller de empre para marzo de 2027?"
+ },
+ {
+  "id": "191",
+  "mensaje": "Hola! Voy con conta este semestre y me gustaría sumar finan ya, mientras sigue abierto el ajuste de inscripción, ¿se puede?"
+ },
+ {
+  "id": "192",
+  "mensaje": "Buenas tardes, curso optimizacion 1 actualmente y quería preguntar si puedo agregar diseño de sistemas de produccion de inmediato, en el semestre que estamos."
+ },
+ {
+  "id": "193",
+  "mensaje": "Estimados, actualmente curso ecuaciones diferenciales. ¿Podría inscribir maquinas electricas en el 1er semestre 2027?"
+ },
+ {
+  "id": "194",
+  "mensaje": "q tal, me falta la electiva 4 y vi que quedan cupos en una, la puedo agregar aunque ya vamos en las últimas semanas de clases?"
+ },
+ {
+  "id": "195",
+  "mensaje": "Ayudante consulta: si apruebo inge eco que estoy dando ahora, ¿me dejan tomar evalu luego de este semestre?"
+ },
+ {
+  "id": "196",
+  "mensaje": "Hola, voy en álgebra 1 y quiero dejar estadi en el primer periodo académico de 2027, ¿se puede si apruebo?"
+ },
+ {
+  "id": "197",
+  "mensaje": "¿se puede entrar a taller empre con las clases ya empezadas o hay que esperar? tengo la carga baja"
+ },
+ {
+  "id": "198",
+  "mensaje": "buenas, estoy en estadistica y quiero saber si puedo inscribir inferencia estadistica y muestreo pa la vuelta, el próximo periodo"
+ },
+ {
+  "id": "199",
+  "mensaje": "Hola jefatura, ahora estoy con contabilidad general y de costos y para 2027 en el semestre de marzo quisiera tomar ingenieria economica. ¿Es posible?"
+ },
+ {
+  "id": "200",
+  "mensaje": "Consulta rápida: ¿microeconomia acepta inscripciones tardías? Me gustaría entrar aunque ya hayan pasado las primeras pruebas."
+ },
+ {
+  "id": "201",
+  "mensaje": "cabros, si paso la que estoy dando ahora, estadística, puedo tomar infe el semestre de después?"
+ },
+ {
+  "id": "202",
+  "mensaje": "Hola, quiero inscribir DSP al regreso de vacaciones, en marzo del 27. ¿Tiene cupos?"
+ },
+ {
+  "id": "203",
+  "mensaje": "Estoy en administración y me sobra crédito; ¿puedo sumar el ramo de personas en la ventana de cambios que abrieron esta semana?"
+ },
+ {
+  "id": "204",
+  "mensaje": "profe estoy con estadística ahora, se puede agregar micro economia a la carga actual o es mucho?"
+ },
+ {
+  "id": "205",
+  "mensaje": "Buenas, junto con evaluación de proyectos que llevo, ¿podría inscribir taller de emprendimiento en el semestre que partió en agosto?"
+ },
+ {
+  "id": "206",
+  "mensaje": "Ando cursando fisica 2. ¿Puedo pedir termodinamica una vez que la apruebe?"
+ },
+ {
+  "id": "207",
+  "mensaje": "¿Se puede tomar multi en paralelo con infe, que la estoy cursando ahora? La quiero meter ya mismo."
+ },
+ {
+  "id": "208",
+  "mensaje": "Necesito inscribir cal 3 en el semestre 1 del 2027, ¿cuándo abren?"
+ },
+ {
+  "id": "209",
+  "mensaje": "Llevo administración y quería saber si todavía me reciben en conta de costos aunque ya se haya tomado la primera solemne."
+ },
+ {
+  "id": "210",
+  "mensaje": "Estoy en simulacion este semestre, ¿logistica la puedo tomar en el que viene después?"
+ },
+ {
+  "id": "211",
+  "mensaje": "¿Hay forma de inscribir mecanica en lo que resta de 2026? Me la recomendaron para adelantar."
+ },
+ {
+  "id": "212",
+  "mensaje": "Tengo simulación en curso. Para cuando arme el horario del año nuevo, ¿puedo incluir planificacion y control de produccion?"
+ },
+ {
+  "id": "213",
+  "mensaje": "oiga ayudante estoy en fisica 2 y quiero meter máquinas de una, se puede pedir ahorita?"
+ },
+ {
+  "id": "214",
+  "mensaje": "Hola, estoy en evaluación de proyectos y quiero tomar DCP cuando parta el año académico 2027."
+ },
+ {
+  "id": "215",
+  "mensaje": "¿puedo dejar logi para cuando ya tenga simu aprobada? La estoy dando ahora."
+ },
+ {
+  "id": "216",
+  "mensaje": "Profe, curso física II en este momento; ¿termodinámica la puedo agregar hoy mismo junto con ella?"
+ },
+ {
+  "id": "217",
+  "mensaje": "Quería saber si es posible inscribir termodinamica en el semestre que cierra en diciembre."
+ },
+ {
+  "id": "218",
+  "mensaje": "Voy en algebra 1 y me dijeron que quedan cupos en estadistica; ¿me puedo cambiar aunque las clases ya partieron hace rato?"
+ },
+ {
+  "id": "219",
+  "mensaje": "reprobé opti uno, igual puedo tomar opti dos ahora ya o me la bloquean?"
+ },
+ {
+  "id": "220",
+  "mensaje": "Hola, ¿se puede inscribir Personas y CO en el semestre en curso de 2026? Tengo un hueco el jueves."
+ },
+ {
+  "id": "221",
+  "mensaje": "Estoy con inferencia y tengo espacio en el horario; ¿todavía me aceptan en multivariado si me sumo antes del próximo certamen?"
+ },
+ {
+  "id": "222",
+  "mensaje": "Buenas, ademas de estadistica que estoy llevando, me gustaría tomar microeconomía en el semestre actual, ¿hay cupo?"
+ },
+ {
+  "id": "223",
+  "mensaje": "Estimada coordinación: curso mecanica de fluidos y me interesa inscribir transferencia de calor en el 2027/1. ¿Es factible?"
+ },
+ {
+  "id": "224",
+  "mensaje": "¿Hay chance de entrar a contabilidad general y costos todavía, con el semestre ya corriendo?"
+ },
+ {
+  "id": "225",
+  "mensaje": "alguien sabe si procesos se puede tomar el semestre entrante? no lo quiero dejar botado"
+ },
+ {
+  "id": "226",
+  "mensaje": "Voy en contabilidad este semestre, ¿puedo tomar ing. eco en el semestre de otoño de 2027?"
+ },
+ {
+  "id": "227",
+  "mensaje": "Ando en evalu y queda un cupo en DyCP, ¿me lo pueden asignar ya que todavía están abiertas las solicitudes de agregar ramos?"
+ },
+ {
+  "id": "228",
+  "mensaje": "Hola, quiero saber si macroeconomia se puede inscribir en este período que estamos cursando."
+ },
+ {
+  "id": "229",
+  "mensaje": "¿Es posible tomar transferencia de calor en el 2-2026? Me interesa adelantar."
+ },
+ {
+  "id": "230",
+  "mensaje": "Me quedó un bloque libre tras botar un ramo; ¿puedo llenarlo con calculo III o ya es tarde para eso?"
+ },
+ {
+  "id": "231",
+  "mensaje": "¿Opti II se puede tomar desde ya o hay que esperar?"
+ },
+ {
+  "id": "232",
+  "mensaje": "Consulta: ¿se puede inscribir LOG antes de que termine el año académico 2026?"
+ },
+ {
+  "id": "233",
+  "mensaje": "¿dejo FIN agendada para cuando reabran la inscripción después del verano?"
+ },
+ {
+  "id": "234",
+  "mensaje": "Me gustaría inscribir termodinámica en el semestre venidero, ¿hay que pedir algo especial?"
+ },
+ {
+  "id": "235",
+  "mensaje": "Hola, ¿puedo inscribir estadistica este sem 2 del 2026?"
+ },
+ {
+  "id": "236",
+  "mensaje": "Estoy cursando administracion, ¿se puede agregar marketing aunque falte poco para los exámenes?"
+ },
+ {
+  "id": "237",
+  "mensaje": "¿puedo meter micro este mismo semestre? me falta carga"
+ },
+ {
+  "id": "238",
+  "mensaje": "Junto con admin, que estoy dando, quiero inscribir conta para el periodo 2026-2."
+ },
+ {
+  "id": "239",
+  "mensaje": "Estoy en cálculo 3 y me ofrecieron un cupo en meca, ¿lo puedo tomar aunque llevemos más de la mitad de las clases?"
+ },
+ {
+  "id": "240",
+  "mensaje": "hola, alguien sabe si puedo meter contabilidad general y de costos ahora o ya se cerró todo? me quedó un hueco en el horario"
+ },
+ {
+  "id": "241",
+  "mensaje": "Estimada jefatura: este semestre estoy cursando Administración y quisiera saber si es posible inscribir marketing también en este 2026-2. Quedo atenta."
+ },
+ {
+  "id": "242",
+  "mensaje": "profe una consulta, ¿me dejan agregar innovacion a la carga que tengo inscrita o ya se pasó el plazo?"
+ },
+ {
+  "id": "243",
+  "mensaje": "oigan estoy con fisica 2 y quiero tomar maquinas tambien, se puede inscribir en este mismo semestre o hay que esperar?"
+ },
+ {
+  "id": "244",
+  "mensaje": "Hola! ¿Alguien sabe si el taller de empre se puede inscribir todavía para el 2026-2? Me interesa harto."
+ },
+ {
+  "id": "245",
+  "mensaje": "Ayudante, voy en ingeco ahora y quería saber si evaproy lo puedo tomar cuando abran la inscripción después de las vacaciones de verano, o si piden aprobarla primero."
+ },
+ {
+  "id": "246",
+  "mensaje": "quiero dejar planificacion y control de produccion para el semestre siguiente, se puede o hay algun requisito q me falte"
+ },
+ {
+  "id": "247",
+  "mensaje": "Buenas tardes, estoy cursando Física II y me gustaría inscribir mecanica en marzo del 2027. ¿Hay algún inconveniente?"
+ },
+ {
+  "id": "248",
+  "mensaje": "como voy en ecuaciones diferenciales todavía, pensaba dejar maquinas electricas para cuando termine este ramo y venga la nueva inscripción, se puede?"
+ },
+ {
+  "id": "249",
+  "mensaje": "simu se puede tomar el próximo semestre sin problema? o se llena muy rápido"
+ },
+ {
+  "id": "250",
+  "mensaje": "ya eh estoy en fisica dos este semestre y la idea es meter meca en el primer semestre del 2027 eh no sé si se puede"
+ },
+ {
+  "id": "251",
+  "mensaje": "Estoy en mecánica y quería sumar fluidos también, ¿todavía queda plazo de modificación para hacerlo?"
+ },
+ {
+  "id": "252",
+  "mensaje": "tengo administracion este semestre, puedo inscribir marketing ya mismo o choca con algo?"
+ },
+ {
+  "id": "253",
+  "mensaje": "Estimado jefe de carrera, ¿es posible inscribir Contabilidad General y de Costos en este segundo semestre de 2026? Agradecería su respuesta."
+ },
+ {
+  "id": "254",
+  "mensaje": "alguien sabe si alcanzo a meter planificacion y control de produccion antes de que se cierre el proceso de ajuste o ya me quedé fuera"
+ },
+ {
+  "id": "255",
+  "mensaje": "Consulta rápida: voy en admin y quiero tomar mkt al tiro, ¿se puede?"
+ },
+ {
+  "id": "256",
+  "mensaje": "Hola, como estoy cursando Evaluación de Proyectos, ¿podría inscribir el taller de empre en el periodo 2027-1?"
+ },
+ {
+  "id": "257",
+  "mensaje": "¿Sigue abierta la ventana de ajustes para sumar control de gestión a mi carga? Tengo créditos libres."
+ },
+ {
+  "id": "258",
+  "mensaje": "hola!! estoy con simulacion y me tinca meter logistica de inmediato, alguien sabe si se puede?"
+ },
+ {
+  "id": "259",
+  "mensaje": "Buenos días, curso Cálculo II y quisiera inscribir estadistica en lo que resta de 2026, ¿es posible?"
+ },
+ {
+  "id": "260",
+  "mensaje": "profe, ¿se puede inscribir procesos industriales aunque las clases ya van por la mitad, o ya no aceptan?"
+ },
+ {
+  "id": "261",
+  "mensaje": "Ya estoy cursando simu, ¿me dejan tomar logi durante el semestre que estamos o es muy tarde?"
+ },
+ {
+  "id": "262",
+  "mensaje": "wn sabes si puedo meter estadis este 2do semestre del 2026? voy con calculo 2"
+ },
+ {
+  "id": "263",
+  "mensaje": "Ayudante, aprovechando que estoy en Administración, ¿aún me reciben si agrego Mkt con la carga que ya tengo armada?"
+ },
+ {
+  "id": "264",
+  "mensaje": "mecanica la puedo inscribir en el que estamos o tengo que esperar al otro?"
+ },
+ {
+  "id": "265",
+  "mensaje": "Estimada coordinadora: reprobé Administración y quisiera saber si de todas formas puedo inscribir gestion estrategica y control de gestion cuando partan las clases en marzo de 2027."
+ },
+ {
+  "id": "266",
+  "mensaje": "Hola, estoy cursando ingeniería económica. ¿Queda algún cupo disponible en evaluacion de proyectos para sumarme antes del cierre de las modificaciones?"
+ },
+ {
+  "id": "267",
+  "mensaje": "voy en algebra 2, cal 3 lo puedo dejar pal otro semestre o tengo q aprobarla primero?"
+ },
+ {
+  "id": "268",
+  "mensaje": "Buenas, ¿se puede tomar MaqElec en el 2026-2 todavía? Estoy con ecuaciones."
+ },
+ {
+  "id": "269",
+  "mensaje": "oye, estoy en física II y quiero agregar máquinas, ¿alcanzo a hacerlo con la extensión del plazo que dieron?"
+ },
+ {
+  "id": "270",
+  "mensaje": "Hola a todos, voy en algebra 1 y quiero inscribir estadistica en el semestre actual, ¿alguien sabe si me dejan?"
+ },
+ {
+  "id": "271",
+  "mensaje": "Señores, curso Administración y quiero inscribir Gestión Estratégica y Control de Gestión también para este semestre agosto-diciembre. ¿Es factible?"
+ },
+ {
+  "id": "272",
+  "mensaje": "¿Evaluación de proyectos se puede agregar en la última semana de ajustes que queda abierta? Estoy cursando ing. económica."
+ },
+ {
+  "id": "273",
+  "mensaje": "Cuando termine admin quiero tomar GECG el semestre que sigue, ¿hay cupos normalmente?"
+ },
+ {
+  "id": "274",
+  "mensaje": "Estimados, ¿se puede inscribir calidad en el semestre que termina en diciembre o ya cerró?"
+ },
+ {
+  "id": "275",
+  "mensaje": "¿progra todavía se puede tomar o ya no reciben a nadie a mitad de clases?"
+ },
+ {
+  "id": "276",
+  "mensaje": "Estoy cursando administracion, ¿puedo inscribir contabilidad general y de costos desde hoy mismo?"
+ },
+ {
+  "id": "277",
+  "mensaje": "Hola, voy en estadística y quiero saber si microeconomia se puede inscribir en el año académico 2027, primer semestre."
+ },
+ {
+  "id": "278",
+  "mensaje": "Consulta: estoy en Administración y me piden gestion de personas y comportamiento organizacional; ¿hay forma de que me lo agreguen sin esperar otra inscripción?"
+ },
+ {
+  "id": "279",
+  "mensaje": "oye y progra la puedo inscribir para el semestre entrante? este no alcancé"
+ },
+ {
+  "id": "280",
+  "mensaje": "¿Alguien sabe si puedo tomar personas en el segundo semestre de este año?"
+ },
+ {
+  "id": "281",
+  "mensaje": "finan la quiero dejar inscrita para cuando nos toque inscribir de nuevo, eso se puede?"
+ },
+ {
+  "id": "282",
+  "mensaje": "logistica me la recomendaron pal siguiente semestre, la puedo inscribir ahí?"
+ },
+ {
+  "id": "283",
+  "mensaje": "Profesora, curso Estadística y quisiera tomar inferencia estadistica y muestreo este 2026, en el segundo período. ¿Es posible?"
+ },
+ {
+  "id": "284",
+  "mensaje": "Estoy con física 2 y quiero meter mecanica, ¿se puede inscribir con el semestre ya empezado?"
+ },
+ {
+  "id": "285",
+  "mensaje": "inge eco se puede tomar ahora mismo o ya fue? porfa respondan"
+ },
+ {
+  "id": "286",
+  "mensaje": "Hola, ¿puedo tomar estratégica en el semestre 2026-2 aunque ya esté cursando admin?"
+ },
+ {
+  "id": "287",
+  "mensaje": "voy en cálculo II, la idea es inscribir estadis cuando haya aprobado cálculo y salga la nueva oferta de ramos"
+ },
+ {
+  "id": "288",
+  "mensaje": "reprobé optimizacion 1, igual puedo tomar diseño de sistemas de produccion en el que va corriendo o me lo bloquean?"
+ },
+ {
+  "id": "289",
+  "mensaje": "Buenas noches, estoy cursando calculo II y queria saber si estadistica se puede inscribir en el periodo de agosto a diciembre de 2026"
+ },
+ {
+  "id": "290",
+  "mensaje": "finanzas la quiero tomar una vez que termine este semestre, no antes, ¿hay requisitos?"
+ },
+ {
+  "id": "291",
+  "mensaje": "cuando apruebe admin, puedo tomar comportamiento org en el semestre próximo?"
+ },
+ {
+  "id": "292",
+  "mensaje": "Ayudante, estoy en cálculo 2 ahora; ¿EDO se puede inscribir para el semestre que arranca en marzo?"
+ },
+ {
+  "id": "293",
+  "mensaje": "ecuaciones la quiero tomar cuando volvamos de las vacaciones largas, alguien sabe si piden algo?"
+ },
+ {
+  "id": "294",
+  "mensaje": "Estoy cursando administración. ¿Puedo inscribir gestión de personas y comportamiento organizacional el próximo período?"
+ },
+ {
+  "id": "295",
+  "mensaje": "Hola, estoy en administracion este semestre y quiero inscribir contabilidad general y de costos en el 2027, en el primer periodo."
+ },
+ {
+  "id": "296",
+  "mensaje": "¿Se puede pedir simulacion como ramo extra aunque estemos casi en exámenes? Voy en optimización I."
+ },
+ {
+  "id": "297",
+  "mensaje": "¿PCP se puede inscribir ahorita o tengo que esperar?"
+ },
+ {
+  "id": "298",
+  "mensaje": "Hola, curso transferencia de calor y quiero sumar procesos dentro del 2026-2, ¿se puede?"
+ },
+ {
+  "id": "299",
+  "mensaje": "estoy en estadistica, inferencia la puedo inscribir una vez que la apruebe, en la siguiente ronda de inscripciones?"
+ },
+ {
+  "id": "300",
+  "mensaje": "Hola, ¿la electiva 6 la puedo inscribir pa después de este semestre? Ahora no me da el horario."
+ },
+ {
+  "id": "301",
+  "mensaje": "Buenas tardes, quería saber si todavía es posible inscribir macroeconomia en el segundo semestre de este año."
+ },
+ {
+  "id": "302",
+  "mensaje": "oye consulta ingenieria economica me la dejan agregar aunque las clases ya van por la mitad o ya cerró todo"
+ },
+ {
+  "id": "303",
+  "mensaje": "Estoy en optimización I ahora, ¿si la apruebo puedo tomar DSP el próximo semestre?"
+ },
+ {
+  "id": "304",
+  "mensaje": "Profe, ¿alcanzo a meter inno en el 2026-2 o ya pasó la fecha?"
+ },
+ {
+  "id": "305",
+  "mensaje": "Opti 2 no lo alcancé a tomar esta vez; ¿me lo guardan para cuando vuelva a inscribir ramos?"
+ },
+ {
+  "id": "306",
+  "mensaje": "Ayudante, estoy cursando inferencia estadistica y muestreo, ¿igual puedo sumar analisis multivariado ahora mismo, en paralelo?"
+ },
+ {
+  "id": "307",
+  "mensaje": "Estimada jefa de carrera: le escribo para consultar si es posible inscribir logistica durante el segundo semestre de 2026, que está en curso. Quedo atenta."
+ },
+ {
+  "id": "308",
+  "mensaje": "Como este semestre ya está por cerrar, ¿me conviene esperar a la siguiente inscripción para tomar la electiva 3?"
+ },
+ {
+  "id": "309",
+  "mensaje": "Reprobé contabilidad general y de costos, ¿igual me dejan meter finan en este mismo semestre?"
+ },
+ {
+  "id": "310",
+  "mensaje": "Hola! Ando en administración este semestre y quería ver si alcanzo a tomar GPCO también durante este segundo semestre del año."
+ },
+ {
+  "id": "311",
+  "mensaje": "¿Todavía hay cupo en transfe o ya no se puede agregar a la carga que tengo?"
+ },
+ {
+  "id": "312",
+  "mensaje": "una pregunta rapida se puede inscribir procesos industriales en el semestre de ahora o ya es muy tarde"
+ },
+ {
+  "id": "313",
+  "mensaje": "Buenas, reprobé evaluacion de proyectos y quiero saber si puedo tomar direccion y control de proyectos para el 2027-1 o si me lo bloquea."
+ },
+ {
+  "id": "314",
+  "mensaje": "Estoy cursando ingenieria economica, ¿evaluación de proyectos la podría dejar inscrita para cuando ya la tenga aprobada?"
+ }
+]

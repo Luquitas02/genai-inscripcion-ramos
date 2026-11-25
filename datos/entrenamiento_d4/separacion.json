@@ -1,0 +1,11 @@
+{
+ "casos_prueba": 239,
+ "pares_entrenamiento": 1429,
+ "1_mismo_historial_y_consulta": 0,
+ "2_preguntas_iguales": 0,
+ "2_preguntas_casi_iguales_difflib_mayor_0.85": 0,
+ "2_similitud_maxima": 0.848,
+ "3_preguntas_de_prueba_con_6gramas": 237,
+ "3_fraccion_6gramas_en_entrenamiento": 0.0727,
+ "3_fraccion_6gramas_en_resto_de_la_prueba": 0.0848
+}
