@@ -24,10 +24,10 @@ BASE = Path(__file__).resolve().parent.parent
 SALIDA = BASE / "prueba_d4_colab.ipynb"
 REPO = "https://github.com/Luquitas02/genai-inscripcion-ramos"
 # Se llenan después de publicar el adaptador (publicado_hf.json del notebook de entrenamiento).
-COMMIT = ""
-REPO_HF = ""
-REVISION = ""
-SHA_ADAPTADOR = ""
+COMMIT = "3b5ec6e"
+REPO_HF = "Lss02/phi35-mini-interprete-inscripcion-lora"
+REVISION = "99262ad193b13a1736601dcb48716e05b033bf63"
+SHA_ADAPTADOR = "2a88dfd091660d2e036e70fd1fb10aa20af21c285898cf8758b26b57be55c052"
 
 
 def md(t):
