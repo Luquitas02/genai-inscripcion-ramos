@@ -393,3 +393,9 @@ Caso de falla. Límites.
   de pares de plantilla como en el piloto: 27 ejemplos, 3.524 tokens con la consulta más larga
   (el del piloto medía 4.031 con el mismo tokenizador). Configuración `control_d4`. (3) La prueba
   tiene 239 casos y no 240 (uno descartado en la lectura del 24 nov).
+- **28 nov. Regla fija sobre la prueba sellada** (en local, como fija el protocolo): 38/60 en
+  plantilla y 57/179 en redactados, 95/239. `scripts/analisis_d4.py` escrito y validado sobre el
+  piloto (reproduce D3 52/60, ajustado 48/60, gana 2 y pierde 6, estricto 49 y 42). Al probar
+  su lectura de la prueba con filas falsas (copias de la regla fija), la salida mostró a Claude el
+  texto de un redactado sellado (`id_d4` 3). Se declara. No cambia nada: sistema, datos de
+  entrenamiento, control y protocolo ya estaban fijados en `ceadb14`.

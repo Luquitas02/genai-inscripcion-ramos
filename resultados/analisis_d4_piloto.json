@@ -1,0 +1,96 @@
+{
+ "n": 60,
+ "filas": {
+  "D3": {
+   "conjunto": 52,
+   "por_bloque": {
+    "piloto": [
+     52,
+     60
+    ]
+   },
+   "estricto": 49,
+   "periodo_interprete": 53,
+   "casos_con_ilegibles": 0,
+   "sin_ramo": 0,
+   "casos_con_rechazo": 10,
+   "casos_con_revision_del_interprete": 10
+  },
+  "D4": {
+   "conjunto": 48,
+   "por_bloque": {
+    "piloto": [
+     48,
+     60
+    ]
+   },
+   "estricto": 42,
+   "periodo_interprete": 48,
+   "casos_con_ilegibles": 0,
+   "sin_ramo": 0,
+   "casos_con_rechazo": 11,
+   "casos_con_revision_del_interprete": 12
+  },
+  "control": {
+   "conjunto": 37,
+   "por_bloque": {
+    "piloto": [
+     37,
+     60
+    ]
+   },
+   "estricto": 34,
+   "periodo_interprete": 50,
+   "casos_con_ilegibles": 20,
+   "sin_ramo": 20,
+   "casos_con_rechazo": 5,
+   "casos_con_revision_del_interprete": 5
+  }
+ },
+ "comparaciones": {
+  "D4 contra D3": {
+   "gana": 2,
+   "pierde": 6,
+   "p": 0.2890625,
+   "principal": true
+  },
+  "D4 contra control": {
+   "gana": 14,
+   "pierde": 3,
+   "p": 0.012725830078125,
+   "principal": false
+  },
+  "control contra D3": {
+   "gana": 2,
+   "pierde": 17,
+   "p": 0.000728607177734375,
+   "principal": false
+  }
+ },
+ "d3_acierta_d4_falla": [
+  [
+   "piloto",
+   "1"
+  ],
+  [
+   "piloto",
+   "7"
+  ],
+  [
+   "piloto",
+   "9"
+  ],
+  [
+   "piloto",
+   "12"
+  ],
+  [
+   "piloto",
+   "14"
+  ],
+  [
+   "piloto",
+   "16"
+  ]
+ ]
+}
