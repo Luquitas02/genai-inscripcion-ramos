@@ -68,6 +68,10 @@ CONFIGURACIONES = {
     # que los de entrenamiento (scripts/gen_prompt_control_d4.py). El resto, igual.
     "control_muchos_ejemplos": {"interprete": "d4/interprete_muchos_ejemplos.md", "ejemplos": True,
                                 "resolvedor": "agente", "verificador": True},
+    # D4, prueba sellada: el control de PROTOCOLO_D4.md. El prompt v3 con 27 ejemplos de los
+    # datos de entrenamiento, bajo 3.600 tokens de entrada (scripts/gen_prompt_control_d4.py).
+    "control_d4":         {"interprete": "d4/interprete_control.md", "ejemplos": True,
+                           "resolvedor": "agente", "verificador": True},
 }
 
 

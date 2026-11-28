@@ -53,7 +53,7 @@ def _pruebas():
     assert es_interprete(p["interprete"].mensajes(pregunta="x", revision=""))
     assert not es_interprete(p["resolvedor"].mensajes(consultado="x", otros="", candidatos="",
                                                        busquedas=""))
-    for archivo in ("d4/interprete_muchos_ejemplos.md", "ablaciones/interprete_sin_citas.md"):
+    for archivo in ("d4/interprete_muchos_ejemplos.md", "d4/interprete_control.md", "ablaciones/interprete_sin_citas.md"):
         import agentes as A
         assert es_interprete(A.Prompt(archivo).mensajes(pregunta="x", revision="")), archivo
     print("modelo_d4: el Intérprete se reconoce en todos sus prompts y el Resolvedor no")

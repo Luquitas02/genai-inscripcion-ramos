@@ -382,3 +382,14 @@ Caso de falla. Límites.
   error de etiqueta) e incorrecta. Si hay 2 o más incorrectas en la segunda, se corrige la
   instrucción y se regenera. Límite que se declara: parte de los apodos los inventó el modelo
   redactor. Los dos revisores aplicaron criterios distintos en la primera vuelta.
+- **28 nov. Segunda revisión manual devuelta: 0 incorrectas** (Joaquín 27 correctas y 3 "suena
+  raro pero se entiende", Renato 29 y 1; los 4 "suena raro" son apodos: GPCO, evapro, compo
+  organizacional, compo orga). Por la regla del 25 nov se entrena sin regenerar.
+- **28 nov. `PROTOCOLO_D4.md`** subido antes de entrenar. Cambios respecto del plan, todos
+  antes de ver resultados: (1) `entrenar_d4.py` guarda un checkpoint por época en Drive y retoma
+  desde el último, y la validación se mide cada 23 pasos, que divide los 161 de cada época
+  (medido en CPU con un modelo diminuto: 18 pares dan 3 pasos por época, o sea se redondea hacia
+  arriba). (2) El control de la prueba toma sus ejemplos de los datos de entrenamiento reales, no
+  de pares de plantilla como en el piloto: 27 ejemplos, 3.524 tokens con la consulta más larga
+  (el del piloto medía 4.031 con el mismo tokenizador). Configuración `control_d4`. (3) La prueba
+  tiene 239 casos y no 240 (uno descartado en la lectura del 24 nov).

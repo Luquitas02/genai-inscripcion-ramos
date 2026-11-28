@@ -39,6 +39,11 @@ def main():
     ap.add_argument("--max-length", type=int, default=2048)
     ap.add_argument("--semilla", type=int, default=20261114)
     ap.add_argument("--modelo", default=MODELO)
+    ap.add_argument("--eval-steps", type=int, default=5,
+                    help="cada cuántos pasos se mide la pérdida de validación (el piloto usó 5)")
+    ap.add_argument("--checkpoints", default=None,
+                    help="carpeta (en Drive) donde se guarda el adaptador al final de cada época; "
+                         "si ya hay checkpoints ahí, el entrenamiento retoma desde el último")
     ap.add_argument("--prueba-cpu", action="store_true",
                     help="sin GPU, sin 4 bits y en fp32: solo para probar el código con un modelo diminuto")
     a = ap.parse_args()
@@ -70,12 +75,14 @@ def main():
     lora = LoraConfig(r=a.rango, lora_alpha=2 * a.rango, lora_dropout=0.05,
                       target_modules="all-linear", task_type="CAUSAL_LM")
     args = SFTConfig(
-        output_dir=str(salida / "checkpoints"), num_train_epochs=a.epocas, learning_rate=a.lr,
+        output_dir=a.checkpoints or str(salida / "checkpoints"), num_train_epochs=a.epocas,
+        learning_rate=a.lr,
         per_device_train_batch_size=a.batch, per_device_eval_batch_size=a.batch,
         gradient_accumulation_steps=a.acumulacion, max_length=a.max_length,
         completion_only_loss=True, fp16=not cpu, bf16=False, gradient_checkpointing=not cpu,
         use_cpu=cpu,
-        logging_steps=1, eval_strategy="steps", eval_steps=5, save_strategy="no",
+        logging_steps=1, eval_strategy="steps", eval_steps=a.eval_steps,
+        save_strategy="epoch" if a.checkpoints else "no",
         lr_scheduler_type="linear", warmup_steps=3, seed=a.semilla, report_to="none",
     )
     entrenador = SFTTrainer(model=modelo, args=args, train_dataset=ds["train"],
@@ -90,8 +97,11 @@ def main():
 
     if not cpu:
         torch.cuda.reset_peak_memory_stats()
+    retomar = bool(a.checkpoints) and any(Path(a.checkpoints).glob("checkpoint-*"))
+    if retomar:
+        print("retomando desde el último checkpoint en", a.checkpoints)
     t0 = time.perf_counter()
-    entrenador.train()
+    entrenador.train(resume_from_checkpoint=True if retomar else None)
     segundos = time.perf_counter() - t0
     final = entrenador.evaluate()
 
@@ -108,6 +118,8 @@ def main():
         "semilla": a.semilla, "precision": "fp16", "perdida": "solo la respuesta (prompt-completion)",
         "n_entrenamiento": len(ds["train"]), "n_validacion": len(ds["validation"]),
         "pasos": entrenador.state.global_step, "segundos": round(segundos, 1),
+        "retomado": retomar,  # si es True, "segundos" cuenta solo el tramo después de retomar
+        "eval_steps": a.eval_steps,
         "memoria_max_gb": None if cpu else round(torch.cuda.max_memory_allocated() / 2 ** 30, 2),
         "gpu": "cpu (prueba)" if cpu else torch.cuda.get_device_name(0),
         "parametros_entrenables": entrenables, "parametros_total": total,
