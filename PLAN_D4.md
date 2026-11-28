@@ -399,3 +399,16 @@ Caso de falla. Límites.
   su lectura de la prueba con filas falsas (copias de la regla fija), la salida mostró a Claude el
   texto de un redactado sellado (`id_d4` 3). Se declara. No cambia nada: sistema, datos de
   entrenamiento, control y protocolo ya estaban fijados en `ceadb14`.
+- **28 nov. Entrenamiento y publicación.** 2 épocas, 322 pasos, 114 min en T4, 3,6 GB, sin
+  cortes. Pérdida de validación de 0,033 (paso 23) a 0,0113 (paso 322). En el piloto las dos
+  épocas dan 55/60 y el control `control_d4` 52/60 con 0 ilegibles (bajo el límite de 3, no se
+  reconstruye). Por empate se eligió la época 2, de menor pérdida de validación. Publicada en
+  `Lss02/phi35-mini-interprete-inscripcion-lora`, revisión `99262ad`, sha256 del adaptador
+  `2a88dfd0…` (comprobado también bajándolo en local). Registro en `resultados/entrenamiento_d4/`.
+- **28 nov. Prueba sellada, arreglo en la celda de Drive.** El chequeo de choque de nombres de
+  `prueba_d4_colab.ipynb` (`bef0724`) buscaba `*__d4_plantilla.raw.jsonl` en `resultados/` y dio
+  con los dos archivos de la regla fija subidos en `a1922f7`. No chocan con ninguna salida de la
+  prueba (D1 y D2 escriben con prefijo `Phi-3.5…` y `pipeline__…`; los agentes, en Drive). Se
+  borraron de la copia de Colab con una celda agregada a mano antes de la sección 3. No toca
+  casos, prompts, adaptador ni análisis, que lee la regla fija del repositorio local. La prueba
+  se corrió desde otra cuenta de Colab de Lucas por el cupo de GPU.
