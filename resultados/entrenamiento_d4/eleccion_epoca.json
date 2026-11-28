@@ -1,0 +1,23 @@
+{
+ "epocas": {
+  "1": {
+   "checkpoint": "checkpoint-161",
+   "conjunto": 55,
+   "ilegibles": 0,
+   "llamadas_con_adaptador": 71,
+   "eval_loss": 0.012687607668340206
+  },
+  "2": {
+   "checkpoint": "checkpoint-322",
+   "conjunto": 55,
+   "ilegibles": 0,
+   "llamadas_con_adaptador": 71,
+   "eval_loss": 0.011317200027406216
+  }
+ },
+ "elegida": 2,
+ "checkpoint": "checkpoint-322",
+ "control_casos_con_ilegibles": 0,
+ "commit": "ceadb14d9d",
+ "regla": "m\u00e1s acierto conjunto en el piloto; si empatan, menor p\u00e9rdida de validaci\u00f3n"
+}
