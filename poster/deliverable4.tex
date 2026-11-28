@@ -66,7 +66,7 @@
 \textbf{Grupo 3:} Joaquín Sepúlveda · Renato Saavedra · Lucas Saldivia \quad\textbullet\quad
 \textbf{Base:} \cod{microsoft/Phi-3.5-mini-instruct}, 3,8B, NF4, T4 de Colab\\
 \textbf{Repositorio:} \href{https://github.com/Luquitas02/genai-inscripcion-ramos}{\cod{github.com/Luquitas02/genai-inscripcion-ramos}} \quad\textbullet\quad
-\textbf{Adaptador:} {\small\url{https://huggingface.co/Lss02/phi35-mini-interprete-inscripcion-lora}} (revisión \PEND{rev}) \quad\textbullet\quad
+\textbf{Adaptador:} {\small\url{https://huggingface.co/Lss02/phi35-mini-interprete-inscripcion-lora}} (revisión \texttt{99262ad}) \quad\textbullet\quad
 \textbf{Video:} \PEND{link}}
 
 \vspace{1mm}
@@ -185,11 +185,11 @@ de la propia prueba.\par}
 
 {\footnotesize
 QLoRA (Lecture 8). Base en NF4 congelada, LoRA de rango 16, alpha 32, dropout 0,05 en todas las
-capas lineales (\PEND{N} parámetros entrenables, \PEND{x}\,\% del total). Learning rate 2e-4
+capas lineales (25,2 millones de parámetros entrenables, menos del 1\,\% del modelo). Learning rate 2e-4
 lineal, 3 pasos de calentamiento, batch 2 por 4 de acumulación, fp16, pérdida solo sobre la
-respuesta. 2 épocas, 322 pasos, \PEND{min} min en una Tesla T4 de Colab gratuita, \PEND{GB} GB de
-memoria. Se eligió la época \PEND{e} por su acierto en los 60 del piloto (\PEND{e1} contra
-\PEND{e2}), con la regla del protocolo.\par}
+respuesta. 2 épocas, 322 pasos, 114 min en una Tesla T4 de Colab gratuita, 3,6 GB de
+memoria. Las dos épocas acertaron 55 de 60 en el piloto y la regla del protocolo desempató por
+la pérdida de validación (0,0127 en la primera y 0,0113 en la segunda), así que se publicó la segunda.\par}
 
 \vspace{0.3mm}
 \begin{center}
