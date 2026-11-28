@@ -21,7 +21,7 @@ BASE = Path(__file__).resolve().parent.parent
 SALIDA = BASE / "entrenamiento_d4_colab.ipynb"
 REPO = "https://github.com/Luquitas02/genai-inscripcion-ramos"
 # El commit que sube PROTOCOLO_D4.md. Se escribe acá en un commit aparte, después.
-COMMIT = ""
+COMMIT = "ceadb14"
 NOMBRE_HF = "phi35-mini-interprete-inscripcion-lora"
 
 
